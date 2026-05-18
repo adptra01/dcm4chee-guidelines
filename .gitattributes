@@ -1,0 +1,62 @@
+# Auto-detect text files and normalize line endings to LF
+* text=auto
+
+# Shell scripts must be LF (Linux) to execute properly
+*.sh text eol=lf
+
+# Batch scripts must be CRLF (Windows) to execute properly
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# YAML / YML files - LF
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# Markdown - LF
+*.md text eol=lf
+
+# Environment files - LF
+*.env text eol=lf
+*.env.template text eol=lf
+
+# Dockerfiles - LF
+Dockerfile text eol=lf
+Dockerfile.* text eol=lf
+
+# Makefiles - LF (tabs matter!)
+Makefile text eol=lf
+makefile text eol=lf
+GNUmakefile text eol=lf
+
+# Config files - LF
+*.cfg text eol=lf
+*.conf text eol=lf
+*.ini text eol=lf
+*.toml text eol=lf
+
+# Certificate files - binary (do not touch)
+*.pem binary
+*.cert binary
+*.crt binary
+*.key binary
+
+# Archive files - binary
+*.zip binary
+*.tar binary
+*.gz binary
+
+# Images - binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text eol=lf
+
+# Database files - binary
+*.db binary
+*.sqlite binary
+
+# Lock files - binary
+package-lock.json text eol=lf
+yarn.lock binary
