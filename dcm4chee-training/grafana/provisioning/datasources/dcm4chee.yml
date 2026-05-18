@@ -1,0 +1,14 @@
+apiVersion: 1
+
+datasources:
+  - name: DCM4CHEE PostgreSQL
+    type: postgres
+    access: proxy
+    url: db:5432
+    database: pacsdb
+    user: pacs
+    secureJsonData:
+      password: pacs
+    jsonData:
+      sslmode: disable
+    editable: true

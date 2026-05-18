@@ -1,0 +1,75 @@
+services:
+  ldap:
+    image: dcm4che/slapd-dcm4chee:2.6.10-34.2
+    container_name: dcm4chee-ldap
+    environment:
+      SLAPD_PASSWORD: changeit
+      SLAPD_DOMAIN: dcm4che.org
+      SLAPD_ORGANIZATION: dcm4che
+    ports:
+      - "389:389"
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
+    healthcheck:
+      test: ["CMD", "ldapwhoami", "-x", "-H", "ldap://localhost", "-D", "cn=admin,dc=dcm4che,dc=org", "-w", "changeit"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  db:
+    image: dcm4che/postgres-dcm4chee:17.4-34
+    container_name: dcm4chee-db
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: dcm4chee
+      POSTGRES_DB: dcm4chee
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dcm4chee -d dcm4chee"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  arc:
+    image: dcm4che/dcm4chee-arc-psql:5.34.2
+    container_name: dcm4chee-arc
+    environment:
+      ARCHIVE_DEVICE_NAME: DCM4CHEE
+      ARCHIVE_STORAGE_DIR: /home/data/dcm4chee/archive
+      ARCHIVE_PORT: 8080
+      ARCHIVE_DICOM_PORT: 11112
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: dcm4chee
+      POSTGRES_DB: dcm4chee
+      LDAP_URL: ldap://ldap:389
+      LDAP_BASE_DN: dc=dcm4che,dc=org
+      LDAP_USER: cn=admin,dc=dcm4che,dc=org
+      LDAP_PASSWORD: changeit
+    ports:
+      - "8080:8080"
+      - "9990:9990"
+      - "11112:11112"
+    volumes:
+      - ./storage:/home/data/dcm4chee/archive
+    depends_on:
+      db:
+        condition: service_healthy
+      ldap:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/dcm4chee-arc/ui2/"]
+      interval: 60s
+      timeout: 30s
+      retries: 10
+      start_period: 180s
+
+volumes:
+  ldap_data:
+  db_data:
+  storage:

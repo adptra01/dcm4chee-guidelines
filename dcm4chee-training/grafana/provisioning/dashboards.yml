@@ -1,0 +1,7 @@
+apiVersion: 1
+
+providers:
+  - name: DCM4CHEE Datasources
+    type: file
+    options:
+      path: /etc/grafana/provisioning/datasources

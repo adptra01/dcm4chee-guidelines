@@ -1,0 +1,174 @@
+# ============================================================
+# DCM4CHEE Archive 5.x - Level 2: Intermediate
+# ============================================================
+# Untuk RS menengah: 3-8 modality, 50-200 study/hari
+# Menambah: Monitoring, OHIF Viewer, Backup automation
+#
+# Services: LDAP + PostgreSQL + Archive + Grafana + OHIF Viewer
+#
+# Usage:
+#   docker compose -f docker-compose.level1-basic.yml -f docker-compose.level2-intermediate.yml up -d
+#   docker compose -f docker-compose.level2-intermediate.yml up -d
+# ============================================================
+
+services:
+
+  # ─────────────────────────────────────────────────────────
+  # Semua service dari Level 1 (di-inherit)
+  # ─────────────────────────────────────────────────────────
+  ldap:
+    extends:
+      file: docker-compose.level1-basic.yml
+      service: ldap
+
+  db:
+    extends:
+      file: docker-compose.level1-basic.yml
+      service: db
+
+  arc:
+    extends:
+      file: docker-compose.level1-basic.yml
+      service: arc
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pacsdb}
+      POSTGRES_USER: ${POSTGRES_USER:-pacs}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pacs}
+      ARCHIVE_STORAGE_DIR: /storage/archive
+      ARCHIVE_PORT: 8080
+      ARCHIVE_SSL_PORT: 8443
+      ARCHIVE_DICOM_PORT: 11112
+      LDAP_URL: ldap://ldap:389
+      LDAP_BASE_DN: dc=dcm4che,dc=org
+      LDAP_USER: cn=admin,dc=dcm4che,dc=org
+      LDAP_PASSWORD: ${LDAP_PASSWORD:-secret}
+      LDAP_ROOTPASS: ${LDAP_PASSWORD:-secret}
+      WILDFLY_WAIT_FOR: ldap:389 db:5432
+      WILDFLY_CHOWN: /storage
+      # Increased heap untuk RS menengah
+      WILDFLY_JAVA_OPTS: "-Xms2g -Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+    volumes:
+      - storage_data:/storage/archive
+      - wildfly_data:/opt/wildfly/standalone
+      - ./backup/archive:/backup
+
+  # ─────────────────────────────────────────────────────────
+  # Grafana - Monitoring Dashboard
+  # Visualisasi metrics dari Prometheus (jika di-enable)
+  # ─────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: dcm4chee-grafana
+    hostname: grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin123}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: http://localhost:3000
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: db:5432
+      GF_DATABASE_NAME: ${POSTGRES_DB:-pacsdb}
+      GF_DATABASE_USER: ${POSTGRES_USER:-pacs}
+      GF_DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-pacs}
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dcm4chee-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ─────────────────────────────────────────────────────────
+  # OHIF Viewer - Web-based DICOM Viewer
+  # Viewer untuk radiologist membaca study
+  # ─────────────────────────────────────────────────────────
+  ohif-viewer:
+    image: ohif/viewer:latest
+    container_name: dcm4chee-ohif
+    hostname: ohif-viewer
+    environment:
+      # Konfigurasi DCM4CHEE sebagai datasource
+      NODE_ENV: development
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./ohif-config:/usr/src/app/public/config:ro
+    depends_on:
+      arc:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dcm4chee-net
+
+  # ─────────────────────────────────────────────────────────
+  # Backup Scheduler - Automated Backup
+  # Backup database setiap 6 jam, storage setiap jam
+  # ─────────────────────────────────────────────────────────
+  backup-scheduler:
+    image: ubuntu:22.04
+    container_name: dcm4chee-backup
+    hostname: backup-scheduler
+    environment:
+      BACKUP_DEST: /backup
+      ARCHIVE_DIR: /archive
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-pacsdb}
+      DB_USER: ${POSTGRES_USER:-pacs}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-pacs}
+      LDAP_HOST: ldap
+      LDAP_PASSWORD: ${LDAP_PASSWORD:-secret}
+      SCHEDULE_DB: "0 */6 * * *"    # Every 6 hours
+      SCHEDULE_STORAGE: "30 * * * *" # Every hour
+    volumes:
+      - ./backup:/backup
+      - ./backup/scripts:/scripts
+      - storage_data:/storage/archive:ro
+      - wildfly_data:/opt/wildfly/standalone:ro
+    entrypoint: ["/bin/bash", "/scripts/entrypoint.sh"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - dcm4chee-net
+
+# ─────────────────────────────────────────────────────────
+# Named Volumes (extend from Level 1)
+# ─────────────────────────────────────────────────────────
+volumes:
+  ldap_data:
+    external: true
+    name: dcm4chee_level1_ldap_data
+  ldap_config:
+    external: true
+    name: dcm4chee_level1_ldap_config
+  db_data:
+    external: true
+    name: dcm4chee_level1_db_data
+  storage_data:
+    external: true
+    name: dcm4chee_level1_storage
+  wildfly_data:
+    external: true
+    name: dcm4chee_level1_wildfly
+  grafana_data:
+    name: dcm4chee_level2_grafana
+
+# ─────────────────────────────────────────────────────────
+# Network
+# ─────────────────────────────────────────────────────────
+networks:
+  dcm4chee-net:
+    name: dcm4chee_level2_net
+    external: true

@@ -1,0 +1,160 @@
+# ============================================================
+# DCM4CHEE Archive 5.x - Podman Compose (Podman Native)
+# ============================================================
+# Level 1: Basic (RS Kecil - 1-2 Modality, < 50 study/hari)
+#
+# Usage with Podman (native compose):
+#   podman compose -f podman-compose.level1.yml up -d
+#   podman compose -f podman-compose.level1.yml logs -f
+#   podman compose -f podman-compose.level1.yml down
+#
+# OR use the helper scripts:
+#   ./podman-up.sh      # Start all services
+#   ./podman-down.sh    # Stop all services
+# ============================================================
+
+# Podman compose version
+version: "4.0.0"
+
+# ─────────────────────────────────────────────────────────
+# Services / Containers
+# ─────────────────────────────────────────────────────────
+services:
+
+  # ─────────────────────────────────────────────────────────
+  # OpenLDAP - Configuration Storage
+  # Menyimpan semua konfigurasi DCM4CHEE
+  # sesuai standar DICOM Part 15 Annex H
+  # ─────────────────────────────────────────────────────────
+  ldap:
+    container_name: dcm4chee-ldap
+    hostname: ldap
+    image: docker.io/dcm4che/slapd-dcm4chee:2.6.10-34.2
+    labels:
+      application: dcm4chee
+      tier: infrastructure
+    environment:
+      LDAP_ROOTPASS: ${LDAP_PASSWORD:-secret}
+      LDAP_CONFIGPASS: ${LDAP_PASSWORD:-secret}
+      SLAPD_DOMAIN: ${LDAP_DOMAIN:-dcm4che.org}
+      SLAPD_ORGANIZATION: ${LDAP_ORG:-dcm4che}
+      STORAGE_DIR: /storage/fs1
+    ports:
+      - "389:389"
+    volumes:
+      - dcm4chee_ldap_data:/var/lib/openldap/openldap-data
+      - dcm4chee_ldap_config:/etc/openldap/slapd.d
+    healthcheck:
+      interval: "30s"
+      timeout: "10s"
+      retries: 5
+      start_period: "60s"
+      command: ldapwhoami -x -H ldap://localhost -D cn=admin,dc=dcm4che,dc=org -w ${LDAP_PASSWORD:-secret}
+    restart: unless-stopped
+    networks:
+      - dcm4chee-net
+
+  # ─────────────────────────────────────────────────────────
+  # PostgreSQL - Metadata Database
+  # ─────────────────────────────────────────────────────────
+  db:
+    container_name: dcm4chee-db
+    hostname: db
+    image: docker.io/dcm4che/postgres-dcm4chee:17.4-34
+    labels:
+      application: dcm4chee
+      tier: infrastructure
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pacsdb}
+      POSTGRES_USER: ${POSTGRES_USER:-pacs}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pacs}
+    ports:
+      - "5432:5432"
+    volumes:
+      - dcm4chee_db_data:/var/lib/postgresql/data
+    healthcheck:
+      interval: "30s"
+      timeout: "10s"
+      retries: 5
+      start_period: "60s"
+      command: pg_isready -U ${POSTGRES_USER:-pacs} -d ${POSTGRES_DB:-pacsdb}
+    restart: unless-stopped
+    networks:
+      - dcm4chee-net
+
+  # ─────────────────────────────────────────────────────────
+  # DCM4CHEE Archive - Core PACS
+  # ─────────────────────────────────────────────────────────
+  arc:
+    container_name: dcm4chee-arc
+    hostname: arc
+    image: docker.io/dcm4che/dcm4chee-arc-psql:5.34.2
+    labels:
+      application: dcm4chee
+      tier: application
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pacsdb}
+      POSTGRES_USER: ${POSTGRES_USER:-pacs}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pacs}
+      ARCHIVE_STORAGE_DIR: /storage/archive
+      ARCHIVE_PORT: "8080"
+      ARCHIVE_SSL_PORT: "8443"
+      ARCHIVE_DICOM_PORT: "11112"
+      LDAP_URL: ldap://ldap:389
+      LDAP_BASE_DN: dc=dcm4che,dc=org
+      LDAP_USER: cn=admin,dc=dcm4che,dc=org
+      LDAP_PASSWORD: ${LDAP_PASSWORD:-secret}
+      LDAP_ROOTPASS: ${LDAP_PASSWORD:-secret}
+      WILDFLY_WAIT_FOR: "ldap:389 db:5432"
+      WILDFLY_CHOWN: /storage
+      WILDFLY_JAVA_OPTS: "-Xms1g -Xmx2g -XX:+UseG1GC"
+    ports:
+      - "8080:8080"       # HTTP - Web UI & REST API
+      - "8443:8443"       # HTTPS
+      - "9990:9990"       # WildFly Admin Console (HTTP)
+      - "9993:9993"       # WildFly Admin Console (HTTPS)
+      - "11112:11112"    # DICOM - Storage SCP / Query-Retrieve SCP
+      - "2762:2762"      # HL7 MLLP - ORM Orders (MWL)
+      - "2575:2575"      # HL7 MLLP - ADT Patient Events
+    volumes:
+      - dcm4chee_storage_data:/storage/archive
+      - dcm4chee_wildfly_data:/opt/wildfly/standalone
+    depends_on:
+      ldap:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    healthcheck:
+      interval: "60s"
+      timeout: "30s"
+      retries: 10
+      start_period: "300s"
+      command: curl -kf http://localhost:8080/dcm4chee-arc/ui2/
+    restart: unless-stopped
+    networks:
+      - dcm4chee-net
+
+# ─────────────────────────────────────────────────────────
+# Named Volumes
+# ─────────────────────────────────────────────────────────
+volumes:
+  dcm4chee_ldap_data:
+    driver: local
+  dcm4chee_ldap_config:
+    driver: local
+  dcm4chee_db_data:
+    driver: local
+  dcm4chee_storage_data:
+    driver: local
+  dcm4chee_wildfly_data:
+    driver: local
+
+# ─────────────────────────────────────────────────────────
+# Network
+# ─────────────────────────────────────────────────────────
+networks:
+  dcm4chee-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "172.28.0.0/16"
