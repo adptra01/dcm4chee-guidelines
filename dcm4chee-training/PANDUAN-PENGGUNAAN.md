@@ -52,7 +52,7 @@
 **1a. Start semua container (Docker)**
 
 ```bash
-cd /mnt/DiskD/Projects/DCM4CHE/dcm4chee-training
+cd ~/dcm4chee-training
 
 docker compose -f docker-compose.level1-basic.yml up -d
 ```
@@ -66,7 +66,7 @@ docker compose -f docker-compose.level1-basic.yml up -d
 **1b. Start semua container (Podman)**
 
 ```bash
-cd /mnt/DiskD/Projects/DCM4CHE/dcm4chee-training
+cd ~/dcm4chee-training
 
 podman compose -f podman-compose.level1.yml up -d
 
@@ -1168,7 +1168,7 @@ I: C-STORE response: Success
 
 ```bash
 # Buat direktori backup
-mkdir -p /mnt/DiskD/Projects/DCM4CHE/dcm4chee-training/backup/db
+mkdir -p ~/dcm4chee-training/backup/db
 
 # Backup via pg_dump
 docker exec dcm4chee-db pg_dump \
@@ -1187,7 +1187,7 @@ docker exec dcm4chee-db pg_dump \
 **15b. Cek file backup terbuat**
 
 ```bash
-ls -lh /mnt/DiskD/Projects/DCM4CHE/dcm4chee-training/backup/db/
+ls -lh ~/dcm4chee-training/backup/db/
 # Output: pacsdb-20250115_120000.dump  (size: 15MB)
 ```
 
@@ -1203,7 +1203,7 @@ crontab -e
 
 ```bash
 # Backup storage via rsync
-rsync -avz /mnt/DiskD/Projects/DCM4CHE/dcm4chee-training/storage_data/ \
+rsync -avz ~/dcm4chee-training/storage_data/ \
   /mnt/backup/dcm4chee-storage-$(date +%Y%m%d)/
 ```
 
@@ -1259,7 +1259,7 @@ docker exec dcm4chee-db psql -U pacs -c "CREATE DATABASE pacsdb OWNER pacs;"
 
 ```bash
 # Cari file backup terbaru
-ls -lt /mnt/DiskD/Projects/DCM4CHE/dcm4chee-training/backup/db/
+ls -lt ~/dcm4chee-training/backup/db/
 # Pilih file yang akan di-restore
 
 # Restore
@@ -1720,7 +1720,7 @@ docker logs dcm4chee-db --tail 50
 
 # Error umum: data directory permissions
 # Solusi:
-sudo chown -R 70:70 /mnt/DiskD/Projects/DCM4CHE/dcm4chee-training/.data/db
+sudo chown -R 70:70 ~/dcm4chee-training/.data/db
 
 # Error umum: port 5432 dipakai
 sudo ss -tlnp | grep 5432
@@ -1730,7 +1730,7 @@ sudo ss -tlnp | grep 5432
 
 ```bash
 # Hapus semua container dan volume, mulai dari awal
-cd /mnt/DiskD/Projects/DCM4CHE/dcm4chee-training
+cd ~/dcm4chee-training
 
 docker compose -f docker-compose.level1-basic.yml down -v
 docker system prune -f --volumes
