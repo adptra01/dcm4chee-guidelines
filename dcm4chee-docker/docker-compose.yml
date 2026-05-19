@@ -58,10 +58,8 @@ services:
     volumes:
       - ./storage:/home/data/dcm4chee/archive
     depends_on:
-      db:
-        condition: service_healthy
-      ldap:
-        condition: service_healthy
+      - db
+      - ldap
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/dcm4chee-arc/ui2/"]
       interval: 60s
@@ -71,5 +69,6 @@ services:
 
 volumes:
   ldap_data:
+  ldap_config:
   db_data:
   storage:
