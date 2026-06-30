@@ -1,0 +1,22 @@
+2026-06-29 06:30:03,900 WARN  [org.keycloak.truststore.FileTruststoreProviderFactory] (main) Using deprecated 'spi-truststore-file-*' options. Consider using 'truststore-paths' option.
+2026-06-29 06:30:05,641 INFO  [org.keycloak.quarkus.runtime.storage.infinispan.CacheManagerFactory] (main) Starting Infinispan embedded cache manager
+2026-06-29 06:30:06,150 INFO  [org.infinispan.CONTAINER] (ForkJoinPool.commonPool-worker-1) ISPN000556: Starting user marshaller 'org.infinispan.commons.marshall.ImmutableProtoStreamMarshaller'
+2026-06-29 06:30:06,366 WARN  [org.jgroups.stack.Configurator] (ForkJoinPool.commonPool-worker-1) JGRP000014: ThreadPool.thread_dumps_threshold has been deprecated: ignored
+2026-06-29 06:30:06,374 INFO  [org.infinispan.CLUSTER] (ForkJoinPool.commonPool-worker-1) ISPN000078: Starting JGroups channel `ISPN` with stack `udp`
+2026-06-29 06:30:06,375 INFO  [org.jgroups.JChannel] (ForkJoinPool.commonPool-worker-1) local_addr: e655a341-2675-4618-a043-6d28f72dfd40, name: 6891fa4fedd8-65279
+2026-06-29 06:30:06,380 WARN  [org.jgroups.protocols.UDP] (ForkJoinPool.commonPool-worker-1) JGRP000015: the receive buffer of socket MulticastSocket was set to 20MB, but the OS only allocated 4.19MB
+2026-06-29 06:30:06,380 WARN  [org.jgroups.protocols.UDP] (ForkJoinPool.commonPool-worker-1) JGRP000015: the receive buffer of socket MulticastSocket was set to 25MB, but the OS only allocated 4.19MB
+2026-06-29 06:30:06,385 INFO  [org.jgroups.protocols.FD_SOCK2] (ForkJoinPool.commonPool-worker-1) server listening on *.45403
+2026-06-29 06:30:08,389 INFO  [org.jgroups.protocols.pbcast.GMS] (ForkJoinPool.commonPool-worker-1) 6891fa4fedd8-65279: no members discovered after 2002 ms: creating cluster as coordinator
+2026-06-29 06:30:08,394 INFO  [org.infinispan.CLUSTER] (ForkJoinPool.commonPool-worker-1) ISPN000094: Received new cluster view for channel ISPN: [6891fa4fedd8-65279|0] (1) [6891fa4fedd8-65279]
+2026-06-29 06:30:08,444 INFO  [org.infinispan.CLUSTER] (ForkJoinPool.commonPool-worker-1) ISPN000079: Channel `ISPN` local address is `6891fa4fedd8-65279`, physical addresses are `[172.19.0.5:60939]`
+2026-06-29 06:30:08,740 INFO  [org.keycloak.connections.infinispan.DefaultInfinispanConnectionProviderFactory] (main) Node name: 6891fa4fedd8-65279, Site name: null
+2026-06-29 06:30:08,745 INFO  [org.keycloak.broker.provider.AbstractIdentityProviderMapper] (main) Registering class org.keycloak.broker.provider.mappersync.ConfigSyncEventListener
+2026-06-29 06:30:09,456 INFO  [org.keycloak.exportimport.dir.DirImportProvider] (main) Importing from directory /opt/keycloak/bin/../data/import
+2026-06-29 06:30:09,459 INFO  [org.keycloak.services] (main) KC-SERVICES0030: Full model import requested. Strategy: IGNORE_EXISTING
+2026-06-29 06:30:09,673 INFO  [org.keycloak.exportimport.util.ImportUtils] (main) Realm 'dcm4che' already exists. Import skipped
+2026-06-29 06:30:09,673 INFO  [org.keycloak.services] (main) KC-SERVICES0032: Import finished successfully
+2026-06-29 06:30:09,690 WARN  [io.agroal.pool] (main) Datasource '<default>': JDBC resources leaked: 1 ResultSet(s) and 0 Statement(s)
+2026-06-29 06:30:10,082 INFO  [io.quarkus] (main) Keycloak 26.0.6 on JVM (powered by Quarkus 3.15.1) started in 7.314s. Listening on: https://0.0.0.0:8843
+2026-06-29 06:30:10,083 INFO  [io.quarkus] (main) Profile prod activated. 
+2026-06-29 06:30:10,083 INFO  [io.quarkus] (main) Installed features: [agroal, cdi, hibernate-orm, jdbc-mariadb, keycloak, narayana-jta, opentelemetry, reactive-routes, rest, rest-jackson, smallrye-context-propagation, vertx]

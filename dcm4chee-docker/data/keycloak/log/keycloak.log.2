@@ -1,0 +1,39 @@
+2026-06-28 16:46:31,797 WARN  [org.keycloak.truststore.FileTruststoreProviderFactory] (main) Using deprecated 'spi-truststore-file-*' options. Consider using 'truststore-paths' option.
+2026-06-28 16:46:33,750 INFO  [org.keycloak.quarkus.runtime.storage.infinispan.CacheManagerFactory] (main) Starting Infinispan embedded cache manager
+2026-06-28 16:46:34,325 INFO  [org.infinispan.CONTAINER] (ForkJoinPool.commonPool-worker-1) ISPN000556: Starting user marshaller 'org.infinispan.commons.marshall.ImmutableProtoStreamMarshaller'
+2026-06-28 16:46:34,564 WARN  [org.jgroups.stack.Configurator] (ForkJoinPool.commonPool-worker-1) JGRP000014: ThreadPool.thread_dumps_threshold has been deprecated: ignored
+2026-06-28 16:46:34,572 INFO  [org.infinispan.CLUSTER] (ForkJoinPool.commonPool-worker-1) ISPN000078: Starting JGroups channel `ISPN` with stack `udp`
+2026-06-28 16:46:34,573 INFO  [org.jgroups.JChannel] (ForkJoinPool.commonPool-worker-1) local_addr: a7f0279f-0c7d-4a3c-9ed7-645fddf3ebf3, name: 67d67fd82fe6-45240
+2026-06-28 16:46:34,577 WARN  [org.jgroups.protocols.UDP] (ForkJoinPool.commonPool-worker-1) JGRP000015: the receive buffer of socket MulticastSocket was set to 20MB, but the OS only allocated 4.19MB
+2026-06-28 16:46:34,577 WARN  [org.jgroups.protocols.UDP] (ForkJoinPool.commonPool-worker-1) JGRP000015: the receive buffer of socket MulticastSocket was set to 25MB, but the OS only allocated 4.19MB
+2026-06-28 16:46:34,582 INFO  [org.jgroups.protocols.FD_SOCK2] (ForkJoinPool.commonPool-worker-1) server listening on *.25493
+2026-06-28 16:46:34,732 INFO  [org.keycloak.broker.provider.AbstractIdentityProviderMapper] (main) Registering class org.keycloak.broker.provider.mappersync.ConfigSyncEventListener
+2026-06-28 16:46:36,586 INFO  [org.jgroups.protocols.pbcast.GMS] (ForkJoinPool.commonPool-worker-1) 67d67fd82fe6-45240: no members discovered after 2002 ms: creating cluster as coordinator
+2026-06-28 16:46:36,591 INFO  [org.infinispan.CLUSTER] (ForkJoinPool.commonPool-worker-1) ISPN000094: Received new cluster view for channel ISPN: [67d67fd82fe6-45240|0] (1) [67d67fd82fe6-45240]
+2026-06-28 16:46:36,636 INFO  [org.infinispan.CLUSTER] (ForkJoinPool.commonPool-worker-1) ISPN000079: Channel `ISPN` local address is `67d67fd82fe6-45240`, physical addresses are `[10.89.2.5:41029]`
+2026-06-28 16:46:36,923 INFO  [org.keycloak.connections.infinispan.DefaultInfinispanConnectionProviderFactory] (main) Node name: 67d67fd82fe6-45240, Site name: null
+2026-06-28 16:46:36,932 WARN  [org.mariadb.jdbc.message.server.ErrorPacket] (main) Error: 1146-42S02: Table 'keycloak.MIGRATION_MODEL' doesn't exist
+2026-06-28 16:46:37,510 WARN  [org.mariadb.jdbc.message.server.ErrorPacket] (main) Error: 1146-42S02: Table 'keycloak.DATABASECHANGELOG' doesn't exist
+2026-06-28 16:46:37,677 WARN  [liquibase.changelog.DatabaseChangeLog] (main) Due to mariadb SQL limitations, modifyDataType will lose primary key/autoincrement/not null/comment settings explicitly redefined in the change. Use <sql> or <modifySql> to re-specify all configuration if this is the case
+2026-06-28 16:46:37,677 WARN  [liquibase.changelog.DatabaseChangeLog] (main) Due to mariadb SQL limitations, setNullable will lose primary key/autoincrement/not null/comment settings explicitly redefined in the change. Use <sql> or <modifySql> to re-specify all configuration if this is the case
+2026-06-28 16:46:37,693 WARN  [org.mariadb.jdbc.message.server.ErrorPacket] (main) Error: 1146-42S02: Table 'keycloak.DATABASECHANGELOGLOCK' doesn't exist
+2026-06-28 16:46:37,760 WARN  [org.mariadb.jdbc.message.server.ErrorPacket] (main) Error: 1146-42S02: Table 'keycloak.DATABASECHANGELOG' doesn't exist
+2026-06-28 16:46:37,760 INFO  [org.keycloak.quarkus.runtime.storage.database.liquibase.QuarkusJpaUpdaterProvider] (main) Initializing database schema. Using changelog META-INF/jpa-changelog-master.xml
+2026-06-28 16:46:38,079 WARN  [liquibase.changelog.DatabaseChangeLog] (main) Due to mariadb SQL limitations, modifyDataType will lose primary key/autoincrement/not null/comment settings explicitly redefined in the change. Use <sql> or <modifySql> to re-specify all configuration if this is the case
+2026-06-28 16:46:38,079 WARN  [liquibase.changelog.DatabaseChangeLog] (main) Due to mariadb SQL limitations, setNullable will lose primary key/autoincrement/not null/comment settings explicitly redefined in the change. Use <sql> or <modifySql> to re-specify all configuration if this is the case
+2026-06-28 16:46:38,165 WARN  [liquibase.changelog.DatabaseChangeLog] (main) Due to mariadb SQL limitations, modifyDataType will lose primary key/autoincrement/not null/comment settings explicitly redefined in the change. Use <sql> or <modifySql> to re-specify all configuration if this is the case
+2026-06-28 16:46:38,165 WARN  [liquibase.changelog.DatabaseChangeLog] (main) Due to mariadb SQL limitations, setNullable will lose primary key/autoincrement/not null/comment settings explicitly redefined in the change. Use <sql> or <modifySql> to re-specify all configuration if this is the case
+2026-06-28 16:47:07,659 WARN  [io.agroal.pool] (main) Datasource '<default>': JDBC resources leaked: 2 ResultSet(s) and 0 Statement(s)
+2026-06-28 16:47:08,079 INFO  [org.keycloak.exportimport.dir.DirImportProvider] (main) Importing from directory /opt/keycloak/bin/../data/import
+2026-06-28 16:47:08,082 INFO  [org.keycloak.services] (main) KC-SERVICES0050: Initializing master realm
+2026-06-28 16:47:10,598 INFO  [org.keycloak.services] (main) KC-SERVICES0030: Full model import requested. Strategy: OVERWRITE_EXISTING
+2026-06-28 16:47:13,696 INFO  [org.keycloak.exportimport.util.ImportUtils] (main) Realm 'dcm4che' imported
+2026-06-28 16:47:13,803 INFO  [org.keycloak.services] (main) KC-SERVICES0032: Import finished successfully
+2026-06-28 16:47:13,910 INFO  [org.keycloak.services] (main) KC-SERVICES0077: Created temporary admin user with username admin
+2026-06-28 16:47:13,952 WARN  [io.agroal.pool] (main) Datasource '<default>': JDBC resources leaked: 1 ResultSet(s) and 0 Statement(s)
+2026-06-28 16:47:14,409 INFO  [io.quarkus] (main) Keycloak 26.0.6 on JVM (powered by Quarkus 3.15.1) started in 44.542s. Listening on: https://0.0.0.0:8843
+2026-06-28 16:47:14,410 INFO  [io.quarkus] (main) Profile prod activated. 
+2026-06-28 16:47:14,410 INFO  [io.quarkus] (main) Installed features: [agroal, cdi, hibernate-orm, jdbc-mariadb, keycloak, narayana-jta, opentelemetry, reactive-routes, rest, rest-jackson, smallrye-context-propagation, vertx]
+2026-06-28 16:47:37,535 INFO  [org.infinispan.CLUSTER] (Thread-31) ISPN000080: Disconnecting JGroups channel `ISPN`
+2026-06-28 16:47:37,549 INFO  [com.arjuna.ats.jbossatx] (main) ARJUNA032014: Stopping transaction recovery manager
+2026-06-28 16:47:37,560 INFO  [io.quarkus] (main) Keycloak stopped in 0.046s

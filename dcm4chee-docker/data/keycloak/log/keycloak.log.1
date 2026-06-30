@@ -1,0 +1,313 @@
+2026-06-28 16:48:13,680 WARN  [org.keycloak.truststore.FileTruststoreProviderFactory] (main) Using deprecated 'spi-truststore-file-*' options. Consider using 'truststore-paths' option.
+2026-06-28 16:48:15,534 INFO  [org.keycloak.quarkus.runtime.storage.infinispan.CacheManagerFactory] (main) Starting Infinispan embedded cache manager
+2026-06-28 16:48:16,101 INFO  [org.infinispan.CONTAINER] (ForkJoinPool.commonPool-worker-1) ISPN000556: Starting user marshaller 'org.infinispan.commons.marshall.ImmutableProtoStreamMarshaller'
+2026-06-28 16:48:16,363 WARN  [org.jgroups.stack.Configurator] (ForkJoinPool.commonPool-worker-1) JGRP000014: ThreadPool.thread_dumps_threshold has been deprecated: ignored
+2026-06-28 16:48:16,372 INFO  [org.infinispan.CLUSTER] (ForkJoinPool.commonPool-worker-1) ISPN000078: Starting JGroups channel `ISPN` with stack `udp`
+2026-06-28 16:48:16,374 INFO  [org.jgroups.JChannel] (ForkJoinPool.commonPool-worker-1) local_addr: 318f369b-e19e-49c2-81ee-1ef627636e03, name: 5f6ee20df494-52871
+2026-06-28 16:48:16,379 WARN  [org.jgroups.protocols.UDP] (ForkJoinPool.commonPool-worker-1) JGRP000015: the receive buffer of socket MulticastSocket was set to 20MB, but the OS only allocated 4.19MB
+2026-06-28 16:48:16,380 WARN  [org.jgroups.protocols.UDP] (ForkJoinPool.commonPool-worker-1) JGRP000015: the receive buffer of socket MulticastSocket was set to 25MB, but the OS only allocated 4.19MB
+2026-06-28 16:48:16,385 INFO  [org.jgroups.protocols.FD_SOCK2] (ForkJoinPool.commonPool-worker-1) server listening on *.44809
+2026-06-28 16:48:18,390 INFO  [org.jgroups.protocols.pbcast.GMS] (ForkJoinPool.commonPool-worker-1) 5f6ee20df494-52871: no members discovered after 2002 ms: creating cluster as coordinator
+2026-06-28 16:48:18,402 INFO  [org.infinispan.CLUSTER] (ForkJoinPool.commonPool-worker-1) ISPN000094: Received new cluster view for channel ISPN: [5f6ee20df494-52871|0] (1) [5f6ee20df494-52871]
+2026-06-28 16:48:18,465 INFO  [org.infinispan.CLUSTER] (ForkJoinPool.commonPool-worker-1) ISPN000079: Channel `ISPN` local address is `5f6ee20df494-52871`, physical addresses are `[10.89.2.10:60345]`
+2026-06-28 16:48:18,845 INFO  [org.keycloak.connections.infinispan.DefaultInfinispanConnectionProviderFactory] (main) Node name: 5f6ee20df494-52871, Site name: null
+2026-06-28 16:48:18,928 INFO  [org.keycloak.broker.provider.AbstractIdentityProviderMapper] (main) Registering class org.keycloak.broker.provider.mappersync.ConfigSyncEventListener
+2026-06-28 16:48:19,851 INFO  [org.keycloak.exportimport.dir.DirImportProvider] (main) Importing from directory /opt/keycloak/bin/../data/import
+2026-06-28 16:48:19,854 INFO  [org.keycloak.services] (main) KC-SERVICES0030: Full model import requested. Strategy: IGNORE_EXISTING
+2026-06-28 16:48:20,131 INFO  [org.keycloak.exportimport.util.ImportUtils] (main) Realm 'dcm4che' already exists. Import skipped
+2026-06-28 16:48:20,131 INFO  [org.keycloak.services] (main) KC-SERVICES0032: Import finished successfully
+2026-06-28 16:48:20,151 WARN  [io.agroal.pool] (main) Datasource '<default>': JDBC resources leaked: 1 ResultSet(s) and 0 Statement(s)
+2026-06-28 16:48:20,562 INFO  [io.quarkus] (main) Keycloak 26.0.6 on JVM (powered by Quarkus 3.15.1) started in 8.327s. Listening on: https://0.0.0.0:8843
+2026-06-28 16:48:20,562 INFO  [io.quarkus] (main) Profile prod activated. 
+2026-06-28 16:48:20,563 INFO  [io.quarkus] (main) Installed features: [agroal, cdi, hibernate-orm, jdbc-mariadb, keycloak, narayana-jta, opentelemetry, reactive-routes, rest, rest-jackson, smallrye-context-propagation, vertx]
+2026-06-28 18:19:27,591 ERROR [io.quarkus.vertx.http.runtime.options.TlsCertificateReloader] (vert.x-eventloop-thread-6) Unable to reload the TLS certificate, keeping the current one.: java.io.IOException: Keystore was tampered with, or password was incorrect
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:804)
+	at java.base/sun.security.util.KeyStoreDelegator.engineLoad(KeyStoreDelegator.java:249)
+	at java.base/java.security.KeyStore.load(KeyStore.java:1500)
+	at io.vertx.core.net.impl.KeyStoreHelper.loadKeyStore(KeyStoreHelper.java:266)
+	at io.vertx.core.net.KeyStoreOptionsBase.getHelper(KeyStoreOptionsBase.java:188)
+	at io.vertx.core.net.KeyStoreOptionsBase.getKeyManagerFactory(KeyStoreOptionsBase.java:206)
+	at io.vertx.core.net.impl.SSLHelper.lambda$build$6(SSLHelper.java:259)
+	at io.vertx.core.impl.ContextImpl.lambda$executeBlocking$1(ContextImpl.java:191)
+	at io.vertx.core.impl.ContextInternal.dispatch(ContextInternal.java:270)
+	at io.vertx.core.impl.ContextImpl.lambda$internalExecuteBlocking$2(ContextImpl.java:210)
+	at io.vertx.core.impl.TaskQueue.run(TaskQueue.java:76)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2516)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2495)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1521)
+	at org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)
+	at org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.security.UnrecoverableKeyException: Password verification failed
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:802)
+	... 18 more
+
+2026-06-28 18:19:27,607 ERROR [io.quarkus.vertx.http.runtime.options.TlsCertificateReloader] (vert.x-eventloop-thread-9) Unable to reload the TLS certificate, keeping the current one.: java.io.IOException: Keystore was tampered with, or password was incorrect
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:804)
+	at java.base/sun.security.util.KeyStoreDelegator.engineLoad(KeyStoreDelegator.java:249)
+	at java.base/java.security.KeyStore.load(KeyStore.java:1500)
+	at io.vertx.core.net.impl.KeyStoreHelper.loadKeyStore(KeyStoreHelper.java:266)
+	at io.vertx.core.net.KeyStoreOptionsBase.getHelper(KeyStoreOptionsBase.java:188)
+	at io.vertx.core.net.KeyStoreOptionsBase.getKeyManagerFactory(KeyStoreOptionsBase.java:206)
+	at io.vertx.core.net.impl.SSLHelper.lambda$build$6(SSLHelper.java:259)
+	at io.vertx.core.impl.ContextImpl.lambda$executeBlocking$1(ContextImpl.java:191)
+	at io.vertx.core.impl.ContextInternal.dispatch(ContextInternal.java:270)
+	at io.vertx.core.impl.ContextImpl.lambda$internalExecuteBlocking$2(ContextImpl.java:210)
+	at io.vertx.core.impl.TaskQueue.run(TaskQueue.java:76)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2516)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2495)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1521)
+	at org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)
+	at org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.security.UnrecoverableKeyException: Password verification failed
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:802)
+	... 18 more
+
+2026-06-28 18:19:27,612 ERROR [io.quarkus.vertx.http.runtime.options.TlsCertificateReloader] (vert.x-eventloop-thread-5) Unable to reload the TLS certificate, keeping the current one.: java.io.IOException: Keystore was tampered with, or password was incorrect
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:804)
+	at java.base/sun.security.util.KeyStoreDelegator.engineLoad(KeyStoreDelegator.java:249)
+	at java.base/java.security.KeyStore.load(KeyStore.java:1500)
+	at io.vertx.core.net.impl.KeyStoreHelper.loadKeyStore(KeyStoreHelper.java:266)
+	at io.vertx.core.net.KeyStoreOptionsBase.getHelper(KeyStoreOptionsBase.java:188)
+	at io.vertx.core.net.KeyStoreOptionsBase.getKeyManagerFactory(KeyStoreOptionsBase.java:206)
+	at io.vertx.core.net.impl.SSLHelper.lambda$build$6(SSLHelper.java:259)
+	at io.vertx.core.impl.ContextImpl.lambda$executeBlocking$1(ContextImpl.java:191)
+	at io.vertx.core.impl.ContextInternal.dispatch(ContextInternal.java:270)
+	at io.vertx.core.impl.ContextImpl.lambda$internalExecuteBlocking$2(ContextImpl.java:210)
+	at io.vertx.core.impl.TaskQueue.run(TaskQueue.java:76)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2516)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2495)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1521)
+	at org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)
+	at org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.security.UnrecoverableKeyException: Password verification failed
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:802)
+	... 18 more
+
+2026-06-28 18:19:27,617 ERROR [io.quarkus.vertx.http.runtime.options.TlsCertificateReloader] (vert.x-eventloop-thread-3) Unable to reload the TLS certificate, keeping the current one.: java.io.IOException: Keystore was tampered with, or password was incorrect
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:804)
+	at java.base/sun.security.util.KeyStoreDelegator.engineLoad(KeyStoreDelegator.java:249)
+	at java.base/java.security.KeyStore.load(KeyStore.java:1500)
+	at io.vertx.core.net.impl.KeyStoreHelper.loadKeyStore(KeyStoreHelper.java:266)
+	at io.vertx.core.net.KeyStoreOptionsBase.getHelper(KeyStoreOptionsBase.java:188)
+	at io.vertx.core.net.KeyStoreOptionsBase.getKeyManagerFactory(KeyStoreOptionsBase.java:206)
+	at io.vertx.core.net.impl.SSLHelper.lambda$build$6(SSLHelper.java:259)
+	at io.vertx.core.impl.ContextImpl.lambda$executeBlocking$1(ContextImpl.java:191)
+	at io.vertx.core.impl.ContextInternal.dispatch(ContextInternal.java:270)
+	at io.vertx.core.impl.ContextImpl.lambda$internalExecuteBlocking$2(ContextImpl.java:210)
+	at io.vertx.core.impl.TaskQueue.run(TaskQueue.java:76)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2516)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2495)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1521)
+	at org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)
+	at org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.security.UnrecoverableKeyException: Password verification failed
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:802)
+	... 18 more
+
+2026-06-28 18:19:27,622 ERROR [io.quarkus.vertx.http.runtime.options.TlsCertificateReloader] (vert.x-eventloop-thread-4) Unable to reload the TLS certificate, keeping the current one.: java.io.IOException: Keystore was tampered with, or password was incorrect
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:804)
+	at java.base/sun.security.util.KeyStoreDelegator.engineLoad(KeyStoreDelegator.java:249)
+	at java.base/java.security.KeyStore.load(KeyStore.java:1500)
+	at io.vertx.core.net.impl.KeyStoreHelper.loadKeyStore(KeyStoreHelper.java:266)
+	at io.vertx.core.net.KeyStoreOptionsBase.getHelper(KeyStoreOptionsBase.java:188)
+	at io.vertx.core.net.KeyStoreOptionsBase.getKeyManagerFactory(KeyStoreOptionsBase.java:206)
+	at io.vertx.core.net.impl.SSLHelper.lambda$build$6(SSLHelper.java:259)
+	at io.vertx.core.impl.ContextImpl.lambda$executeBlocking$1(ContextImpl.java:191)
+	at io.vertx.core.impl.ContextInternal.dispatch(ContextInternal.java:270)
+	at io.vertx.core.impl.ContextImpl.lambda$internalExecuteBlocking$2(ContextImpl.java:210)
+	at io.vertx.core.impl.TaskQueue.run(TaskQueue.java:76)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2516)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2495)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1521)
+	at org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)
+	at org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.security.UnrecoverableKeyException: Password verification failed
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:802)
+	... 18 more
+
+2026-06-28 18:19:27,627 ERROR [io.quarkus.vertx.http.runtime.options.TlsCertificateReloader] (vert.x-eventloop-thread-10) Unable to reload the TLS certificate, keeping the current one.: java.io.IOException: Keystore was tampered with, or password was incorrect
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:804)
+	at java.base/sun.security.util.KeyStoreDelegator.engineLoad(KeyStoreDelegator.java:249)
+	at java.base/java.security.KeyStore.load(KeyStore.java:1500)
+	at io.vertx.core.net.impl.KeyStoreHelper.loadKeyStore(KeyStoreHelper.java:266)
+	at io.vertx.core.net.KeyStoreOptionsBase.getHelper(KeyStoreOptionsBase.java:188)
+	at io.vertx.core.net.KeyStoreOptionsBase.getKeyManagerFactory(KeyStoreOptionsBase.java:206)
+	at io.vertx.core.net.impl.SSLHelper.lambda$build$6(SSLHelper.java:259)
+	at io.vertx.core.impl.ContextImpl.lambda$executeBlocking$1(ContextImpl.java:191)
+	at io.vertx.core.impl.ContextInternal.dispatch(ContextInternal.java:270)
+	at io.vertx.core.impl.ContextImpl.lambda$internalExecuteBlocking$2(ContextImpl.java:210)
+	at io.vertx.core.impl.TaskQueue.run(TaskQueue.java:76)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2516)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2495)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1521)
+	at org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)
+	at org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.security.UnrecoverableKeyException: Password verification failed
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:802)
+	... 18 more
+
+2026-06-28 18:19:27,632 ERROR [io.quarkus.vertx.http.runtime.options.TlsCertificateReloader] (vert.x-eventloop-thread-11) Unable to reload the TLS certificate, keeping the current one.: java.io.IOException: Keystore was tampered with, or password was incorrect
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:804)
+	at java.base/sun.security.util.KeyStoreDelegator.engineLoad(KeyStoreDelegator.java:249)
+	at java.base/java.security.KeyStore.load(KeyStore.java:1500)
+	at io.vertx.core.net.impl.KeyStoreHelper.loadKeyStore(KeyStoreHelper.java:266)
+	at io.vertx.core.net.KeyStoreOptionsBase.getHelper(KeyStoreOptionsBase.java:188)
+	at io.vertx.core.net.KeyStoreOptionsBase.getKeyManagerFactory(KeyStoreOptionsBase.java:206)
+	at io.vertx.core.net.impl.SSLHelper.lambda$build$6(SSLHelper.java:259)
+	at io.vertx.core.impl.ContextImpl.lambda$executeBlocking$1(ContextImpl.java:191)
+	at io.vertx.core.impl.ContextInternal.dispatch(ContextInternal.java:270)
+	at io.vertx.core.impl.ContextImpl.lambda$internalExecuteBlocking$2(ContextImpl.java:210)
+	at io.vertx.core.impl.TaskQueue.run(TaskQueue.java:76)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2516)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2495)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1521)
+	at org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)
+	at org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.security.UnrecoverableKeyException: Password verification failed
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:802)
+	... 18 more
+
+2026-06-28 18:19:27,637 ERROR [io.quarkus.vertx.http.runtime.options.TlsCertificateReloader] (vert.x-eventloop-thread-0) Unable to reload the TLS certificate, keeping the current one.: java.io.IOException: Keystore was tampered with, or password was incorrect
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:804)
+	at java.base/sun.security.util.KeyStoreDelegator.engineLoad(KeyStoreDelegator.java:249)
+	at java.base/java.security.KeyStore.load(KeyStore.java:1500)
+	at io.vertx.core.net.impl.KeyStoreHelper.loadKeyStore(KeyStoreHelper.java:266)
+	at io.vertx.core.net.KeyStoreOptionsBase.getHelper(KeyStoreOptionsBase.java:188)
+	at io.vertx.core.net.KeyStoreOptionsBase.getKeyManagerFactory(KeyStoreOptionsBase.java:206)
+	at io.vertx.core.net.impl.SSLHelper.lambda$build$6(SSLHelper.java:259)
+	at io.vertx.core.impl.ContextImpl.lambda$executeBlocking$1(ContextImpl.java:191)
+	at io.vertx.core.impl.ContextInternal.dispatch(ContextInternal.java:270)
+	at io.vertx.core.impl.ContextImpl.lambda$internalExecuteBlocking$2(ContextImpl.java:210)
+	at io.vertx.core.impl.TaskQueue.run(TaskQueue.java:76)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2516)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2495)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1521)
+	at org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)
+	at org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.security.UnrecoverableKeyException: Password verification failed
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:802)
+	... 18 more
+
+2026-06-28 18:19:27,642 ERROR [io.quarkus.vertx.http.runtime.options.TlsCertificateReloader] (vert.x-eventloop-thread-1) Unable to reload the TLS certificate, keeping the current one.: java.io.IOException: Keystore was tampered with, or password was incorrect
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:804)
+	at java.base/sun.security.util.KeyStoreDelegator.engineLoad(KeyStoreDelegator.java:249)
+	at java.base/java.security.KeyStore.load(KeyStore.java:1500)
+	at io.vertx.core.net.impl.KeyStoreHelper.loadKeyStore(KeyStoreHelper.java:266)
+	at io.vertx.core.net.KeyStoreOptionsBase.getHelper(KeyStoreOptionsBase.java:188)
+	at io.vertx.core.net.KeyStoreOptionsBase.getKeyManagerFactory(KeyStoreOptionsBase.java:206)
+	at io.vertx.core.net.impl.SSLHelper.lambda$build$6(SSLHelper.java:259)
+	at io.vertx.core.impl.ContextImpl.lambda$executeBlocking$1(ContextImpl.java:191)
+	at io.vertx.core.impl.ContextInternal.dispatch(ContextInternal.java:270)
+	at io.vertx.core.impl.ContextImpl.lambda$internalExecuteBlocking$2(ContextImpl.java:210)
+	at io.vertx.core.impl.TaskQueue.run(TaskQueue.java:76)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2516)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2495)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1521)
+	at org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)
+	at org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.security.UnrecoverableKeyException: Password verification failed
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:802)
+	... 18 more
+
+2026-06-28 18:19:27,646 ERROR [io.quarkus.vertx.http.runtime.options.TlsCertificateReloader] (vert.x-eventloop-thread-2) Unable to reload the TLS certificate, keeping the current one.: java.io.IOException: Keystore was tampered with, or password was incorrect
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:804)
+	at java.base/sun.security.util.KeyStoreDelegator.engineLoad(KeyStoreDelegator.java:249)
+	at java.base/java.security.KeyStore.load(KeyStore.java:1500)
+	at io.vertx.core.net.impl.KeyStoreHelper.loadKeyStore(KeyStoreHelper.java:266)
+	at io.vertx.core.net.KeyStoreOptionsBase.getHelper(KeyStoreOptionsBase.java:188)
+	at io.vertx.core.net.KeyStoreOptionsBase.getKeyManagerFactory(KeyStoreOptionsBase.java:206)
+	at io.vertx.core.net.impl.SSLHelper.lambda$build$6(SSLHelper.java:259)
+	at io.vertx.core.impl.ContextImpl.lambda$executeBlocking$1(ContextImpl.java:191)
+	at io.vertx.core.impl.ContextInternal.dispatch(ContextInternal.java:270)
+	at io.vertx.core.impl.ContextImpl.lambda$internalExecuteBlocking$2(ContextImpl.java:210)
+	at io.vertx.core.impl.TaskQueue.run(TaskQueue.java:76)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2516)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2495)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1521)
+	at org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)
+	at org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.security.UnrecoverableKeyException: Password verification failed
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:802)
+	... 18 more
+
+2026-06-28 18:19:27,650 ERROR [io.quarkus.vertx.http.runtime.options.TlsCertificateReloader] (vert.x-eventloop-thread-8) Unable to reload the TLS certificate, keeping the current one.: java.io.IOException: Keystore was tampered with, or password was incorrect
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:804)
+	at java.base/sun.security.util.KeyStoreDelegator.engineLoad(KeyStoreDelegator.java:249)
+	at java.base/java.security.KeyStore.load(KeyStore.java:1500)
+	at io.vertx.core.net.impl.KeyStoreHelper.loadKeyStore(KeyStoreHelper.java:266)
+	at io.vertx.core.net.KeyStoreOptionsBase.getHelper(KeyStoreOptionsBase.java:188)
+	at io.vertx.core.net.KeyStoreOptionsBase.getKeyManagerFactory(KeyStoreOptionsBase.java:206)
+	at io.vertx.core.net.impl.SSLHelper.lambda$build$6(SSLHelper.java:259)
+	at io.vertx.core.impl.ContextImpl.lambda$executeBlocking$1(ContextImpl.java:191)
+	at io.vertx.core.impl.ContextInternal.dispatch(ContextInternal.java:270)
+	at io.vertx.core.impl.ContextImpl.lambda$internalExecuteBlocking$2(ContextImpl.java:210)
+	at io.vertx.core.impl.TaskQueue.run(TaskQueue.java:76)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2516)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2495)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1521)
+	at org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)
+	at org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.security.UnrecoverableKeyException: Password verification failed
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:802)
+	... 18 more
+
+2026-06-28 18:19:27,655 ERROR [io.quarkus.vertx.http.runtime.options.TlsCertificateReloader] (vert.x-eventloop-thread-7) Unable to reload the TLS certificate, keeping the current one.: java.io.IOException: Keystore was tampered with, or password was incorrect
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:804)
+	at java.base/sun.security.util.KeyStoreDelegator.engineLoad(KeyStoreDelegator.java:249)
+	at java.base/java.security.KeyStore.load(KeyStore.java:1500)
+	at io.vertx.core.net.impl.KeyStoreHelper.loadKeyStore(KeyStoreHelper.java:266)
+	at io.vertx.core.net.KeyStoreOptionsBase.getHelper(KeyStoreOptionsBase.java:188)
+	at io.vertx.core.net.KeyStoreOptionsBase.getKeyManagerFactory(KeyStoreOptionsBase.java:206)
+	at io.vertx.core.net.impl.SSLHelper.lambda$build$6(SSLHelper.java:259)
+	at io.vertx.core.impl.ContextImpl.lambda$executeBlocking$1(ContextImpl.java:191)
+	at io.vertx.core.impl.ContextInternal.dispatch(ContextInternal.java:270)
+	at io.vertx.core.impl.ContextImpl.lambda$internalExecuteBlocking$2(ContextImpl.java:210)
+	at io.vertx.core.impl.TaskQueue.run(TaskQueue.java:76)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.doRunWith(EnhancedQueueExecutor.java:2516)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2495)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1521)
+	at org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:11)
+	at org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:11)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.security.UnrecoverableKeyException: Password verification failed
+	at java.base/sun.security.provider.JavaKeyStore.engineLoad(JavaKeyStore.java:802)
+	... 18 more
+
+2026-06-28 18:46:01,123 INFO  [org.infinispan.CLUSTER] (Thread-32) ISPN000080: Disconnecting JGroups channel `ISPN`
+2026-06-28 18:46:01,185 INFO  [com.arjuna.ats.jbossatx] (Shutdown thread) ARJUNA032014: Stopping transaction recovery manager
+2026-06-28 18:46:01,228 INFO  [io.quarkus] (Shutdown thread) Keycloak stopped in 0.171s
