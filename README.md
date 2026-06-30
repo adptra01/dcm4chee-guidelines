@@ -7,14 +7,10 @@ dcm4chee-arc-light 5.x menggunakan Docker Compose dengan Keycloak OIDC.
 
 ## Dokumentasi
 
-| File | Deskripsi |
-|------|-----------|
-| `dcm4chee-training/PANDUAN-LENGKAP.md` | Panduan instalasi & troubleshooting lengkap |
-| `dcm4chee-training/API-DOKUMENTASI.md` | Dokumentasi REST API JSON (DICOMweb) |
-| `dcm4chee-training/dcm4chee-postman-collection.json` | Postman collection (import & langsung pakai) |
-| `dcm4chee-training/LEVEL-1-BASIC.md` | Training level 1 (STOW-RS, QIDO-RS dasar) |
-| `dcm4chee-training/LEVEL-2-INTERMEDIATE.md` | Training level 2 (MWL, WADO, OHIF) |
-| `dcm4chee-training/LEVEL-3-ADVANCED.md` | Training level 3 (bulk import, storage, dll) |
+Dokumentasi tersedia di repositori terpisah:
+- [dcm4chee-guidelines](https://github.com/adptra01/dcm4chee-guidelines) — panduan lengkap, REST API, Postman collection
+
+Atau lihat langsung di folder `dcm4chee-docker/` untuk file konfigurasi Docker.
 
 ---
 
@@ -76,7 +72,7 @@ storescu -v -aec DCM4CHEE -aet ORTHANC localhost 11112 /path/file.dcm
 
 ## Error Umum
 
-| Error | Solusi (lengkap di PANDUAN-LENGKAP.md) |
+| Error | Solusi |
 |-------|----------------------------------------|
 | `cmp: command not found` | Buat `Dockerfile.keycloak` dengan `RUN yum install -y diffutils` |
 | `Invalid parameter: redirect_uri` | Pastikan akses URL sama dengan `KC_HOSTNAME` |
@@ -99,13 +95,6 @@ dcm4chee-guidelines/
 │   ├── docker-compose-public.yml      # Public variant
 │   ├── data/                          # Wildfly deployments & config
 │   └── sample/                        # Sample DICOM files
-└── dcm4chee-training/
-    ├── PANDUAN-LENGKAP.md             # Panduan lengkap (start here)
-    ├── API-DOKUMENTASI.md             # REST API documentation
-    ├── dcm4chee-postman-collection.json
-    ├── LEVEL-1-BASIC.md
-    ├── LEVEL-2-INTERMEDIATE.md
-    └── LEVEL-3-ADVANCED.md
 ```
 
 ---
