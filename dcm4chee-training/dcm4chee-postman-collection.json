@@ -1,0 +1,795 @@
+{
+  "info": {
+    "name": "dcm4chee-arc REST API",
+    "description": "Koleksi lengkap REST API endpoint untuk dcm4chee-arc\ndcm4chee-arc: https://github.com/dcm4che/dcm4chee-arc-light\n\n## Setup\n1. Import collection ke Postman\n2. Set environment variables:\n   - `host`: IP server (default: localhost)\n   - `kc_port`: Keycloak port (default: 8843)\n   - `arc_port`: Archive port (default: 8443)\n   - `username`: Keycloak user (default: root)\n   - `password`: Keycloak password (default: changeit)\n   - `aet`: AE Title (default: DCM4CHEE)\n3. Matikan SSL verification di Postman Settings\n4. Request apapun akan auto-generate token via Pre-request Script",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "dcm4chee"
+  },
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Get Access Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set('token', jsonData.access_token);",
+                  "pm.collectionVariables.set('refresh_token', jsonData.refresh_token);",
+                  "console.log('Token obtained successfully');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "client_id",
+                  "value": "dcm4chee-arc-ui"
+                },
+                {
+                  "key": "username",
+                  "value": "{{username}}"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}"
+                },
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                },
+                {
+                  "key": "scope",
+                  "value": "openid"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://{{host}}:{{kc_port}}/realms/dcm4che/protocol/openid-connect/token",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{kc_port}}",
+              "path": ["realms", "dcm4che", "protocol", "openid-connect", "token"]
+            },
+            "description": "Dapatkan access token dari Keycloak untuk autentikasi API."
+          }
+        }
+      ],
+      "description": "Endpoint autentikasi Keycloak"
+    },
+    {
+      "name": "🏥 QIDO-RS (Query)",
+      "item": [
+        {
+          "name": "GET Studies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/studies?limit=10",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "studies"],
+              "query": [
+                {"key": "limit", "value": "10"},
+                {"key": "offset", "value": "0", "disabled": true},
+                {"key": "PatientName", "value": "", "disabled": true},
+                {"key": "PatientID", "value": "", "disabled": true},
+                {"key": "StudyDate", "value": "", "disabled": true},
+                {"key": "Modality", "value": "", "disabled": true},
+                {"key": "fuzzy", "value": "true", "disabled": true}
+              ]
+            },
+            "description": "Query semua studies. Bisa difilter dengan parameter."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Studies - Count",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/studies/count",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "studies", "count"]
+            },
+            "description": "Hitung jumlah studies di archive."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Series in Study",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/studies/{{study_uid}}/series",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "studies", "{{study_uid}}", "series"]
+            },
+            "description": "Query series dalam study tertentu. Isi `study_uid` di collection variables."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Instances in Series",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/series/{{series_uid}}/instances",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "series", "{{series_uid}}", "instances"]
+            },
+            "description": "Query instances dalam series tertentu. Isi `series_uid` di collection variables."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Patients",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/patients?limit=10",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "patients"],
+              "query": [
+                {"key": "limit", "value": "10"}
+              ]
+            },
+            "description": "Query daftar pasien."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Patients Count",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/patients/count",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "patients", "count"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Series",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/series?limit=10",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "series"],
+              "query": [
+                {"key": "limit", "value": "10"}
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Instances",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/instances?limit=10",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "instances"],
+              "query": [
+                {"key": "limit", "value": "10"}
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Modalities",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/modalities",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "modalities"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "DICOMweb QIDO-RS (Query) endpoints"
+    },
+    {
+      "name": "📤 STOW-RS (Upload)",
+      "item": [
+        {
+          "name": "POST Upload DICOM File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/dicom"
+              }
+            ],
+            "body": {
+              "mode": "binary",
+              "options": {
+                "binary": {
+                  "filename": ""
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/studies",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "studies"]
+            },
+            "description": "Upload file DICOM langsung. Pilih file binary DICOM (.dcm)."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Upload Metadata JSON",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"00100010\": {\"vr\": \"PN\", \"Value\": [\"SUSANTO^BUDI\"]},\n  \"00100020\": {\"vr\": \"LO\", \"Value\": [\"P00123\"]},\n  \"00080060\": {\"vr\": \"CS\", \"Value\": [\"CT\"]},\n  \"00080020\": {\"vr\": \"DA\", \"Value\": [\"20250115\"]},\n  \"00080030\": {\"vr\": \"TM\", \"Value\": [\"120000\"]}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/studies",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "studies"]
+            },
+            "description": "Upload metadata DICOM dalam format JSON (tanpa pixel data)."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Upload Multi File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/related; type=application/dicom"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file1",
+                  "type": "file",
+                  "src": "",
+                  "disabled": false
+                },
+                {
+                  "key": "file2",
+                  "type": "file",
+                  "src": "",
+                  "disabled": false
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/studies",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "studies"]
+            },
+            "description": "Upload multiple DICOM files sekaligus via multipart/form-data."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Upload to Specific Study",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/dicom"
+              }
+            ],
+            "body": {
+              "mode": "binary",
+              "options": {
+                "binary": {
+                  "filename": ""
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/studies/{{study_uid}}",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "studies", "{{study_uid}}"]
+            },
+            "description": "Upload DICOM ke study yang sudah ada."
+          },
+          "response": []
+        }
+      ],
+      "description": "DICOMweb STOW-RS (Store) endpoints"
+    },
+    {
+      "name": "📥 WADO-RS (Retrieve)",
+      "item": [
+        {
+          "name": "GET Study Metadata",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/dicom+json"
+              }
+            ],
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/studies/{{study_uid}}/metadata",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "studies", "{{study_uid}}", "metadata"]
+            },
+            "description": "Ambil metadata study lengkap dalam format DICOM JSON."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Download DICOM Instance",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/studies/{{study_uid}}/series/{{series_uid}}/instances/{{instance_uid}}",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "studies", "{{study_uid}}", "series", "{{series_uid}}", "instances", "{{instance_uid}}"]
+            },
+            "description": "Download file DICOM asli. Simpan response ke file .dcm. Isi `study_uid`, `series_uid`, `instance_uid`."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Thumbnail JPEG",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/studies/{{study_uid}}/series/{{series_uid}}/instances/{{instance_uid}}/thumbnail",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "studies", "{{study_uid}}", "series", "{{series_uid}}", "instances", "{{instance_uid}}", "thumbnail"]
+            },
+            "description": "Ambil thumbnail JPEG dari instance."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Rendered Image",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/studies/{{study_uid}}/series/{{series_uid}}/instances/{{instance_uid}}/rendered",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "studies", "{{study_uid}}", "series", "{{series_uid}}", "instances", "{{instance_uid}}", "rendered"]
+            },
+            "description": "Ambil rendered image."
+          },
+          "response": []
+        },
+        {
+          "name": "GET WADO-URI JPEG",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/wado?requestType=WADO&studyUID={{study_uid}}&contentType=image/jpeg",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "wado"],
+              "query": [
+                {"key": "requestType", "value": "WADO"},
+                {"key": "studyUID", "value": "{{study_uid}}"},
+                {"key": "contentType", "value": "image/jpeg"}
+              ]
+            },
+            "description": "WADO-URI legacy. Ambil preview JPEG dari study."
+          },
+          "response": []
+        }
+      ],
+      "description": "DICOMweb WADO-RS (Retrieve) endpoints"
+    },
+    {
+      "name": "📋 MWL-RS (Modality Worklist)",
+      "item": [
+        {
+          "name": "GET MWL Items",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/mwlitems?limit=10",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "mwlitems"],
+              "query": [
+                {"key": "limit", "value": "10"},
+                {"key": "PatientID", "value": "", "disabled": true}
+              ]
+            },
+            "description": "Query Modality Worklist items."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create MWL Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/dicom+json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"00100010\": {\"vr\": \"PN\", \"Value\": [\"JONES^WILLIAM\"]},\n  \"00100020\": {\"vr\": \"LO\", \"Value\": [\"MWL001\"]},\n  \"00080060\": {\"vr\": \"CS\", \"Value\": [\"CT\"]},\n  \"00400001\": {\"vr\": \"AE\", \"Value\": [\"CTSCANNER\"]},\n  \"00400002\": {\"vr\": \"DA\", \"Value\": [\"20250120\"]},\n  \"00400003\": {\"vr\": \"TM\", \"Value\": [\"090000\"]},\n  \"00400010\": {\"vr\": \"SH\", \"Value\": [\"STAT\"]},\n  \"00321060\": {\"vr\": \"LO\", \"Value\": [\"Chest CT\"]}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/mwlitems",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "mwlitems"]
+            },
+            "description": "Buat MWL item baru."
+          },
+          "response": []
+        }
+      ],
+      "description": "Modality Worklist endpoints"
+    },
+    {
+      "name": "📊 Monitoring & Admin",
+      "item": [
+        {
+          "name": "GET Monitor",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/ui2/rest/monitor",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "ui2", "rest", "monitor"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Server Time",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/ui2/rest/serverTime",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "ui2", "rest", "serverTime"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Metrics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/ui2/rest/metrics",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "ui2", "rest", "metrics"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Monitoring dan admin endpoints"
+    },
+    {
+      "name": "📤 Export",
+      "item": [
+        {
+          "name": "POST Export Studies",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/studies/export/{{exporter_id}}",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "studies", "export", "{{exporter_id}}"]
+            },
+            "description": "Export studies menggunakan Exporter ID tertentu."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Bulk Import",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/plain"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "/path/to/dicom/files/list.txt"
+            },
+            "url": {
+              "raw": "https://{{host}}:{{arc_port}}/dcm4chee-arc/aets/{{aet}}/rs/instances/storage/{{storage_id}}",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "{{arc_port}}",
+              "path": ["dcm4chee-arc", "aets", "{{aet}}", "rs", "instances", "storage", "{{storage_id}}"]
+            },
+            "description": "Bulk import DICOM files dari storage path. Body berisi daftar file path (one per line)."
+          },
+          "response": []
+        }
+      ],
+      "description": "Export dan bulk import endpoints"
+    }
+  ],
+  "variable": [
+    {
+      "key": "host",
+      "value": "localhost",
+      "type": "string"
+    },
+    {
+      "key": "kc_port",
+      "value": "8843",
+      "type": "string"
+    },
+    {
+      "key": "arc_port",
+      "value": "8443",
+      "type": "string"
+    },
+    {
+      "key": "username",
+      "value": "root",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "changeit",
+      "type": "string"
+    },
+    {
+      "key": "aet",
+      "value": "DCM4CHEE",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "study_uid",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "series_uid",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "instance_uid",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "exporter_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "storage_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// Auto-get token jika belum ada atau expired",
+          "const token = pm.collectionVariables.get('token');",
+          "if (!token) {",
+          "    const loginUrl = `https://${pm.collectionVariables.get('host')}:${pm.collectionVariables.get('kc_port')}/realms/dcm4che/protocol/openid-connect/token`;",
+          "    const loginRequest = {",
+          "        url: loginUrl,",
+          "        method: 'POST',",
+          "        header: { 'Content-Type': 'application/x-www-form-urlencoded' },",
+          "        body: {",
+          "            mode: 'urlencoded',",
+          "            urlencoded: [",
+          "                { key: 'client_id', value: 'dcm4chee-arc-ui' },",
+          "                { key: 'username', value: pm.collectionVariables.get('username') },",
+          "                { key: 'password', value: pm.collectionVariables.get('password') },",
+          "                { key: 'grant_type', value: 'password' },",
+          "                { key: 'scope', value: 'openid' }",
+          "            ]",
+          "        },",
+          "        rejectUnauthorized: false",
+          "    };",
+          "",
+          "    pm.sendRequest(loginRequest, (err, res) => {",
+          "        if (!err) {",
+          "            const json = res.json();",
+          "            pm.collectionVariables.set('token', json.access_token);",
+          "            pm.collectionVariables.set('refresh_token', json.refresh_token);",
+          "        }",
+          "    });",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    },
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// Auto-set Bearer token ke header Authorization",
+          "const token = pm.collectionVariables.get('token');",
+          "if (token) {",
+          "    pm.request.headers.add({",
+          "        key: 'Authorization',",
+          "        value: 'Bearer ' + token",
+          "    });",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  }
+}
