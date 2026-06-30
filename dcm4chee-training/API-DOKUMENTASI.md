@@ -1,5 +1,9 @@
 # Dokumentasi REST API JSON dcm4chee-arc
 
+> **Panduan instalasi & troubleshooting lengkap:** lihat `PANDUAN-LENGKAP.md`
+>
+> **Postman collection:** import `dcm4chee-postman-collection.json`
+
 ## Base URL
 
 ```
