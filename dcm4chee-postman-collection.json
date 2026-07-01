@@ -1,0 +1,748 @@
+{
+  "info": {
+    "name": "dcm4chee-arc 5.x API",
+    "description": "DICOMweb REST API untuk dcm4chee-arc-light 5.x\n\n## Setup\n1. Import collection ini ke Postman\n2. Set variable `host` (default: `192.168.2.220`)\n3. SSL verification OFF (Settings > SSL certificate verification = OFF)\n4. Klik \"Get Access Token\" dulu untuk ambil token\n5. Token otomatis terisi ke header Authorization via pre-request script\n\n## Auto Token (Pre-request Script)\nCollection ini memiliki pre-request script yang:\n- Cek apakah token sudah expired\n- Ambil token baru via Keycloak jika perlu\n- Set header `Authorization: Bearer {token}` otomatis\n\nToken berlaku 300 detik (5 menit). Script akan refresh otomatis.\n\nBase URL: `https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "dcm4chee-guidelines"
+  },
+  "variable": [
+    {
+      "key": "host",
+      "value": "192.168.2.220",
+      "type": "string"
+    },
+    {
+      "key": "base",
+      "value": "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs",
+      "type": "string"
+    },
+    {
+      "key": "keycloak_url",
+      "value": "https://{{host}}:8843",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_expiry",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "study_uid",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "series_uid",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "instance_uid",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// ==================================================",
+          "// Pre-request Script: Auto Token Management",
+          "// ==================================================",
+          "// Ambil token dari variable environment",
+          "const token = pm.variables.get('token');",
+          "const expiryStr = pm.variables.get('token_expiry');",
+          "",
+          "// Fungsi untuk ambil token baru",
+          "function getNewToken() {",
+          "    const keycloakUrl = pm.variables.get('keycloak_url');",
+          "    const host = pm.variables.get('host');",
+          "",
+          "    if (!keycloakUrl || keycloakUrl === 'https://{{host}}:8843') {",
+          "        pm.variables.set('keycloak_url', `https://${host}:8843`);",
+          "    }",
+          "",
+          "    const tokenUrl = `${pm.variables.get('keycloak_url')}/realms/dcm4che/protocol/openid-connect/token`;",
+          "",
+          "    console.log(`[Token] Ambil token baru dari: ${tokenUrl}`);",
+          "",
+          "    pm.sendRequest({",
+          "        url: tokenUrl,",
+          "        method: 'POST',",
+          "        header: {",
+          "            'Content-Type': 'application/x-www-form-urlencoded'",
+          "        },",
+          "        body: {",
+          "            mode: 'urlencoded',",
+          "            urlencoded: [",
+          "                { key: 'client_id', value: 'dcm4chee-arc-rs' },",
+          "                { key: 'client_secret', value: 'changeit' },",
+          "                { key: 'username', value: 'admin' },",
+          "                { key: 'password', value: 'changeit' },",
+          "                { key: 'grant_type', value: 'password' }",
+          "            ]",
+          "        }",
+          "    }, function (err, res) {",
+          "        if (err) {",
+          "            console.error('[Token] Gagal ambil token:', err);",
+          "            return;",
+          "        }",
+          "",
+          "        if (res.code >= 400) {",
+          "            console.error('[Token] Error response:', res.code, res.text());",
+          "            return;",
+          "        }",
+          "",
+          "        try {",
+          "            const json = res.json();",
+          "            const newToken = json.access_token;",
+          "            const expiresIn = json.expires_in || 300;",
+          "",
+          "            // Simpan token dan waktu expiry",
+          "            pm.variables.set('token', newToken);",
+          "            pm.variables.set('token_expiry', String(Date.now() + (expiresIn * 1000)));",
+          "",
+          "            console.log(`[Token] Token baru didapat, berlaku ${expiresIn} detik`);",
+          "        } catch (e) {",
+          "            console.error('[Token] Gagal parse response:', e);",
+          "        }",
+          "    });",
+          "}",
+          "",
+          "// Cek apakah perlu ambil token baru",
+          "if (!token || !expiryStr) {",
+          "    console.log('[Token] Token belum ada, ambil baru...');",
+          "    getNewToken();",
+          "} else {",
+          "    const expiry = parseInt(expiryStr, 10);",
+          "    // Refresh jika sisa waktu < 30 detik",
+          "    if (Date.now() > (expiry - 30000)) {",
+          "        console.log('[Token] Token mau expired, refresh...');",
+          "        getNewToken();",
+          "    } else {",
+          "        console.log('[Token] Token masih valid');",
+          "    }",
+          "}",
+          "",
+          "// Set header Authorization (akan terisi setelah async request selesai)",
+          "if (pm.variables.get('token')) {",
+          "    pm.request.headers.add({",
+          "        key: 'Authorization',",
+          "        value: `Bearer ${pm.variables.get('token')}`",
+          "    });",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          "// ==================================================",
+          "// Test Script: Simpan UID dari response ke variable",
+          "// ==================================================",
+          "// Kalau status 200 dan response JSON, simpan study_uid pertama",
+          "if (pm.response.code === 200) {",
+          "    try {",
+          "        const json = pm.response.json();",
+          "        if (Array.isArray(json) && json.length > 0) {",
+          "            // Simpan StudyInstanceUID",
+          "            const study = json[0];",
+          "            if (study['0020000D'] && study['0020000D'].Value) {",
+          "                pm.variables.set('study_uid', study['0020000D'].Value[0]);",
+          "                console.log('[Test] Study UID:', study['0020000D'].Value[0]);",
+          "            }",
+          "            // Simpan SeriesInstanceUID",
+          "            if (study['0020000E'] && study['0020000E'].Value) {",
+          "                pm.variables.set('series_uid', study['0020000E'].Value[0]);",
+          "                console.log('[Test] Series UID:', study['0020000E'].Value[0]);",
+          "            }",
+          "            // Simpan SOPInstanceUID",
+          "            if (study['00080018'] && study['00080018'].Value) {",
+          "                pm.variables.set('instance_uid', study['00080018'].Value[0]);",
+          "                console.log('[Test] Instance UID:', study['00080018'].Value[0]);",
+          "            }",
+          "        }",
+          "    } catch (e) {",
+          "        console.log('[Test] Bukan JSON response');",
+          "    }",
+          "}",
+          "",
+          "// Kalau error, tampilkan info",
+          "if (pm.response.code >= 400) {",
+          "    console.error('[Test] Error:', pm.response.code, pm.response.text().substring(0, 200));",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Endpoint autentikasi Keycloak",
+      "item": [
+        {
+          "name": "Get Access Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.access_token) {",
+                  "    pm.variables.set('token', json.access_token);",
+                  "    const expiresIn = json.expires_in || 300;",
+                  "    pm.variables.set('token_expiry', String(Date.now() + (expiresIn * 1000)));",
+                  "    console.log('[Test] Token tersimpan, berlaku ' + expiresIn + ' detik');",
+                  "    ",
+                  "    // Auto-set collection variable",
+                  "    pm.collectionVariables.set('token', json.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "client_id",
+                  "value": "dcm4chee-arc-rs",
+                  "type": "text"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "changeit",
+                  "type": "text"
+                },
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "changeit",
+                  "type": "text"
+                },
+                {
+                  "key": "grant_type",
+                  "value": "password",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloak_url}}/realms/dcm4che/protocol/openid-connect/token",
+              "host": ["{{keycloak_url}}"],
+              "path": ["realms", "dcm4che", "protocol", "openid-connect", "token"]
+            },
+            "description": "Ambil access token dari Keycloak.\n\nResponse akan menyimpan token ke variable `token` dan `token_expiry` secara otomatis."
+          }
+        }
+      ]
+    },
+    {
+      "name": "QIDO-RS (Query)",
+      "description": "Query DICOM objects (Studies, Series, Instances)",
+      "item": [
+        {
+          "name": "Search Studies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/dicom+json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/studies?limit=20",
+              "host": ["{{base}}"],
+              "path": ["studies"],
+              "query": [
+                { "key": "limit", "value": "20" },
+                { "key": "offset", "value": "0", "disabled": true },
+                { "key": "PatientName", "value": "", "disabled": true },
+                { "key": "PatientID", "value": "", "disabled": true },
+                { "key": "StudyDate", "value": "", "disabled": true },
+                { "key": "ModalitiesInStudy", "value": "", "disabled": true },
+                { "key": "StudyDescription", "value": "", "disabled": true },
+                { "key": "AccessionNumber", "value": "", "disabled": true },
+                { "key": "includefield", "value": "all", "disabled": true },
+                { "key": "fuzzymatching", "value": "true", "disabled": true }
+              ]
+            },
+            "description": "Cari studies dengan filter optional.\n\nParameter query:\n- `PatientName` : Wildcard dengan `*` (contoh: `Smit*`)\n- `StudyDate` : Tanggal (`20250115`) atau rentang (`20250101-20250131`)\n- `ModalitiesInStudy` : Filter modalitas (`CT`, `MR`, `DX`, dll)\n- `limit` : Jumlah maksimal hasil (default: 50)\n- `offset` : Halaman"
+          }
+        },
+        {
+          "name": "Search Series",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/dicom+json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/studies/{{study_uid}}/series",
+              "host": ["{{base}}"],
+              "path": ["studies", "{{study_uid}}", "series"],
+              "query": [
+                { "key": "Modality", "value": "", "disabled": true },
+                { "key": "SeriesDescription", "value": "", "disabled": true }
+              ]
+            },
+            "description": "Cari series dalam study tertentu.\n\n`study_uid` akan terisi otomatis dari response Search Studies."
+          }
+        },
+        {
+          "name": "Search Instances",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/dicom+json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/studies/{{study_uid}}/series/{{series_uid}}/instances",
+              "host": ["{{base}}"],
+              "path": ["studies", "{{study_uid}}", "series", "{{series_uid}}", "instances"]
+            },
+            "description": "Cari instance dalam series tertentu.\n\n`study_uid` dan `series_uid` akan terisi otomatis dari response Search Studies / Search Series."
+          }
+        }
+      ]
+    },
+    {
+      "name": "WADO-RS (Retrieve)",
+      "description": "Retrieve DICOM objects, metadata, dan rendered images",
+      "item": [
+        {
+          "name": "Get Study Metadata",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/dicom+json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/studies/{{study_uid}}/metadata",
+              "host": ["{{base}}"],
+              "path": ["studies", "{{study_uid}}", "metadata"]
+            },
+            "description": "Ambil metadata semua instance dalam study (tanpa pixel data).\n\nResponse: JSON array of DICOM objects."
+          }
+        },
+        {
+          "name": "Get Series Metadata",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/dicom+json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/studies/{{study_uid}}/series/{{series_uid}}/metadata",
+              "host": ["{{base}}"],
+              "path": ["studies", "{{study_uid}}", "series", "{{series_uid}}", "metadata"]
+            },
+            "description": "Ambil metadata instance dalam series tertentu."
+          }
+        },
+        {
+          "name": "Get Instance Metadata",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/dicom+json"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/studies/{{study_uid}}/series/{{series_uid}}/instances/{{instance_uid}}/metadata",
+              "host": ["{{base}}"],
+              "path": ["studies", "{{study_uid}}", "series", "{{series_uid}}", "instances", "{{instance_uid}}", "metadata"]
+            },
+            "description": "Ambil metadata satu instance DICOM."
+          }
+        },
+        {
+          "name": "Download Instance DICOM",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "multipart/related; type=\"application/dicom\""
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/studies/{{study_uid}}/series/{{series_uid}}/instances/{{instance_uid}}",
+              "host": ["{{base}}"],
+              "path": ["studies", "{{study_uid}}", "series", "{{series_uid}}", "instances", "{{instance_uid}}"]
+            },
+            "description": "Download satu file DICOM.\n\n> **Catatan:** Gunakan `Accept: multipart/related; type=\"application/dicom\"` (bukan `application/dicom`).\n\nKlik \"Send and Download\" untuk menyimpan file."
+          }
+        },
+        {
+          "name": "Retrieve Rendered PNG",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "image/png"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/studies/{{study_uid}}/series/{{series_uid}}/instances/{{instance_uid}}/rendered",
+              "host": ["{{base}}"],
+              "path": ["studies", "{{study_uid}}", "series", "{{series_uid}}", "instances", "{{instance_uid}}", "rendered"],
+              "query": [
+                { "key": "window", "value": "40,400", "disabled": true },
+                { "key": "viewport", "value": "256,256", "disabled": true },
+                { "key": "quality", "value": "80", "disabled": true }
+              ]
+            },
+            "description": "Ambil rendered image dalam format PNG.\n\nQuery optional:\n- `window` : Window center dan width (contoh: `40,400` untuk CT)\n- `viewport` : Maksimal ukuran (contoh: `256,256`)\n- `quality` : Kualitas (1-100)"
+          }
+        },
+        {
+          "name": "Retrieve Rendered JPEG",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "image/jpeg"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/studies/{{study_uid}}/series/{{series_uid}}/instances/{{instance_uid}}/rendered",
+              "host": ["{{base}}"],
+              "path": ["studies", "{{study_uid}}", "series", "{{series_uid}}", "instances", "{{instance_uid}}", "rendered"]
+            },
+            "description": "Ambil rendered image dalam format JPEG."
+          }
+        },
+        {
+          "name": "Retrieve Thumbnail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "image/png"
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/studies/{{study_uid}}/series/{{series_uid}}/instances/{{instance_uid}}/thumbnail",
+              "host": ["{{base}}"],
+              "path": ["studies", "{{study_uid}}", "series", "{{series_uid}}", "instances", "{{instance_uid}}", "thumbnail"]
+            },
+            "description": "Ambil thumbnail."
+          }
+        },
+        {
+          "name": "Retrieve Study (Multipart DICOM)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "multipart/related; type=\"application/dicom\""
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/studies/{{study_uid}}",
+              "host": ["{{base}}"],
+              "path": ["studies", "{{study_uid}}"]
+            },
+            "description": "Download semua instance dalam study sebagai multipart DICOM."
+          }
+        },
+        {
+          "name": "Retrieve Series (Multipart DICOM)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "multipart/related; type=\"application/dicom\""
+              }
+            ],
+            "url": {
+              "raw": "{{base}}/studies/{{study_uid}}/series/{{series_uid}}",
+              "host": ["{{base}}"],
+              "path": ["studies", "{{study_uid}}", "series", "{{series_uid}}"]
+            },
+            "description": "Download semua instance dalam series sebagai multipart DICOM."
+          }
+        }
+      ]
+    },
+    {
+      "name": "STOW-RS (Store)",
+      "description": "Upload DICOM files ke server",
+      "item": [
+        {
+          "name": "Upload DICOM File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/related; type=\"application/dicom\"; boundary=BOUNDARY123"
+              },
+              {
+                "key": "Accept",
+                "value": "application/dicom+json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "--BOUNDARY123\r\nContent-Type: application/dicom\r\n\r\n<BINARY DICOM DATA>\r\n--BOUNDARY123--\r\n",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base}}/studies",
+              "host": ["{{base}}"],
+              "path": ["studies"]
+            },
+            "description": "Upload file DICOM ke server.\n\n**Cara Upload di Postman:**\n1. Body > pilih \"binary\"\n2. Pilih file .dcm\n3. Header Content-Type:\n   `multipart/related; type=\"application/dicom\"; boundary=DCM4BOUNDARY`\n\nAtau untuk multiple files, gunakan form-data:\n1. Body > pilih \"form-data\"\n2. Key: file (type: File), pilih file .dcm\n3. Tambah key file lagi untuk multiple files"
+          }
+        }
+      ]
+    },
+    {
+      "name": "WADO-URI",
+      "description": "WADO-URI endpoint (query string based)",
+      "item": [
+        {
+          "name": "WADO-URI Retrieve Instance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/dicom"
+              }
+            ],
+            "url": {
+              "raw": "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/wado?requestType=WADO&studyUID={{study_uid}}&seriesUID={{series_uid}}&objectUID={{instance_uid}}&contentType=application/dicom",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "8443",
+              "path": ["dcm4chee-arc", "aets", "DCM4CHEE", "wado"],
+              "query": [
+                { "key": "requestType", "value": "WADO" },
+                { "key": "studyUID", "value": "{{study_uid}}" },
+                { "key": "seriesUID", "value": "{{series_uid}}" },
+                { "key": "objectUID", "value": "{{instance_uid}}" },
+                { "key": "contentType", "value": "application/dicom" }
+              ]
+            },
+            "description": "WADO-URI: download instance via query string.\n\nBase URL: `https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/wado`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Monitoring",
+      "description": "Endpoint monitoring dan management",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/monitoring/health",
+              "host": ["{{base}}"],
+              "path": ["monitoring", "health"]
+            },
+            "description": "Cek status server.\n\nResponse:\n```json\n{\n  \"status\": \"UP\",\n  \"checks\": [\n    { \"name\": \"dicom\", \"status\": \"UP\" },\n    { \"name\": \"ldap\", \"status\": \"UP\" },\n    { \"name\": \"db\", \"status\": \"UP\" }\n  ]\n}\n```"
+          }
+        },
+        {
+          "name": "Device Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/monitoring/device",
+              "host": ["{{base}}"],
+              "path": ["monitoring", "device"]
+            },
+            "description": "Informasi device: device name, AE title, versi."
+          }
+        },
+        {
+          "name": "AE Titles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/monitoring/aets",
+              "host": ["{{base}}"],
+              "path": ["monitoring", "aets"]
+            },
+            "description": "Daftar Application Entity title yang terdaftar."
+          }
+        },
+        {
+          "name": "Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/monitoring/statistics",
+              "host": ["{{base}}"],
+              "path": ["monitoring", "statistics"]
+            },
+            "description": "Statistik server: jumlah studies, series, instances."
+          }
+        },
+        {
+          "name": "List Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/monitoring/tasks",
+              "host": ["{{base}}"],
+              "path": ["monitoring", "tasks"]
+            },
+            "description": "Daftar background jobs / tasks."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Export",
+      "description": "Export studies ke sistem lain",
+      "item": [
+        {
+          "name": "Export via DICOM (C-STORE)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"DestinationAET\": \"TARGET_AE\",\n  \"DestinationHost\": \"192.168.1.100\",\n  \"DestinationPort\": 11112,\n  \"Priority\": 0\n}"
+            },
+            "url": {
+              "raw": "{{base}}/studies/{{study_uid}}/export/dicom",
+              "host": ["{{base}}"],
+              "path": ["studies", "{{study_uid}}", "export", "dicom"]
+            },
+            "description": "Export study ke PACS lain via protokol DICOM."
+          }
+        },
+        {
+          "name": "Export via STOW-RS",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"StowURL\": \"https://target-server:8443/dcm4chee-arc/aets/TARGET/rs/studies\"\n}"
+            },
+            "url": {
+              "raw": "{{base}}/studies/{{study_uid}}/export/stow",
+              "host": ["{{base}}"],
+              "path": ["studies", "{{study_uid}}", "export", "stow"]
+            },
+            "description": "Export study ke server DICOMweb lain via STOW-RS."
+          }
+        }
+      ]
+    },
+    {
+      "name": "MWL-RS (Worklist)",
+      "description": "Modality Worklist management",
+      "item": [
+        {
+          "name": "Get Worklist",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/dicom+json"
+              }
+            ],
+            "url": {
+              "raw": "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/mwl/workitems",
+              "protocol": "https",
+              "host": ["{{host}}"],
+              "port": "8443",
+              "path": ["dcm4chee-arc", "aets", "DCM4CHEE", "mwl", "workitems"]
+            },
+            "description": "Ambil modality worklist."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete",
+      "description": "Hapus data dari server",
+      "item": [
+        {
+          "name": "Delete Study",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base}}/studies/{{study_uid}}",
+              "host": ["{{base}}"],
+              "path": ["studies", "{{study_uid}}"]
+            },
+            "description": "Hapus study beserta semua series dan instance di dalamnya.\n\nResponse: `204 No Content` jika berhasil."
+          }
+        }
+      ]
+    }
+  ]
+}

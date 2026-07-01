@@ -1,0 +1,6 @@
+FROM dcm4che/keycloak:26.0.6
+
+# Fix: cmp command not found
+USER root
+RUN yum install -y diffutils && yum clean all
+USER keycloak

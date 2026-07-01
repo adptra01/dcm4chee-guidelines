@@ -7,10 +7,13 @@ dcm4chee-arc-light 5.x menggunakan Docker Compose dengan Keycloak OIDC.
 
 ## Dokumentasi
 
-Dokumentasi tersedia di repositori terpisah:
-- [dcm4chee-guidelines](https://github.com/adptra01/dcm4chee-guidelines) — panduan lengkap, REST API, Postman collection
+| File | Deskripsi |
+|------|-----------|
+| `API-DOKUMENTASI.md` | Dokumentasi REST API DICOMweb lengkap (QIDO-RS, STOW-RS, WADO-RS, WADO-URI) |
+| `dcm4chee-postman-collection.json` | Postman collection dengan auto token via pre-request script |
+| `dcm4chee-docker/` | File konfigurasi Docker Compose |
 
-Atau lihat langsung di folder `dcm4chee-docker/` untuk file konfigurasi Docker.
+Lihat juga folder `dcm4chee-docker/` untuk file konfigurasi Docker.
 
 ---
 
@@ -87,14 +90,18 @@ storescu -v -aec DCM4CHEE -aet ORTHANC localhost 11112 /path/file.dcm
 
 ```
 dcm4chee-guidelines/
-├── README.md
+├── README.md                          # File ini
+├── API-DOKUMENTASI.md                 # Dokumentasi REST API DICOMweb
+├── dcm4chee-postman-collection.json   # Postman collection
 ├── dcm4chee-docker/
 │   ├── docker-compose.yml             # Main compose file
-│   ├── Dockerfile.keycloak            # Build keycloak with diffutils
 │   ├── docker-compose-private.yml     # Private variant
 │   ├── docker-compose-public.yml      # Public variant
-│   ├── data/                          # Wildfly deployments & config
-│   └── sample/                        # Sample DICOM files
+│   ├── Dockerfile.keycloak            # Build keycloak with diffutils
+│   ├── data/                          # Persistent data (database, storage)
+│   ├── public/                        # Public certificates
+│   └── SKILL.md                       # Agent skill untuk deployment
+└── sample/                            # Sample DICOM files
 ```
 
 ---
