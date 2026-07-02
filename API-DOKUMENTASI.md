@@ -52,11 +52,11 @@ https://{host}:8443/dcm4chee-arc/aets/DCM4CHEE/rs
 
 ### URL Penting
 
-| URL | Fungsi |
-|-----|--------|
-| `https://{host}:8443/dcm4chee-arc/ui2` | Web UI Archive |
-| `https://{host}:8843/admin/dcm4che/console` | Keycloak Admin Console |
-| `https://{host}:8443/dcm4chee-arc/aets/DCM4CHEE/rs` | REST API Base |
+| URL                                                 | Fungsi                 |
+| -----------------------------------------------------| ------------------------|
+| `https://{host}:8443/dcm4chee-arc/ui2`              | Web UI Archive         |
+| `https://{host}:8843/admin/dcm4che/console`         | Keycloak Admin Console |
+| `https://{host}:8443/dcm4chee-arc/aets/DCM4CHEE/rs` | REST API Base          |
 
 ---
 
@@ -327,18 +327,50 @@ Authorization: Bearer {token}
 | `00081150` | Referenced SOP Class UID |
 | `00081155` | Referenced SOP Instance UID |
 
-### 4.4 Upload via DIMAE (storescu)
+### 4.4 Upload via DIMAE (storescu) — Simulasi Alat / Modalitas
 
-Alternatif menggunakan protokol DICOM native:
+Alternatif menggunakan protokol DICOM native (C-STORE). Ini adalah cara yang digunakan
+oleh alat medis (CT, MRI, X-ray, USG) untuk mengirim gambar ke PACS.
+
+**Contoh kirim file DICOM dari alat ke PACS:**
 
 ```bash
-storescu -v -aec DCM4CHEE -aet MYAE localhost 11112 /path/file.dcm
+storescu -v -aec DCM4CHEE -aet ORTHANC localhost 11112 "sample/DX0000005 Chest PA/DX000000.dcm"
 ```
 
 Parameter:
-- `-aec DCM4CHEE` : Calling AE Title (Application Entity Title server)
-- `-aet MYAE` : Sending AE Title (identitas pengirim)
-- `localhost 11112` : Host dan port DICOM server
+- `-aec DCM4CHEE` : **Called AE Title** — tujuan (server PACS DCM4CHEE)
+- `-aet ORTHANC`  : **Calling AE Title** — pengirim (identitas alat/modalitas)
+- `localhost 11112` : Host dan port DICOM server (port `11112` = DICOM default)
+- `"file.dcm"`     : File DICOM yang akan dikirim
+
+**Output sukses:**
+```
+I: Requesting Association
+I: Association Accepted (Max Send PDV: 16366)
+I: Sending file: DX000000.dcm
+I: Sending Store Request (MsgID 1, DX)
+XMIT: ...................................................................
+I: Received Store Response (Success)
+I: Releasing Association
+```
+
+**Mengirim banyak file sekaligus:**
+```bash
+storescu -v -aec DCM4CHEE -aet ORTHANC localhost 11112 sample/**/*.dcm
+```
+
+**Simulasi kirim dari alat ke PACS lalu forward ke PZDR:**
+
+Alur yang bisa diuji:
+1. Kirim DICOM dari "alat" (storescu -aet ORTHANC) ke PACS → **berhasil** ✅
+2. Cek data masuk via UI DCM4CHEE atau REST API (QIDO-RS)
+3. Jika forwarding rule sudah diatur di DCM4CHEE, study akan otomatis
+   diteruskan ke PZDR tujuan
+
+> **Catatan:** `storescu` adalah tool dari [DCMTK](https://dicom.offis.de/dcmtk.php).
+> Install: `sudo apt install dcmtk` (Debian/Ubuntu) atau `brew install dcmtk` (macOS).
+> Port `11112` adalah port DICOM default DCM4CHEE untuk C-STORE.
 
 ---
 
