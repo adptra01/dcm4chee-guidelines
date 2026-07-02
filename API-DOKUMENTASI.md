@@ -33,7 +33,7 @@ https://{host}:8443/dcm4chee-arc/aets/DCM4CHEE/rs
 
 | Komponen | Nilai |
 |----------|-------|
-| Host | IP atau hostname server (contoh: `192.168.2.220`) |
+| Host | IP atau hostname server (contoh: `{{host}}`) |
 | Port | `8443` (HTTPS) atau `8080` (HTTP) |
 | AET | `DCM4CHEE` (Application Entity Title) |
 
@@ -863,7 +863,7 @@ Authorization: Bearer {token}
 ### 13.1 Ambil Token
 
 ```bash
-TOKEN=$(curl -sk -X POST "https://192.168.2.220:8843/realms/dcm4che/protocol/openid-connect/token" \
+TOKEN=$(curl -sk -X POST "https://{{host}}:8843/realms/dcm4che/protocol/openid-connect/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "client_id=dcm4chee-arc-rs&client_secret=changeit&username=admin&password=changeit&grant_type=password" \
   | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
@@ -872,7 +872,7 @@ TOKEN=$(curl -sk -X POST "https://192.168.2.220:8843/realms/dcm4che/protocol/ope
 ### 13.2 Cari Studies
 
 ```bash
-curl -sk "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies" \
+curl -sk "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies" \
   -H "Accept: application/dicom+json" \
   -H "Authorization: Bearer $TOKEN" | jq .
 ```
@@ -880,7 +880,7 @@ curl -sk "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies" \
 ### 13.3 Cari Studies dengan Filter
 
 ```bash
-curl -sk "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies?PatientName=Doe*&ModalitiesInStudy=CT&limit=10" \
+curl -sk "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies?PatientName=Doe*&ModalitiesInStudy=CT&limit=10" \
   -H "Accept: application/dicom+json" \
   -H "Authorization: Bearer $TOKEN" | jq .
 ```
@@ -888,7 +888,7 @@ curl -sk "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies?Patie
 ### 13.4 Cari Series dalam Study
 
 ```bash
-curl -sk "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{StudyInstanceUID}/series" \
+curl -sk "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{StudyInstanceUID}/series" \
   -H "Accept: application/dicom+json" \
   -H "Authorization: Bearer $TOKEN" | jq .
 ```
@@ -896,7 +896,7 @@ curl -sk "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{Stud
 ### 13.5 Retrieve Metadata Study
 
 ```bash
-curl -sk "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{StudyInstanceUID}/metadata" \
+curl -sk "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{StudyInstanceUID}/metadata" \
   -H "Accept: application/dicom+json" \
   -H "Authorization: Bearer $TOKEN" | jq .
 ```
@@ -904,7 +904,7 @@ curl -sk "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{Stud
 ### 13.6 Download Instance DICOM
 
 ```bash
-curl -sk "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{uid}/series/{uid}/instances/{uid}" \
+curl -sk "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{uid}/series/{uid}/instances/{uid}" \
   -H 'Accept: multipart/related; type="application/dicom"' \
   -H "Authorization: Bearer $TOKEN" \
   -o image.dcm
@@ -913,7 +913,7 @@ curl -sk "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{uid}
 ### 13.7 Retrieve Rendered PNG
 
 ```bash
-curl -sk "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{uid}/series/{uid}/instances/{uid}/rendered" \
+curl -sk "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{uid}/series/{uid}/instances/{uid}/rendered" \
   -H "Accept: image/png" \
   -H "Authorization: Bearer $TOKEN" \
   -o output.png
@@ -922,7 +922,7 @@ curl -sk "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{uid}
 ### 13.8 Upload DICOM via STOW-RS
 
 ```bash
-curl -sk -X POST "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies" \
+curl -sk -X POST "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies" \
   -H "Content-Type: multipart/related; type=\"application/dicom\"; boundary=DCM4BOUNDARY" \
   -H "Accept: application/dicom+json" \
   -H "Authorization: Bearer $TOKEN" \
@@ -944,7 +944,7 @@ BOUNDARY="BOUNDARY$(date +%s)"
   echo "--$BOUNDARY--"
 } > /tmp/multipart.txt
 
-curl -sk -X POST "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies" \
+curl -sk -X POST "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies" \
   -H "Content-Type: multipart/related; type=\"application/dicom\"; boundary=$BOUNDARY" \
   -H "Accept: application/dicom+json" \
   -H "Authorization: Bearer $TOKEN" \
@@ -954,14 +954,14 @@ curl -sk -X POST "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studi
 ### 13.9 Health Check
 
 ```bash
-curl -sk "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/monitoring/health" \
+curl -sk "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs/monitoring/health" \
   -H "Authorization: Bearer $TOKEN" | jq .
 ```
 
 ### 13.10 Export Study via DICOM
 
 ```bash
-curl -sk -X POST "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{StudyInstanceUID}/export/dicom" \
+curl -sk -X POST "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{StudyInstanceUID}/export/dicom" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{
@@ -974,14 +974,14 @@ curl -sk -X POST "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studi
 ### 13.11 Delete Study
 
 ```bash
-curl -sk -X DELETE "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{StudyInstanceUID}" \
+curl -sk -X DELETE "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{StudyInstanceUID}" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 ### 13.12 Re-index Study
 
 ```bash
-curl -sk -X POST "https://192.168.2.220:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{StudyInstanceUID}/reindex" \
+curl -sk -X POST "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{StudyInstanceUID}/reindex" \
   -H "Authorization: Bearer $TOKEN"
 ```
 

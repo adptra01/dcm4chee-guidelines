@@ -1,14 +1,14 @@
 {
   "info": {
     "name": "dcm4chee-arc 5.x API",
-    "description": "DICOMweb REST API untuk dcm4chee-arc-light 5.x\n\n## Setup\n1. Import collection ini ke Postman\n2. Set variable `host` (default: `192.168.2.220`)\n3. SSL verification OFF (Settings > SSL certificate verification = OFF)\n4. Klik \"Get Access Token\" dulu untuk ambil token\n5. Token otomatis terisi ke header Authorization via pre-request script\n\n## Auto Token (Pre-request Script)\nCollection ini memiliki pre-request script yang:\n- Cek apakah token sudah expired\n- Ambil token baru via Keycloak jika perlu\n- Set header `Authorization: Bearer {token}` otomatis\n\nToken berlaku 300 detik (5 menit). Script akan refresh otomatis.\n\nBase URL: `https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs`",
+    "description": "DICOMweb REST API untuk dcm4chee-arc-light 5.x\n\n## Setup\n1. Import collection ini ke Postman\n2. Set variable `host` (default: `{{host}}`)\n3. SSL verification OFF (Settings > SSL certificate verification = OFF)\n4. Klik \"Get Access Token\" dulu untuk ambil token\n5. Token otomatis terisi ke header Authorization via pre-request script\n\n## Auto Token (Pre-request Script)\nCollection ini memiliki pre-request script yang:\n- Cek apakah token sudah expired\n- Ambil token baru via Keycloak jika perlu\n- Set header `Authorization: Bearer {token}` otomatis\n\nToken berlaku 300 detik (5 menit). Script akan refresh otomatis.\n\nBase URL: `https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs`",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "dcm4chee-guidelines"
   },
   "variable": [
     {
       "key": "host",
-      "value": "192.168.2.220",
+      "value": "{{host}}",
       "type": "string"
     },
     {

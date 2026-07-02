@@ -45,7 +45,7 @@ cd dcm4chee-guidelines/dcm4chee-docker
 
 ### 2. Sesuaikan IP
 
-Edit `docker-compose.yml`, ganti `192.168.2.220` dengan IP server lo.
+Edit `docker-compose.yml`, ganti `<docker-host>` dengan IP server (contoh: `192.168.x.xxx`).
 Atau `localhost` kalo akses dari mesin yang sama.
 
 ### 3. Jalankan
