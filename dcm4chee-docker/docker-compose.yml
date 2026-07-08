@@ -32,7 +32,9 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /var/local/dcm4chee-arc/mysql:/var/lib/mysql
   keycloak:
-    image: dcm4che/keycloak:26.0.6
+    build:
+      context: .
+      dockerfile: Dockerfile.keycloak
     logging:
       driver: json-file
       options:
@@ -41,7 +43,7 @@ services:
       - "8843:8843"
     environment:
       KC_HTTPS_PORT: 8843
-      KC_HOSTNAME: https://<docker-host>:8843
+      KC_HOSTNAME: https://localhost:8843
       KC_HOSTNAME_BACKCHANNEL_DYNAMIC: 'true'
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: changeit
@@ -51,7 +53,7 @@ services:
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak
       KC_LOG: file
-      ARCHIVE_HOST: <docker-host>
+      ARCHIVE_HOST: localhost
       KEYCLOAK_WAIT_FOR: ldap:389 mariadb:3306
     depends_on:
       - ldap
@@ -77,7 +79,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /var/local/dcm4chee-arc/db:/var/lib/postgresql/data
   arc:
-    image: dcm4che/dcm4chee-arc-psql:5.34.3-secure
+    image: dcm4che/dcm4chee-arc-psql:5.34.3
     ports:
       - "8080:8080"
       - "8443:8443"
@@ -92,7 +94,7 @@ services:
       POSTGRES_USER: pacs
       POSTGRES_PASSWORD: pacs
       AUTH_SERVER_URL: https://keycloak:8843
-      UI_AUTH_SERVER_URL: https://<docker-host>:8843
+      UI_AUTH_SERVER_URL: https://localhost:8843
       WILDFLY_CHOWN: /storage
       WILDFLY_WAIT_FOR: ldap:389 db:5432 keycloak:8843
     depends_on:
