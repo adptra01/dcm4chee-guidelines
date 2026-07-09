@@ -26,9 +26,9 @@ class MainWindow(tk.Tk):
         self._create_widgets()
 
     def _create_widgets(self):
-        self.log_widget = LogWidget(self)
-
         sc = ScrollableFrame(self)
+
+        self.log_widget = LogWidget(sc.inner)
 
         top = ttk.Frame(sc.inner)
         self.settings = SettingsFrame(
@@ -63,8 +63,9 @@ class MainWindow(tk.Tk):
         self.send_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(4, 0))
         middle.pack(fill=tk.X, padx=8, pady=(0, 4))
 
-        sc.pack(fill=tk.BOTH, expand=True, padx=0, pady=0)
         self.log_widget.pack(fill=tk.X, padx=8, pady=(0, 8))
+
+        sc.pack(fill=tk.BOTH, expand=True, padx=0, pady=0)
 
     def _get_config(self):
         return self.settings.get_config()
