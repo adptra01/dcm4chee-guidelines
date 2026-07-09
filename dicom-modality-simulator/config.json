@@ -1,9 +1,9 @@
 {
   "ae_title": "SIMULATOR",
-  "called_ae": "DCM4CHEE",
   "pacs_host": "localhost",
   "pacs_port": 11112,
   "calling_ae": "SIMULATOR",
+  "called_ae": "DCM4CHEE",
   "scp_ae": "SIMULATOR-SCP",
   "scp_port": 11113,
   "storage_dir": ""
