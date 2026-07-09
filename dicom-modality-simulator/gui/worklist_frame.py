@@ -59,6 +59,8 @@ class WorklistFrame(ttk.LabelFrame):
         self._tree.bind("<<TreeviewSelect>>", self._on_tree_select)
 
     def _on_mode_change(self, *_):
+        self._on_cancel()
+        self._reset_btn()
         mode = self._mode.get()
         label = "📋 Study Root" if mode == "study" else "🩺 MWL (Scheduled)"
         self._mode_lbl.configure(text=label)
@@ -122,24 +124,24 @@ class WorklistFrame(ttk.LabelFrame):
     def _do_mwl_refresh(self, cfg, ae):
         local_items = query_mwl_local(ae_title=cfg.get("ae_title", "SIMULATOR"))
         dicom_items = []
+        assoc = None
 
         try:
             assoc = associate(ae, cfg["pacs_host"], cfg["pacs_port"], cfg["called_ae"])
             self._assoc = assoc
             if self._cancel.is_set():
-                assoc.abort()
-                self.after(0, lambda: self._reset_btn())
                 return
             if assoc.is_established:
                 query = build_mwl_query(ae_title=cfg.get("ae_title", "SIMULATOR"))
                 dicom_items = query_mwl_dicom(assoc, query)
-                self._assoc = None
                 assoc.release()
-            else:
-                self._assoc = None
+                assoc = None
         except Exception as e:
-            self._assoc = None
             self.after(0, lambda e=e: self._log.log_error(f"MWL DICOM: {e} (using local data)"))
+        finally:
+            if assoc:
+                assoc.release()
+            self._assoc = None
 
         seen = {i.accession_number for i in dicom_items}
         for item in local_items:
@@ -149,6 +151,7 @@ class WorklistFrame(ttk.LabelFrame):
         self._items = dicom_items
         self.after(0, self._update_table)
         self.after(0, lambda n=len(dicom_items): self._log.log_ok(f"MWL: {n} scheduled procedures"))
+        self.after(0, lambda: self._reset_btn())
 
     def _reset_btn(self):
         self._refresh_btn.configure(state=tk.NORMAL)

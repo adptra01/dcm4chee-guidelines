@@ -5,7 +5,10 @@ from gui.main_window import MainWindow
 
 def main():
     app = MainWindow()
-    app.mainloop()
+    try:
+        app.mainloop()
+    except KeyboardInterrupt:
+        app._on_close()
 
 
 if __name__ == "__main__":
