@@ -14,43 +14,27 @@ class SCPFrame(ttk.LabelFrame):
         self._create_widgets()
 
     def _create_widgets(self):
-        row = 0
-        ttk.Label(self, text="AE Title:").grid(row=row, column=0, sticky=tk.W, padx=4, pady=2)
-        self._ae_entry = ttk.Entry(self, width=16)
+        ttk.Label(self, text="Server:").grid(row=0, column=0, sticky=tk.W, padx=4, pady=2)
         cfg = self._get_config()
-        ae = cfg.get("ae_title", "SIMULATOR")
-        self._ae_entry.insert(0, f"{ae}-SCP")
-        self._ae_entry.grid(row=row, column=1, sticky=tk.W, padx=4, pady=2)
-        row += 1
-
-        ttk.Label(self, text="Listen Port:").grid(row=row, column=0, sticky=tk.W, padx=4, pady=2)
-        self._port_entry = ttk.Entry(self, width=16)
-        self._port_entry.insert(0, str(cfg.get("scp_port", 11113)))
-        self._port_entry.grid(row=row, column=1, sticky=tk.W, padx=4, pady=2)
-        row += 1
-
-        ttk.Label(self, text="Storage Dir:").grid(row=row, column=0, sticky=tk.W, padx=4, pady=2)
-        self._dir_entry = ttk.Entry(self, width=40)
-        self._dir_entry.insert(0, str(Path.home() / "dicom-received"))
-        self._dir_entry.grid(row=row, column=1, sticky=tk.EW, padx=4, pady=2)
-        row += 1
+        ae = f"{cfg.get('ae_title', 'SIMULATOR')}-SCP"
+        port = cfg.get("scp_port", 11113)
+        self._info_lbl = ttk.Label(self, text=f"{ae} :{port}")
+        self._info_lbl.grid(row=0, column=1, sticky=tk.W, padx=4, pady=2)
 
         btn_frame = ttk.Frame(self)
-        btn_frame.grid(row=row, column=0, columnspan=2, pady=4)
+        btn_frame.grid(row=1, column=0, columnspan=2, pady=(4, 0))
         self._start_btn = ttk.Button(btn_frame, text="Start Server", command=self._on_start)
-        self._start_btn.pack(side=tk.LEFT, padx=4)
+        self._start_btn.pack(side=tk.LEFT, padx=2)
         self._stop_btn = ttk.Button(btn_frame, text="Stop Server", command=self._on_stop, state=tk.DISABLED)
-        self._stop_btn.pack(side=tk.LEFT, padx=4)
+        self._stop_btn.pack(side=tk.LEFT, padx=2)
         self._status_lbl = ttk.Label(btn_frame, text="○ Stopped", foreground="gray")
         self._status_lbl.pack(side=tk.LEFT, padx=8)
-        row += 1
-
-        self.columnconfigure(1, weight=1)
 
     def _on_start(self):
-        ae_title = self._ae_entry.get().strip()
-        port = self._port_entry.get().strip()
-        storage_dir = self._dir_entry.get().strip()
+        cfg = self._get_config()
+        ae_title = f"{cfg.get('ae_title', 'SIMULATOR')}-SCP"
+        port = cfg.get("scp_port", 11113)
+        storage_dir = cfg.get("storage_dir") or str(Path.home() / "dicom-received")
 
         Path(storage_dir).mkdir(parents=True, exist_ok=True)
 

@@ -11,6 +11,7 @@ DEFAULT_CONFIG = {
     "called_ae": "DCM4CHEE",
     "scp_ae": "SIMULATOR-SCP",
     "scp_port": 11113,
+    "storage_dir": "",
 }
 
 

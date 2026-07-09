@@ -106,3 +106,12 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /var/local/dcm4chee-arc/wildfly:/opt/wildfly/standalone
       - /var/local/dcm4chee-arc/storage:/storage
+  scp-server:
+    build: scp-server
+    ports:
+      - "11114:11114"
+    environment:
+      AE_TITLE: SIMULATOR-SCP
+      PORT: 11114
+    volumes:
+      - /var/local/dcm4chee-arc/storage:/storage

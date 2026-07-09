@@ -11,7 +11,8 @@ Dibuat dengan **Python/Tkinter** + **pynetdicom** + **pydicom**.
 | Kategori | Fitur | Status |
 |----------|-------|--------|
 | Koneksi | C-ECHO — Test koneksi ke PACS | ✅ |
-| Koneksi | C-FIND — Ambil worklist / daftar study | ✅ |
+| Koneksi | C-FIND — Study Root worklist | ✅ |
+| Koneksi | C-FIND — Modality Worklist (MWL) (Scheduled) | ✅ |
 | Koneksi | C-STORE — Kirim file DICOM ke PACS | ✅ |
 | Koneksi | C-MOVE — Retrieve study dari PACS | 🚧 |
 | Storage | Storage SCP — Terima file dari PACS / modality lain | ✅ |
@@ -152,17 +153,19 @@ Pastikan 4 hal ini sudah siap:
 Cuma 6 langkah, selesai 2 menit:
 
 ```
-1. Jalankan: python main.py
+1. Generate MWL data: python seed_mwl.py
          ↓
-2. Test Connection — isi Host/Port PACS, klik [Test Connection]
+2. Jalankan: python main.py
          ↓
-3. Refresh Worklist — klik [Refresh Worklist]
+3. Test Connection — isi Host/Port PACS, klik [Test Connection]
          ↓
-4. Pilih pasien — klik salah satu baris di tabel
+4. Pilih mode MWL — radio "MWL (Scheduled)", klik [Refresh]
          ↓
-5. Browse DICOM — klik [Browse DICOM...], pilih file .dcm
+5. Pilih pasien — klik salah satu baris di tabel
          ↓
-6. Send — klik [Send to PACS]
+6. Browse DICOM — klik [Browse DICOM...], pilih file .dcm
+         ↓
+7. Send — klik [Send to PACS]
 ```
 
 Kalau semua berhasil, panel log akan menampilkan:
@@ -188,7 +191,7 @@ C-STORE Success
 | v1.0 | MPPS, Storage Commitment, C-MOVE |
 | v1.1 | Cancel, timeout, graceful close |
 | v1.2 | C-GET retrieve |
-| v1.3 | Modality Worklist (MWL) |
+| v1.3 | MWL query (local data) + GUI toggle |
 | v2.0 | Config UI (preferences dialog) |
 
 ---

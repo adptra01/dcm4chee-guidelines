@@ -365,45 +365,76 @@ docker exec <container-dcm4chee> \
 
 ---
 
-## 7. Setup Modality Worklist
+## 7. Modality Worklist (MWL)
 
-Simulator saat ini menggunakan query **Study Root** (bukan Modality Worklist). Study Root query mengambil semua study dari PACS — tidak spesifik per modality.
+Simulator mendukung dua mode worklist:
 
-### Cara Kerja
+| Mode | SOP Class | Sumber Data |
+|------|-----------|-------------|
+| **Study Root** | StudyRootQueryRetrieveInformationModelFind (1.2.840.10008.5.1.4.1.2.2.1) | Query ke PACS via C-FIND |
+| **MWL (Scheduled)** | ModalityWorklistInformationModel - FIND (1.2.840.10008.5.1.4.31) | Data lokal JSON + C-FIND ke PACS |
 
-```
-C-FIND-RQ:
-  QueryRetrieveLevel: STUDY
-  StudyInstanceUID: (empty — cari semua)
-  PatientName: (empty — cari semua)
-  ...
+### Cara Kerja MWL
 
-PACS response:
-  Semua study yang cocok dengan kriteria
-```
-
-### Kalau Worklist Kosong
+MWL berisi prosedur yang **sudah dijadwalkan** untuk modality tertentu — bukan study yang sudah selesai.
 
 ```
-Worklist: 0 items
+┌──────────┐     ORM^O01 (HL7)      ┌──────────────┐
+│   RIS    │ ──────────────────────▶ │  dcm4chee    │
+│ (Seeder) │                         │  (PACS)      │
+└──────────┘                         └──────┬───────┘
+                                            │ C-FIND MWL
+                                            ▼
+                                    ┌──────────────┐
+                                    │  Simulator    │
+                                    │ (Modality)    │
+                                    └──────────────┘
 ```
 
-**Kemungkinan:**
-1. PACS benar-benar kosong — belum ada study
-2. C-FIND context tidak di-accept — cek accepted contexts
+Di simulator, data MWL disediakan secara lokal via `mwl_data.json` karena:
+1. Simulator tidak perlu bergantung pada RIS untuk testing
+2. dcm4chee-arc versi ini tidak punya REST API untuk MWL (tapi bisa via HL7 ORM)
+3. Data lokal bisa diedit dan di-regenerate kapan saja
 
-**Solusi:**
-1. Kirim dulu file DICOM ke PACS (via simulator atau tool lain)
-2. Cek accepted contexts:
-   ```python
-   for cx in assoc.accepted_contexts:
-       print(cx.abstract_syntax)
-   ```
-   Harus ada `1.2.840.10008.5.1.4.1.2.2.1` (StudyRootQueryRetrieveInformationModelFind)
+### Generate Data MWL
 
-### Kalau Mau Query Modality Worklist
+```bash
+cd dicom-modality-simulator
+.venv/bin/python seed_mwl.py
+```
 
-Fitur MWL (Modality Worklist) belum diimplementasikan. Rencana ada di versi 1.3.
+Hasil: file `mwl_data.json` dengan 5 pasien (CT, MR, CR, US, XA).
+
+### Query MWL ke PACS
+
+C-FIND MWL akan otomatis dicoba saat mode MWL aktif. Kalau PACS tidak support (biasanya karena MWL context tidak di-accept), aplikasi tetap bisa pakai data lokal.
+
+### Membuat MWL Entry di dcm4chee (Advanced)
+
+Untuk beneran mengisi MWL dcm4chee, kirim HL7 ORM^O01 ke port 2575:
+
+```bash
+python3 << 'EOF'
+import socket
+
+msg = (
+    "MSH|^~\\&|RIS|HOSPITAL|DCM4CHEE|HOSPITAL|20260709120000||ORM^O01|MSG001|P|2.3.1\r"
+    "PID|1||PAT001^^^HOSPITAL^MR||DOE^JOHN^J||19800101|M\r"
+    "PV1|1|O|^RADIOLOGY^CT\r"
+    "ORC|NW|REQ001^^^HOSPITAL^SI\r"
+    "OBR|1|REQ001^^^HOSPITAL^SI||CTCHEST^CT CHEST^L|||20260709120000"
+)
+
+s = socket.socket()
+s.settimeout(5)
+s.connect(("localhost", 2575))
+s.sendall(b"\x0b" + msg.encode() + b"\x1c\x0d")
+print(s.recv(4096).decode("utf-8", "replace"))
+s.close()
+EOF
+```
+
+**Catatan:** dcm4chee membutuhkan `StudyInstanceUID` dan `Scheduled Procedure Step Sequence` di ORM untuk beneran bikin MWL entry. Ini biasanya dikirim via segmen **ZDS** (custom dcm4chee extension) — lihat dokumentasi dcm4chee untuk format lengkapnya.
 
 ---
 
