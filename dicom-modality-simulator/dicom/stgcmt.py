@@ -6,7 +6,7 @@ from pynetdicom.sop_class import StorageCommitmentPushModel
 SC_SOP_CLASS = "1.2.840.10008.1.20.1"
 
 
-def stgcmt_request(assoc, scp_ae_title, scp_port, sop_instances):
+def stgcmt_request(assoc, sop_instances):
     tx_uid = generate_uid()
     ds = Dataset()
     ds.TransactionUID = tx_uid
@@ -19,7 +19,7 @@ def stgcmt_request(assoc, scp_ae_title, scp_port, sop_instances):
         refs.append(item)
     ds.ReferencedSOPSequence = refs
     status, rsp = assoc.send_n_action(
-        ds, 1, StorageCommitmentPushModel, SC_SOP_CLASS
+        ds, 1, StorageCommitmentPushModel, tx_uid
     )
     return status, rsp, tx_uid
 

@@ -242,8 +242,6 @@ class SendFrame(ttk.LabelFrame):
             sop_uid = ds.SOPInstanceUID
             status, rsp, tx_uid = stgcmt_request(
                 assoc,
-                cfg.get("scp_ae", "SIMULATOR-SCP"),
-                cfg.get("scp_port", "11113"),
                 [(sop_class_uid, sop_uid)],
             )
             assoc.release()

@@ -137,8 +137,9 @@ class WorklistFrame(ttk.LabelFrame):
                 assoc.release()
             else:
                 self._assoc = None
-        except Exception:
+        except Exception as e:
             self._assoc = None
+            self.after(0, lambda e=e: self._log.log_error(f"MWL DICOM: {e} (using local data)"))
 
         seen = {i.accession_number for i in dicom_items}
         for item in local_items:
