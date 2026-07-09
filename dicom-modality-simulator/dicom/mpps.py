@@ -7,7 +7,12 @@ from pynetdicom.sop_class import ModalityPerformedProcedureStep
 def _status_code(s):
     if isinstance(s, Dataset) and (0x00000900) in s:
         return int(s[0x00000900].value)
-    return int(s) if not isinstance(s, Dataset) else 0xFFFF
+    if isinstance(s, int):
+        return s
+    try:
+        return int(s) if not isinstance(s, Dataset) else 0xFFFF
+    except (ValueError, TypeError):
+        return 0xFFFF
 
 
 def mpps_start(assoc, patient_name, patient_id, study_uid, step_id=None, desc=None):

@@ -21,8 +21,9 @@ def dump_info(ds: Dataset) -> str:
     lines = ["── DICOM Dataset ──"]
     for name, val in fields:
         lines.append(f"  {name}: {val}")
-    if "TransferSyntaxUID" in ds.file_meta:
-        lines.append(f"  TransferSyntaxUID: {ds.file_meta.TransferSyntaxUID}")
+    fm = getattr(ds, "file_meta", None)
+    if fm and "TransferSyntaxUID" in fm:
+        lines.append(f"  TransferSyntaxUID: {fm.TransferSyntaxUID}")
     return "\n".join(lines)
 
 
