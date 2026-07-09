@@ -20,32 +20,33 @@ class SettingsFrame(ttk.LabelFrame):
         self._load_config()
 
     def _create_widgets(self):
-        left = ttk.Frame(self)
-        left.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        right = ttk.Frame(self)
-        right.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(8, 0))
+        self.columnconfigure(0, weight=1)
+        row_frame = ttk.Frame(self)
+        row_frame.pack(fill=tk.BOTH, expand=True)
+        row_frame.columnconfigure(0, weight=1)
+        row_frame.columnconfigure(1, weight=1)
 
         fields = [
-            (left, 0, "AE Title:", "_ae_title"),
-            (left, 1, "Called AE:", "_called_ae"),
-            (left, 2, "PACS Host:", "_host"),
-            (left, 3, "PACS Port:", "_port"),
-            (right, 0, "SCP AE:", "_scp_ae"),
-            (right, 1, "SCP Port:", "_scp_port"),
-            (right, 2, "Storage Dir:", "_dir_entry"),
+            (0, 0, "AE Title:", "_ae_title"),
+            (0, 1, "Called AE:", "_called_ae"),
+            (0, 2, "PACS Host:", "_host"),
+            (0, 3, "PACS Port:", "_port"),
+            (1, 0, "SCP AE:", "_scp_ae"),
+            (1, 1, "SCP Port:", "_scp_port"),
+            (1, 2, "Storage Dir:", "_dir_entry"),
         ]
 
-        for frame, row, label, attr in fields:
-            ttk.Label(frame, text=label, font=("", 9, "bold")).grid(
-                row=row, column=0, sticky=tk.W, padx=4, pady=2)
-            entry = ttk.Entry(frame, width=20)
-            entry.grid(row=row, column=1, sticky=tk.EW, padx=4, pady=2)
+        for col, row, label, attr in fields:
+            side = ttk.Frame(row_frame)
+            side.grid(row=row, column=col, sticky=tk.EW, padx=2)
+            side.columnconfigure(1, weight=1)
+            ttk.Label(side, text=label, font=("", 9, "bold")).grid(
+                row=0, column=0, sticky=tk.W, padx=4, pady=2)
+            entry = ttk.Entry(side, width=18)
+            entry.grid(row=0, column=1, sticky=tk.EW, padx=4, pady=2)
             setattr(self, attr, entry)
 
-        self._dir_entry.configure(width=20)
-
-        for f in (left, right):
-            f.columnconfigure(1, weight=1)
+        self._dir_entry.configure(width=18)
 
         btn_frame = ttk.Frame(self)
         btn_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=(6, 0))
