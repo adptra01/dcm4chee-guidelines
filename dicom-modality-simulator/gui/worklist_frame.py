@@ -70,6 +70,7 @@ class WorklistFrame(ttk.LabelFrame):
             self._assoc.abort()
             self._assoc = None
         self._cancel.set()
+        self._reset_btn()
 
     def _on_refresh(self):
         self._cancel.clear()

@@ -103,7 +103,7 @@ class SendFrame(ttk.LabelFrame):
         if self._cancel.is_set():
             self.after(0, lambda: self._retrieve_btn.configure(state=tk.NORMAL))
             return
-        from dicom.retrieve import cmove_study
+        from dicom.retrieve import move_studies
         cfg = self._get_config()
         ae = self._get_ae()
         if not ae:
@@ -117,7 +117,7 @@ class SendFrame(ttk.LabelFrame):
                 self.after(0, lambda: self._log.log_error("Association failed"))
                 self.after(0, lambda: self._retrieve_btn.configure(state=tk.NORMAL))
                 return
-            status, rsp = cmove_study(assoc, patient.study_instance_uid, scp_ae)
+            status, rsp = move_studies(assoc, patient.study_instance_uid, scp_ae)
             assoc.release()
             if status == 0x0000:
                 self.after(0, lambda: self._log.log_ok(f"C-MOVE success → {scp_ae}"))
@@ -240,15 +240,16 @@ class SendFrame(ttk.LabelFrame):
                 return
             sop_class_uid = ds.SOPClassUID
             sop_uid = ds.SOPInstanceUID
-            status, rsp, tx_uid = stgcmt_request(
+            status_ds, rsp, tx_uid = stgcmt_request(
                 assoc,
                 [(sop_class_uid, sop_uid)],
             )
             assoc.release()
-            if status == 0x0000:
+            st = status_ds.Status if hasattr(status_ds, "Status") else 0xFFFF
+            if st == 0x0000:
                 self.after(0, lambda: self._log.log_ok(f"StgCmt requested: tx={tx_uid}"))
             else:
-                self.after(0, lambda: self._log.log_error(f"StgCmt N-ACTION: 0x{status:04X}"))
+                self.after(0, lambda: self._log.log_error(f"StgCmt N-ACTION: 0x{st:04X}"))
         except Exception as e:
             self.after(0, lambda e=e: self._log.log_error(f"StgCmt error: {e}"))
         self.after(0, lambda: self._stgcmt_btn.configure(state=tk.NORMAL))
