@@ -4,11 +4,13 @@ from pathlib import Path
 CONFIG_PATH = Path(__file__).parent / "config.json"
 
 DEFAULT_CONFIG = {
-    "ae_title": "PZDR",
+    "ae_title": "SIMULATOR",
     "pacs_host": "localhost",
     "pacs_port": 11112,
-    "calling_ae": "PZDR",
+    "calling_ae": "SIMULATOR",
     "called_ae": "DCM4CHEE",
+    "scp_ae": "SIMULATOR-SCP",
+    "scp_port": 11113,
 }
 
 

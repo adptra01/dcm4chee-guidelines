@@ -17,13 +17,15 @@ class SCPFrame(ttk.LabelFrame):
         row = 0
         ttk.Label(self, text="AE Title:").grid(row=row, column=0, sticky=tk.W, padx=4, pady=2)
         self._ae_entry = ttk.Entry(self, width=16)
-        self._ae_entry.insert(0, "PZDR-SCP")
+        cfg = self._get_config()
+        ae = cfg.get("ae_title", "SIMULATOR")
+        self._ae_entry.insert(0, f"{ae}-SCP")
         self._ae_entry.grid(row=row, column=1, sticky=tk.W, padx=4, pady=2)
         row += 1
 
         ttk.Label(self, text="Listen Port:").grid(row=row, column=0, sticky=tk.W, padx=4, pady=2)
         self._port_entry = ttk.Entry(self, width=16)
-        self._port_entry.insert(0, "11113")
+        self._port_entry.insert(0, str(cfg.get("scp_port", 11113)))
         self._port_entry.grid(row=row, column=1, sticky=tk.W, padx=4, pady=2)
         row += 1
 

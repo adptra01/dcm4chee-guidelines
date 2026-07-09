@@ -110,7 +110,7 @@ class SendFrame(ttk.LabelFrame):
             self.after(0, lambda: self._log.log_error("Test connection first"))
             self.after(0, lambda: self._retrieve_btn.configure(state=tk.NORMAL))
             return
-        scp_ae = cfg.get("scp_ae", "PZDR-SCP")
+        scp_ae = cfg.get("scp_ae", "SIMULATOR-SCP")
         try:
             assoc = associate(ae, cfg["pacs_host"], cfg["pacs_port"], cfg["called_ae"])
             if not assoc.is_established:
@@ -126,7 +126,7 @@ class SendFrame(ttk.LabelFrame):
             else:
                 self.after(0, lambda: self._log.log_error(f"C-MOVE: 0x{status:04X}"))
         except Exception as e:
-            self.after(0, lambda: self._log.log_error(f"C-MOVE error: {e}"))
+            self.after(0, lambda e=e: self._log.log_error(f"C-MOVE error: {e}"))
         self.after(0, lambda: self._retrieve_btn.configure(state=tk.NORMAL))
 
     def _on_mpps_start(self):
@@ -170,7 +170,7 @@ class SendFrame(ttk.LabelFrame):
                 self.after(0, lambda: self._log.log_error(f"MPPS N-CREATE: 0x{status:04X}"))
                 self.after(0, lambda: self._mpps_start_btn.configure(state=tk.NORMAL))
         except Exception as e:
-            self.after(0, lambda: self._log.log_error(f"MPPS error: {e}"))
+            self.after(0, lambda e=e: self._log.log_error(f"MPPS error: {e}"))
             self.after(0, lambda: self._mpps_start_btn.configure(state=tk.NORMAL))
 
     def _on_mpps_complete(self):
@@ -210,7 +210,7 @@ class SendFrame(ttk.LabelFrame):
             else:
                 self.after(0, lambda: self._log.log_error(f"MPPS N-SET: 0x{status:04X}"))
         except Exception as e:
-            self.after(0, lambda: self._log.log_error(f"MPPS error: {e}"))
+            self.after(0, lambda e=e: self._log.log_error(f"MPPS error: {e}"))
 
     def _on_stgcmt(self):
         if not self._current_ds:
@@ -242,7 +242,7 @@ class SendFrame(ttk.LabelFrame):
             sop_uid = ds.SOPInstanceUID
             status, rsp, tx_uid = stgcmt_request(
                 assoc,
-                cfg.get("scp_ae", "PZDR-SCP"),
+                cfg.get("scp_ae", "SIMULATOR-SCP"),
                 cfg.get("scp_port", "11113"),
                 [(sop_class_uid, sop_uid)],
             )
@@ -252,7 +252,7 @@ class SendFrame(ttk.LabelFrame):
             else:
                 self.after(0, lambda: self._log.log_error(f"StgCmt N-ACTION: 0x{status:04X}"))
         except Exception as e:
-            self.after(0, lambda: self._log.log_error(f"StgCmt error: {e}"))
+            self.after(0, lambda e=e: self._log.log_error(f"StgCmt error: {e}"))
         self.after(0, lambda: self._stgcmt_btn.configure(state=tk.NORMAL))
 
     def _on_browse(self):
@@ -341,6 +341,6 @@ class SendFrame(ttk.LabelFrame):
                     f"C-STORE failed: Status 0x{status_code:04X} {comment or ''}"
                 ))
         except Exception as e:
-            self.after(0, lambda: self._log.log_error(f"Send error: {e}"))
+            self.after(0, lambda e=e: self._log.log_error(f"Send error: {e}"))
         finally:
             self.after(0, lambda: self._send_btn.configure(state=tk.NORMAL))

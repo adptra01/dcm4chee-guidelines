@@ -23,7 +23,7 @@
 ### Langkah
 
 1. Isi field di panel **PACS Connection**:
-   - **AE Title** — nama aplikasi kita (`PZDR`)
+   - **AE Title** — nama aplikasi kita (`SIMULATOR`)
    - **Called AE** — nama PACS tujuan (`DCM4CHEE`)
    - **Host** — IP PACS (`192.168.1.100` atau `localhost`)
    - **Port** — port DICOM PACS (`11112`)
@@ -244,7 +244,7 @@ Dataset yang dikirim ke PACS:
 
 ```
 PerformedProcedureStepID: 001
-PerformedStationAETitle: PZDR
+PerformedStationAETitle: SIMULATOR
 PerformedProcedureStepStartDateTime: 2025-07-09 02:21:50
 PerformedProcedureStepStatus: IN PROGRESS
 PatientName: BUDI^UTOMO
@@ -327,7 +327,7 @@ Protokol: `C-MOVE-RQ` pada SOP Class `StudyRootQueryRetrieveInformationModelMove
 1. Start SCP dulu (panel Storage SCP → [Start Server])
 2. Pilih study dari worklist
 3. Klik **[Retrieve Study]**
-4. PACS kirim file ke SCP tujuan (default: `PZDR-SCP` port `11113`)
+4. PACS kirim file ke SCP tujuan (default: `SIMULATOR-SCP` port `11113`)
 5. File tersimpan di folder storage SCP (default: `~/dicom-received/`)
 
 ### Kalau Gagal
@@ -335,9 +335,9 @@ Protokol: `C-MOVE-RQ` pada SOP Class `StudyRootQueryRetrieveInformationModelMove
 ```
 C-MOVE: 0xA801
 ```
-**Artinya:** Move Destination Unknown — PACS tidak kenal AE tujuan (`PZDR-SCP`).
+**Artinya:** Move Destination Unknown — PACS tidak kenal AE tujuan (`SIMULATOR-SCP`).
 
-**Solusi:** Daftarkan AE `PZDR-SCP` di konfigurasi PACS (lihat Panduan Integrasi).
+**Solusi:** Daftarkan AE `SIMULATOR-SCP` di konfigurasi PACS (lihat Panduan Integrasi).
 
 ### Catatan
 
@@ -358,7 +358,7 @@ C-MOVE: 0xA801
 
 | Aspek | Detail |
 |-------|--------|
-| AE Title | PZDR-SCP (bisa diganti) |
+| AE Title | SIMULATOR-SCP (bisa diganti) |
 | Port | 11113 (bisa diganti) |
 | Support | Semua Storage SOP Class |
 | Listener | Juga handle N-EVENT-REPORT untuk Storage Commitment |
@@ -367,7 +367,7 @@ C-MOVE: 0xA801
 ### Langkah
 
 1. Isi field:
-   - **AE Title**: `PZDR-SCP`
+   - **AE Title**: `SIMULATOR-SCP`
    - **Listen Port**: `11113`
    - **Storage Dir**: `~/dicom-received`
 2. Klik **[Start Server]**

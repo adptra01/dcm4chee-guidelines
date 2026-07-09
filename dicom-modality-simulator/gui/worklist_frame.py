@@ -93,7 +93,7 @@ class WorklistFrame(ttk.LabelFrame):
             self.after(0, lambda: self._log.log_ok(f"Worklist: {len(results)} items"))
         except Exception as e:
             self._assoc = None
-            self.after(0, lambda: self._log.log_error(f"Worklist error: {e}"))
+            self.after(0, lambda e=e: self._log.log_error(f"Worklist error: {e}"))
         finally:
             self.after(0, lambda: self._reset_refresh_btn())
 

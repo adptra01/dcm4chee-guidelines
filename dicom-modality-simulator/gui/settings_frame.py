@@ -57,7 +57,7 @@ class SettingsFrame(ttk.LabelFrame):
 
     def _load_config(self):
         self._ae_title.delete(0, tk.END)
-        self._ae_title.insert(0, self._cfg.get("ae_title", "PZDR"))
+        self._ae_title.insert(0, self._cfg.get("ae_title", "SIMULATOR"))
         self._called_ae.delete(0, tk.END)
         self._called_ae.insert(0, self._cfg.get("called_ae", "DCM4CHEE"))
         self._host.delete(0, tk.END)
@@ -77,7 +77,8 @@ class SettingsFrame(ttk.LabelFrame):
         return self._ae
 
     def _on_save(self):
-        cfg = self.get_config()
+        cfg = config.load()
+        cfg.update(self.get_config())
         config.save(cfg)
         self._log.log_info("Configuration saved")
 
@@ -86,6 +87,8 @@ class SettingsFrame(ttk.LabelFrame):
             self._assoc.abort()
             self._assoc = None
         self._cancel.set()
+        self._status_lbl.configure(text="⟳ Cancelled", foreground="orange")
+        self._log.log_info("Connection test cancelled")
 
     def _on_test(self):
         self._cancel.clear()
@@ -106,6 +109,7 @@ class SettingsFrame(ttk.LabelFrame):
             self._assoc = assoc
             if self._cancel.is_set():
                 assoc.abort()
+                self.after(0, lambda: self._log.log_info("Connection test cancelled"))
                 self.after(0, lambda: self._reset_test_btn())
                 return
             if assoc.is_established:
@@ -135,7 +139,7 @@ class SettingsFrame(ttk.LabelFrame):
             self.after(0, lambda: self._log.log_error("Connection timed out (10s)"))
         except Exception as e:
             self._on_status(False)
-            self.after(0, lambda: self._log.log_error(f"Connection error: {e}"))
+            self.after(0, lambda e=e: self._log.log_error(f"Connection error: {e}"))
         finally:
             self.after(0, lambda: self._reset_test_btn())
 
