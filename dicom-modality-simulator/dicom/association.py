@@ -4,7 +4,6 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelMove,
     ModalityPerformedProcedureStep,
-    ModalityWorklistInformationFind,
     StorageCommitmentPushModel,
 )
 
@@ -46,7 +45,6 @@ def create_ae(ae_title: str, timeout=10):
     ae.add_requested_context(StudyRootQueryRetrieveInformationModelFind)
     ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
     ae.add_requested_context(ModalityPerformedProcedureStep)
-    ae.add_requested_context(ModalityWorklistInformationFind)
     ae.add_requested_context(StorageCommitmentPushModel)
     for ctx in STORE_CONTEXTS + PRESENTATION_CONTEXTS:
         ae.add_requested_context(ctx)

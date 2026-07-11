@@ -5,15 +5,10 @@ from pynetdicom.sop_class import StudyRootQueryRetrieveInformationModelMove
 def _status_code(s):
     if isinstance(s, Dataset) and (0x00000900) in s:
         return int(s[0x00000900].value)
-    if isinstance(s, int):
-        return s
-    try:
-        return int(s) if not isinstance(s, Dataset) else 0xFFFF
-    except (ValueError, TypeError):
-        return 0xFFFF
+    return int(s) if not isinstance(s, Dataset) else 0xFFFF
 
 
-def move_studies(assoc, study_uid, dest_ae='SIMULATOR-SCP'):
+def cmove_study(assoc, study_uid, dest_ae):
     ds = Dataset()
     ds.QueryRetrieveLevel = "STUDY"
     ds.StudyInstanceUID = study_uid

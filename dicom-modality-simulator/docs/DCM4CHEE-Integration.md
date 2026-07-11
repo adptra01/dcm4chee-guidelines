@@ -7,16 +7,15 @@ Panduan lengkap menghubungkan DICOM Modality Simulator dengan server PACS dcm4ch
 ## Daftar Isi
 
 1. [Akses LDAP DCM4CHEE](#1-akses-ldap-dcm4chee)
-2. [Daftar AE Title Simulator (SIMULATOR)](#2-daftar-ae-title-simulator-simulator)
-3. [Daftar AE Title SCP (SIMULATOR-SCP)](#3-daftar-ae-title-scp-simulator-scp)
+2. [Daftar AE Title Simulator (PZDR)](#2-daftar-ae-title-simulator-pzdr)
+3. [Daftar AE Title SCP (PZDR-SCP)](#3-daftar-ae-title-scp-pzdr-scp)
 4. [Setup Transfer Capability](#4-setup-transfer-capability)
 5. [Setup MPPS Service](#5-setup-mpps-service)
 6. [Setup Storage Commitment](#6-setup-storage-commitment)
 7. [Setup Modality Worklist](#7-setup-modality-worklist)
 8. [Verifikasi Konfigurasi](#8-verifikasi-konfigurasi)
 9. [DICOM Workflow Diagram](#9-dicom-workflow-diagram)
-10. [Konfigurasi via Web UI (Alternatif)](#10-konfigurasi-via-web-ui-alternatif)
-11. [Kendala Setup DCM4CHEE](#11-kendala-setup-dcm4chee)
+10. [Kendala Setup DCM4CHEE](#10-kendala-setup-dcm4chee)
 
 ---
 
@@ -87,40 +86,40 @@ Semua tool tersedia di container dcm4chee (kalau tidak ada di host, jalankan dar
 
 ---
 
-## 2. Daftar AE Title Simulator (SIMULATOR)
+## 2. Daftar AE Title Simulator (PZDR)
 
-Biar PACS kenal sama simulator kita, daftarkan device `SIMULATOR` dan network connection-nya.
+Biar PACS kenal sama simulator kita, daftarkan device `PZDR` dan network connection-nya.
 
 ### Langkah
 
 Buat file `register-pzdr.ldif`:
 
 ```ldif
-# 1. Device SIMULATOR
-dn: dicomDeviceName=SIMULATOR,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
+# 1. Device PZDR
+dn: dicomDeviceName=PZDR,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
 objectClass: dicomDevice
 objectClass: top
-dicomDeviceName: SIMULATOR
+dicomDeviceName: PZDR
 dicomInstalled: TRUE
 dicomManufacturer: Python pynetdicom
 dicomManufacturerModelName: DICOM Modality Simulator
 dicomSoftwareVersion: 1.0
-dicomNetworkConnectionReference: dicomNetworkConnectionName=SIMULATOR-CONN,cn=SIMULATOR,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: dicomNetworkConnectionName=PZDR-CONN,cn=PZDR,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
 
-# 2. Network Connection SIMULATOR (SCU only → port 0)
-dn: dicomNetworkConnectionName=SIMULATOR-CONN,cn=SIMULATOR,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
+# 2. Network Connection PZDR (SCU only → port 0)
+dn: dicomNetworkConnectionName=PZDR-CONN,cn=PZDR,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
 objectClass: dicomNetworkConnection
 objectClass: top
-dicomNetworkConnectionName: SIMULATOR-CONN
+dicomNetworkConnectionName: PZDR-CONN
 dicomHostname: <ip-simulator>
 dicomPort: 0
 
-# 3. AE Title SIMULATOR
-dn: dicomAETitle=SIMULATOR,cn=AE Titles,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
+# 3. AE Title PZDR
+dn: dicomAETitle=PZDR,cn=AE Titles,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
 objectClass: dicomAETitle
 objectClass: top
-dicomAETitle: SIMULATOR
-dicomNetworkAE: dicomNetworkConnectionName=SIMULATOR-CONN,cn=SIMULATOR,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
+dicomAETitle: PZDR
+dicomNetworkAE: dicomNetworkConnectionName=PZDR-CONN,cn=PZDR,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
 ```
 
 Jalankan:
@@ -135,53 +134,53 @@ ldapadd -h <ip-dcm4chee> -p 1389 \
 
 | Field | Isi | Arti |
 |-------|-----|------|
-| `dicomDeviceName` | SIMULATOR | Nama device di PACS |
+| `dicomDeviceName` | PZDR | Nama device di PACS |
 | `dicomInstalled` | TRUE | Device aktif |
 | `dicomHostname` | `<ip-simulator>` | IP komputer simulator |
 | `dicomPort` | 0 | 0 = SCU aja (cuma ngirim) |
-| `dicomAETitle` | SIMULATOR | AE Title yang dipake koneksi |
+| `dicomAETitle` | PZDR | AE Title yang dipake koneksi |
 
 ### Verifikasi
 
 ```bash
 ldapsearch -h <ip-dcm4chee> -p 1389 \
   -D "cn=admin,cn=config" -w password -x \
-  -b "dicomAETitle=SIMULATOR,cn=AE Titles,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org"
+  -b "dicomAETitle=PZDR,cn=AE Titles,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org"
 ```
 
 ---
 
-## 3. Daftar AE Title SCP (SIMULATOR-SCP)
+## 3. Daftar AE Title SCP (PZDR-SCP)
 
-Untuk C-MOVE destination dan Storage Commitment, daftarkan device `SIMULATOR-SCP` dengan port aktif.
+Untuk C-MOVE destination dan Storage Commitment, daftarkan device `PZDR-SCP` dengan port aktif.
 
 ### Langkah
 
 Buat file `register-pzdr-scp.ldif`:
 
 ```ldif
-# 1. Device SIMULATOR-SCP
-dn: dicomDeviceName=SIMULATOR-SCP,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
+# 1. Device PZDR-SCP
+dn: dicomDeviceName=PZDR-SCP,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
 objectClass: dicomDevice
 objectClass: top
-dicomDeviceName: SIMULATOR-SCP
+dicomDeviceName: PZDR-SCP
 dicomInstalled: TRUE
-dicomNetworkConnectionReference: dicomNetworkConnectionName=SIMULATOR-SCP-CONN,cn=SIMULATOR-SCP,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: dicomNetworkConnectionName=PZDR-SCP-CONN,cn=PZDR-SCP,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
 
 # 2. Network Connection (port 11113)
-dn: dicomNetworkConnectionName=SIMULATOR-SCP-CONN,cn=SIMULATOR-SCP,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
+dn: dicomNetworkConnectionName=PZDR-SCP-CONN,cn=PZDR-SCP,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
 objectClass: dicomNetworkConnection
 objectClass: top
-dicomNetworkConnectionName: SIMULATOR-SCP-CONN
+dicomNetworkConnectionName: PZDR-SCP-CONN
 dicomHostname: <ip-simulator>
 dicomPort: 11113
 
 # 3. AE Title
-dn: dicomAETitle=SIMULATOR-SCP,cn=AE Titles,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
+dn: dicomAETitle=PZDR-SCP,cn=AE Titles,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
 objectClass: dicomAETitle
 objectClass: top
-dicomAETitle: SIMULATOR-SCP
-dicomNetworkAE: dicomNetworkConnectionName=SIMULATOR-SCP-CONN,cn=SIMULATOR-SCP,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
+dicomAETitle: PZDR-SCP
+dicomNetworkAE: dicomNetworkConnectionName=PZDR-SCP-CONN,cn=PZDR-SCP,cn=Devices,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
 ```
 
 Jalankan:
@@ -204,14 +203,14 @@ ldapadd -h <ip-dcm4chee> -p 1389 \
 
 Transfer Capability menentukan SOP Class apa yang diizinkan untuk suatu AE.
 
-### Untuk SIMULATOR (SCU)
+### Untuk PZDR (SCU)
 
 Biar PACS nerima C-STORE dari simulator, tambah Transfer Capability untuk storage SOP Class:
 
 Buat file `tc-store.ldif`:
 
 ```ldif
-dn: dicomTransferCapability=CTImageStorage,dicomAETitle=SIMULATOR,cn=AE Titles,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
+dn: dicomTransferCapability=CTImageStorage,dicomAETitle=PZDR,cn=AE Titles,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org
 objectClass: dicomTransferCapability
 objectClass: top
 dicomTransferCapability: CTImageStorage
@@ -319,27 +318,31 @@ Ini berarti MPPS service tidak terdeploy dengan benar. Beberapa hal yang bisa di
 ## 6. Setup Storage Commitment
 
 Storage Commitment membutuhkan:
-1. AE SCP tujuan terdaftar (SIMULATOR-SCP) — sudah dilakukan di langkah 3
+1. AE SCP tujuan terdaftar (PZDR-SCP) — sudah dilakukan di langkah 3
 2. Service Storage Commitment aktif di dcm4chee
 
 ### Storage Commitment di dcm4chee
 
 Di dcm4chee-arc, Storage Commitment biasanya sudah aktif secara default. Yang perlu dipastikan:
 
-1. **AE SCP SIMULATOR-SCP terdaftar** — sudah
+1. **AE SCP PZDR-SCP terdaftar** — sudah
 2. **SCP simulator sedang berjalan** — Start Server di panel Storage SCP
 3. **PACS bisa akses port SCP simulator** — cek dengan `telnet <ip-simulator> 11113`
 
 ### Alur Storage Commitment
 
-```mermaid
-sequenceDiagram
-    participant Sim as Simulator
-    participant P as PACS (dcm4chee)
-
-    Sim->>P: N-ACTION-RQ (TransactionUID)<br>SOP Instance UID list
-    Note over P: Proses async
-    P-->>Sim: N-EVENT-REPORT-RQ<br>Success: ReferencedSOPSequence<br>atau Failure: FailedSOPSequence
+```
+Simulator                          PACS (dcm4chee)
+    │                                   │
+    │──── N-ACTION-RQ (TransactionUID)──→│
+    │    SOP Instance UID list           │
+    │                                   │
+    │    (PACS proses async)            │
+    │                                   │
+    │←─── N-EVENT-REPORT-RQ ────────────│
+    │    Success: ReferencedSOPSequence  │
+    │    atau                            │
+    │    Failure: FailedSOPSequence      │
 ```
 
 ### Kalau Gagal
@@ -350,7 +353,7 @@ Service Storage Commitment tidak aktif. Cek log dcm4chee.
 **N-EVENT-REPORT tidak datang:**
 - SCP tidak aktif → Start Server
 - Firewall blokir port 11113
-- AE SIMULATOR-SCP tidak dikenal → daftarkan
+- AE PZDR-SCP tidak dikenal → daftarkan
 
 ### Cara Debug
 
@@ -365,76 +368,45 @@ docker exec <container-dcm4chee> \
 
 ---
 
-## 7. Modality Worklist (MWL)
+## 7. Setup Modality Worklist
 
-Simulator mendukung dua mode worklist:
+Simulator saat ini menggunakan query **Study Root** (bukan Modality Worklist). Study Root query mengambil semua study dari PACS — tidak spesifik per modality.
 
-| Mode | SOP Class | Sumber Data |
-|------|-----------|-------------|
-| **Study Root** | StudyRootQueryRetrieveInformationModelFind (1.2.840.10008.5.1.4.1.2.2.1) | Query ke PACS via C-FIND |
-| **MWL (Scheduled)** | ModalityWorklistInformationModel - FIND (1.2.840.10008.5.1.4.31) | Data lokal JSON + C-FIND ke PACS |
-
-### Cara Kerja MWL
-
-MWL berisi prosedur yang **sudah dijadwalkan** untuk modality tertentu — bukan study yang sudah selesai.
+### Cara Kerja
 
 ```
-┌──────────┐     ORM^O01 (HL7)      ┌──────────────┐
-│   RIS    │ ──────────────────────▶ │  dcm4chee    │
-│ (Seeder) │                         │  (PACS)      │
-└──────────┘                         └──────┬───────┘
-                                            │ C-FIND MWL
-                                            ▼
-                                    ┌──────────────┐
-                                    │  Simulator    │
-                                    │ (Modality)    │
-                                    └──────────────┘
+C-FIND-RQ:
+  QueryRetrieveLevel: STUDY
+  StudyInstanceUID: (empty — cari semua)
+  PatientName: (empty — cari semua)
+  ...
+
+PACS response:
+  Semua study yang cocok dengan kriteria
 ```
 
-Di simulator, data MWL disediakan secara lokal via `mwl_data.json` karena:
-1. Simulator tidak perlu bergantung pada RIS untuk testing
-2. dcm4chee-arc versi ini tidak punya REST API untuk MWL (tapi bisa via HL7 ORM)
-3. Data lokal bisa diedit dan di-regenerate kapan saja
+### Kalau Worklist Kosong
 
-### Generate Data MWL
-
-```bash
-cd dicom-modality-simulator
-.venv/bin/python seed_mwl.py
+```
+Worklist: 0 items
 ```
 
-Hasil: file `mwl_data.json` dengan 5 pasien (CT, MR, CR, US, XA).
+**Kemungkinan:**
+1. PACS benar-benar kosong — belum ada study
+2. C-FIND context tidak di-accept — cek accepted contexts
 
-### Query MWL ke PACS
+**Solusi:**
+1. Kirim dulu file DICOM ke PACS (via simulator atau tool lain)
+2. Cek accepted contexts:
+   ```python
+   for cx in assoc.accepted_contexts:
+       print(cx.abstract_syntax)
+   ```
+   Harus ada `1.2.840.10008.5.1.4.1.2.2.1` (StudyRootQueryRetrieveInformationModelFind)
 
-C-FIND MWL akan otomatis dicoba saat mode MWL aktif. Kalau PACS tidak support (biasanya karena MWL context tidak di-accept), aplikasi tetap bisa pakai data lokal.
+### Kalau Mau Query Modality Worklist
 
-### Membuat MWL Entry di dcm4chee (Advanced)
-
-Untuk beneran mengisi MWL dcm4chee, kirim HL7 ORM^O01 ke port 2575:
-
-```bash
-python3 << 'EOF'
-import socket
-
-msg = (
-    "MSH|^~\\&|RIS|HOSPITAL|DCM4CHEE|HOSPITAL|20260709120000||ORM^O01|MSG001|P|2.3.1\r"
-    "PID|1||PAT001^^^HOSPITAL^MR||DOE^JOHN^J||19800101|M\r"
-    "PV1|1|O|^RADIOLOGY^CT\r"
-    "ORC|NW|REQ001^^^HOSPITAL^SI\r"
-    "OBR|1|REQ001^^^HOSPITAL^SI||CTCHEST^CT CHEST^L|||20260709120000"
-)
-
-s = socket.socket()
-s.settimeout(5)
-s.connect(("localhost", 2575))
-s.sendall(b"\x0b" + msg.encode() + b"\x1c\x0d")
-print(s.recv(4096).decode("utf-8", "replace"))
-s.close()
-EOF
-```
-
-**Catatan:** dcm4chee membutuhkan `StudyInstanceUID` dan `Scheduled Procedure Step Sequence` di ORM untuk beneran bikin MWL entry. Ini biasanya dikirim via segmen **ZDS** (custom dcm4chee extension) — lihat dokumentasi dcm4chee untuk format lengkapnya.
+Fitur MWL (Modality Worklist) belum diimplementasikan. Rencana ada di versi 1.3.
 
 ---
 
@@ -469,7 +441,7 @@ Harus: **C-STORE Success**
 ### Step 4: C-MOVE
 
 ```
-1. Start SCP (SIMULATOR-SCP, port 11113)
+1. Start SCP (PZDR-SCP, port 11113)
 2. Simulator → [Retrieve Study]
 ```
 
@@ -490,183 +462,63 @@ Harus: **MPPS COMPLETED** (atau error 0x0110 kalo service belum ada)
 
 ### Alur Dasar
 
-```mermaid
-sequenceDiagram
-    participant Sim as Simulator
-    participant P as DCM4CHEE
-
-    Note over Sim,P: 1. Test Connection
-    Sim->>P: C-ECHO-RQ
-    P-->>Sim: C-ECHO-RSP (0x0000)
-
-    Note over Sim,P: 2. Query Worklist
-    Sim->>P: C-FIND-RQ
-    P-->>Sim: C-FIND-RSP (study)
-    P-->>Sim: C-FIND-RSP (study)
-    P-->>Sim: C-FIND-RSP (pending)
-
-    Note over Sim,P: 3. Send Images
-    Sim->>P: C-STORE-RQ
-    P-->>Sim: C-STORE-RSP (0x0000)
-
-    Note over Sim,P: 4. Storage Commitment
-    Sim->>P: N-ACTION-RQ
-    P-->>Sim: N-ACTION-RSP
-    P-->>Sim: N-EVENT-REPORT-RQ
+```
+        Simulator                     DCM4CHEE
+            │                            │
+   ┌────────┼────────────────────────────┼───┐
+   │ 1.     │──── C-ECHO-RQ ────────────→│   │
+   │ Test   │←─── C-ECHO-RSP (0x0000) ───│   │
+   ├────────┼────────────────────────────┼───┤
+   │ 2.     │──── C-FIND-RQ ────────────→│   │
+   │ Query  │←─── C-FIND-RSP (study) ────│   │
+   │        │←─── C-FIND-RSP (study) ────│   │
+   │        │←─── C-FIND-RSP (pending) ──│   │
+   ├────────┼────────────────────────────┼───┤
+   │ 3.     │──── C-STORE-RQ ───────────→│   │
+   │ Send   │←─── C-STORE-RSP (0x0000) ──│   │
+   ├────────┼────────────────────────────┼───┤
+   │ 4.     │──── N-ACTION-RQ ──────────→│   │
+   │ StgCmt │←─── N-ACTION-RSP ──────────│   │
+   │        │←─── N-EVENT-REPORT-RQ ─────│   │
+   └────────┴────────────────────────────┴───┘
 ```
 
 ### Alur Lengkap (Dengan MPPS)
 
-```mermaid
-sequenceDiagram
-    participant Sim as Simulator
-    participant P as DCM4CHEE
-
-    Note over Sim,P: 1. Test Connection
-    Sim->>P: C-ECHO
-    P-->>Sim: C-ECHO
-
-    Note over Sim,P: 2. Get Worklist
-    Sim->>P: C-FIND
-    P-->>Sim: C-FIND (studies)
-
-    Note over Sim,P: 3. MPPS Start
-    Sim->>P: N-CREATE (IN PROGRESS)
-    P-->>Sim: N-CREATE Response
-
-    Note over Sim,P: 4. Store Images
-    Sim->>P: C-STORE (image 1)
-    P-->>Sim: C-STORE Response
-    Sim->>P: C-STORE (image 2)
-    P-->>Sim: C-STORE Response
-
-    Note over Sim,P: 5. MPPS Complete
-    Sim->>P: N-SET (COMPLETED)
-    P-->>Sim: N-SET Response
-
-    Note over Sim,P: 6. Storage Commitment
-    Sim->>P: N-ACTION
-    P-->>Sim: N-ACTION Response
-    P-->>Sim: N-EVENT-REPORT
+```
+   Simulator                     DCM4CHEE
+       │                            │
+       │ 1. Test Connection         │
+       │──── C-ECHO ──────────────→│
+       │←─── C-ECHO ───────────────│
+       │                            │
+       │ 2. Get Worklist            │
+       │──── C-FIND ──────────────→│
+       │←─── C-FIND (studies) ─────│
+       │                            │
+       │ 3. MPPS Start              │
+       │──── N-CREATE (IN PROGRESS)→│
+       │←─── N-CREATE Response ─────│
+       │                            │
+       │ 4. Store Images            │
+       │──── C-STORE (image 1) ────→│
+       │←─── C-STORE Response ──────│
+       │──── C-STORE (image 2) ────→│
+       │←─── C-STORE Response ──────│
+       │                            │
+       │ 5. MPPS Complete           │
+       │──── N-SET (COMPLETED) ────→│
+       │←─── N-SET Response ────────│
+       │                            │
+       │ 6. Storage Commitment      │
+       │──── N-ACTION ─────────────→│
+       │←─── N-ACTION Response ─────│
+       │←─── N-EVENT-REPORT ────────│
 ```
 
 ---
 
----
-
-## 10. Konfigurasi via Web UI (Alternatif)
-
-Selain LDAP, konfigurasi AE Title dan Device bisa dilakukan melalui Web UI DCM4CHEE.
-
-### 11.1 Akses Web UI
-
-```
-URL: https://<ip-dcm4chee>:8443/dcm4chee-arc/ui2/
-User: admin
-Pass: changeit
-```
-
-### 11.2 Step-by-Step Konfigurasi via Web UI
-
-#### Step 1: Buka Web UI
-
-Buka URL di browser, login dengan `admin` / `changeit`.
-
-![Login / Home](/mnt/DiskD/Projects/DCM4CHE/dcm4chee-files/dicom-modality-simulator/docs/images/step-01-login.png)
-> **1 —** Klik ikon hamburger menu (≡) di pojok kiri atas untuk membuka navigasi
-
-#### Step 2: Buka Menu Configuration
-
-![Menu Navigasi](/mnt/DiskD/Projects/DCM4CHE/dcm4chee-files/dicom-modality-simulator/docs/images/step-02-menu-config.png)
-> **2 —** Pilih **Configuration** dari menu samping
-
-#### Step 3: Lihat Daftar Device
-
-Halaman **Devices** menampilkan semua device yang terdaftar di dcm4chee.
-
-![Device List](/mnt/DiskD/Projects/DCM4CHE/dcm4chee-files/dicom-modality-simulator/docs/images/step-03-devices.png)
-
-Tab yang tersedia di halaman Configuration:
-- **Devices** — manajemen device
-- **AE list** — manajemen AE Title
-- **Web Apps list** — aplikasi web
-- **Hl7 Applications** — aplikasi HL7
-- **Control** — kontrol service
-
-#### Step 4: Buka AE List → Tambah AET Baru
-
-![AE List](/mnt/DiskD/Projects/DCM4CHE/dcm4chee-files/dicom-modality-simulator/docs/images/step-04-aelist.png)
-> **3 —** Klik **"+ New AET"** untuk menambah AE Title baru
-
-#### Step 5: Isi Form New AET (Create New Device)
-
-Dialog **Register new Application Entity** terbuka. Ada 2 mode: **Create new device** (default) atau **Select existing device**.
-
-![New AET Dialog](/mnt/DiskD/Projects/DCM4CHE/dcm4chee-files/dicom-modality-simulator/docs/images/step-05-new-aet-create.png)
-> Isi Network Connection (Hostname/IP simulator, Port) dan AE Title, lalu klik **APPLY**
-
-Klik heading **"New Device"** untuk memperluas bagian device — akan terlihat field tambahan:
-
-![New AET Expanded](/mnt/DiskD/Projects/DCM4CHE/dcm4chee-files/dicom-modality-simulator/docs/images/step-06-new-aet-expanded.png)
-
-| No | Field | Isi |
-|----|-------|-----|
-| 1 | **Device Name** | `SIMULATOR` |
-| 2 | **Primary Device Type** | Centang sesuai modality (CT, MR, dll) — atau biarkan kosong |
-| 3 | **Installed** | `True` |
-| 4 | **Hostname** | IP simulator (`172.17.0.1` atau `host.docker.internal`) |
-| 5 | **Port** | `0` untuk SCU-only, atau port SCP `11113` |
-| 6 | **AE Title** | `SIMULATOR` |
-
-#### Alternatif: Select Existing Device
-
-Lebih sederhana — cukup pilih device yang sudah ada, lalu isi AE Title.
-
-![Select Existing Device](/mnt/DiskD/Projects/DCM4CHE/dcm4chee-files/dicom-modality-simulator/docs/images/step-07-new-aet-existing.png)
-> Pilih device dari dropdown (contoh: `dcm4chee-arc`), isi **AE Title**, klik **APPLY**
-
-### 11.3 Edit Device / Cek Konfigurasi
-
-Kembali ke halaman **Devices**, klik nama device untuk melihat detail dan edit.
-
-![Device Edit](/mnt/DiskD/Projects/DCM4CHE/dcm4chee-files/dicom-modality-simulator/docs/images/step-08-device-edit.png)
-
-Setelah klik heading **Attributes** dan **Child Objects**, akan terlihat 3 bagian utama:
-
-![Device Expanded](/mnt/DiskD/Projects/DCM4CHE/dcm4chee-files/dicom-modality-simulator/docs/images/step-09-device-expanded.png)
-> - **Attributes** — edit field device (nama, manufacturer, installed, dll)
-> - **Child Objects** — tambah Network Connection, Network AE
-> - **Extensions** — tambah extension (Device Extension, Audit Record Repository, dll)
-
-### 11.4 Lihat AE Title Terdaftar
-
-![AE List Full](/mnt/DiskD/Projects/DCM4CHE/dcm4chee-files/dicom-modality-simulator/docs/images/step-10-aelist-full.png)
-> Setiap AE Title punya kolom: AE Title, Device Name, Description, Association Initiator/Acceptor, Installed, Network Connection
-
-### 11.5 Perbedaan LDAP vs Web UI
-
-| Aspek | LDAP | Web UI |
-|-------|------|--------|
-| Akses | Port 1389 | Port 8443 (HTTPS) |
-| Metode | File LDIF + ldapadd | Form GUI |
-| Kecepatan | Cepat (batch) | Manual per-entry |
-| Error handling | Langsung terlihat | Validasi form |
-| Remote | Perlu expose port 1389 | Web browser aja |
-| Automation | Bisa script | Manual |
-
-### 11.6 URL Reference
-
-| Halaman | URL Path |
-|---------|----------|
-| Login / Home | `/dcm4chee-arc/ui2/` |
-| Patient Search | `/dcm4chee-arc/ui2/en/study/patient` |
-| Device List | `/dcm4chee-arc/ui2/en/device/devicelist` |
-| AE List | `/dcm4chee-arc/ui2/en/device/aelist` |
-| Device Edit | `/dcm4chee-arc/ui2/en/device/edit/{deviceName}` |
-
----
-
-## 11. Kendala Setup DCM4CHEE
+## 10. Kendala Setup DCM4CHEE
 
 ### 1. LDAP "Can't contact LDAP server"
 
@@ -693,7 +545,7 @@ ldapadd: Entry already exists (20)
 ```bash
 ldapdelete -h <host> -p 1389 \
   -D "cn=admin,cn=config" -w password -x \
-  "dicomAETitle=SIMULATOR,cn=AE Titles,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org"
+  "dicomAETitle=PZDR,cn=AE Titles,cn=DICOM,cn=Configuration,dc=dcm4che,dc=org"
 ```
 
 ### 3. DCM4CHEE di Docker — cara dapat IP host

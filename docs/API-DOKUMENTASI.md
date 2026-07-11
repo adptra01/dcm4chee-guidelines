@@ -1019,6 +1019,27 @@ curl -sk -X POST "https://{{host}}:8443/dcm4chee-arc/aets/DCM4CHEE/rs/studies/{S
 
 ---
 
+## 14. DICOM Modality Simulator
+
+### 14.1 Jalankan
+
+```bash
+cd /mnt/DiskD/Projects/DCM4CHE/dcm4chee-files/dicom-modality-simulator
+.venv/bin/python main.py
+```
+
+### 14.2 Setup Awal
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+Gunakan `.venv/bin/python main.py` langsung (tanpa `source .venv/bin/activate`) untuk sekali jalan.
+
+---
+
 ## Referensi
 
 - Dokumentasi ini berdasarkan eksplorasi langsung ke server dcm4chee-arc-light 5.x

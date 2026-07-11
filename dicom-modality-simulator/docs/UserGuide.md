@@ -3,18 +3,16 @@
 ## Daftar Isi
 
 1. [Test Connection](#test-connection)
-2. [Refresh Worklist (Study Root)](#refresh-worklist-study-root)
-3. [Modality Worklist (MWL)](#modality-worklist-mwl)
-4. [Seed Data MWL](#seed-data-mwl)
-5. [Kirim DICOM](#kirim-dicom)
-6. [Image Converter](#image-converter)
-7. [MPPS — Prosedur Berjalan](#mpps)
-8. [Storage Commitment](#storage-commitment)
-9. [C-MOVE — Retrieve Study](#c-move)
-10. [Storage SCP — Jadi Penerima](#storage-scp)
-11. [Dataset Viewer](#dataset-viewer)
-12. [Cancel — Batalkan Operasi](#cancel)
-13. [Graceful Close](#graceful-close)
+2. [Refresh Worklist](#refresh-worklist)
+3. [Kirim DICOM](#kirim-dicom)
+4. [Image Converter](#image-converter)
+5. [MPPS — Prosedur Berjalan](#mpps)
+6. [Storage Commitment](#storage-commitment)
+7. [C-MOVE — Retrieve Study](#c-move)
+8. [Storage SCP — Jadi Penerima](#storage-scp)
+9. [Dataset Viewer](#dataset-viewer)
+10. [Cancel — Batalkan Operasi](#cancel)
+11. [Graceful Close](#graceful-close)
 
 ---
 
@@ -25,7 +23,7 @@
 ### Langkah
 
 1. Isi field di panel **PACS Connection**:
-   - **AE Title** — nama aplikasi kita (`SIMULATOR`)
+   - **AE Title** — nama aplikasi kita (`PZDR`)
    - **Called AE** — nama PACS tujuan (`DCM4CHEE`)
    - **Host** — IP PACS (`192.168.1.100` atau `localhost`)
    - **Port** — port DICOM PACS (`11112`)
@@ -65,7 +63,7 @@ Kalo proses terlalu lama, klik **[Cancel]** — koneksi akan di-abort.
 
 ---
 
-## Refresh Worklist (Study Root)
+## Refresh Worklist
 
 **Apa yang terjadi:** Aplikasi mengirim C-FIND-RQ (Study Root Query/Retrieve Information Model) ke PACS. PACS mengembalikan daftar study yang cocok dengan kriteria query (semua study, tanpa filter).
 
@@ -74,10 +72,9 @@ Protokol: `C-FIND` pada SOP Class `StudyRootQueryRetrieveInformationModelFind` (
 ### Langkah
 
 1. Pastikan status **● Online**
-2. Pilih mode **Study Root** di radio button atas
-3. Klik **[Refresh]**
-4. Thread berjalan di background, GUI tetap responsif
-5. Kalau selesai → tabel terisi, count berubah
+2. Klik **[Refresh Worklist]**
+3. Thread berjalan di background, GUI tetap responsif
+4. Kalau selesai → tabel terisi, count berubah
 
 ### Kolom Tabel
 
@@ -85,7 +82,7 @@ Protokol: `C-FIND` pada SOP Class `StudyRootQueryRetrieveInformationModelFind` (
 |-------|-----|--------|
 | Patient ID | ID pasien dari PACS | KNIX |
 | Patient Name | Nama pasien | KNIX^KNIX |
-| Date | Tanggal study | 20250709 |
+| Study Date | Tanggal study | 20250709 |
 | Modality | Jenis modality | MR, CT, US |
 | Accession | Nomor aksesion | ACC001 |
 | Description | Deskripsi study | *KNIX* |
@@ -104,90 +101,7 @@ Association failed
 
 ### Membatalkan
 
-Klik **[Cancel]** — C-FIND akan di-abort.
-
----
-
-## Modality Worklist (MWL)
-
-**Apa yang terjadi:** Mengambil jadwal prosedur yang sudah dijadwalkan untuk modality. Berbeda dengan Study Root (yang menampilkan study **yang sudah selesai**), MWL menampilkan prosedur **yang akan datang / terjadwal**.
-
-Di simulator ini, data MWL bersumber dari:
-1. **Local JSON** (`mwl_data.json`) — hasil generate `seed_mwl.py`
-2. **C-FIND ke PACS** — otomatis dicoba, kalau tidak ada response, fallback ke lokal
-
-Protokol: `C-FIND` pada SOP Class `ModalityWorklistInformationModel - FIND` (1.2.840.10008.5.1.4.31).
-
-### Langkah
-
-1. Pastikan status **● Online**
-2. Pilih mode **MWL (Scheduled)** di radio button atas
-3. Klik **[Refresh]**
-4. Aplikasi akan:
-   - Coba query MWL ke PACS via C-FIND
-   - Gabung dengan data lokal dari `mwl_data.json`
-   - Tampilkan semua hasil di tabel
-
-### Kolom Tabel
-
-| Kolom | Isi | Contoh |
-|-------|-----|--------|
-| Patient ID | ID pasien | PAT001 |
-| Patient Name | Nama pasien | BUDI^SUSANTO |
-| Date | Tanggal jadwal | 20260709 |
-| Modality | Modality | CT, MR, CR |
-| Accession | Nomor aksesion | ACC001 |
-| Description | Deskripsi prosedur | Abdomen CT |
-
-### Data yang Tampil di Panel Detail
-
-Setelah pilih pasien dari MWL, panel **Patient / Study Detail** menampilkan field tambahan:
-
-| Field | Sumber | Contoh |
-|-------|--------|--------|
-| Req. Procedure | RequestedProcedureDescription | CT ABDOMEN |
-| Scheduled SPS | ScheduledProcedureStepDescription | CT ABDOMEN WITH CONTRAST |
-| Starts | ScheduledProcedureStepStart Date/Time | 20260709 1056 |
-| Station AE | ScheduledStationAETitle | SIMULATOR |
-
-### Catatan
-
-- MWL data di `mwl_data.json` **hanya bisa diedit manual** atau regenerate via `seed_mwl.py`
-- Data lokal akan **digabung** dengan hasil query PACS — tidak ada duplikasi (berdasarkan Accession Number)
-- Kalau PACS tidak support MWL C-FIND, aplikasi hanya pakai data lokal tanpa error
-
----
-
-## Seed Data MWL
-
-Sebelum pakai MWL, generate dulu data dummy:
-
-```bash
-cd dicom-modality-simulator
-.venv/bin/python seed_mwl.py
-```
-
-Hasil: 5 pasien dengan modality berbeda (CT, MR, CR, US, XA):
-
-```
-PAT001   BUDI^SUSANTO         CT   ACC001
-PAT002   SITI^RAHMAWATI       MR   ACC002
-PAT003   AGUS^PRAMONO         CR   ACC003
-PAT004   DEWI^KUSUMA          US   ACC004
-PAT005   HARI^PRASETYA        XA   ACC005
-```
-
-### Cara Kerja
-
-- Script menghasilkan `mwl_data.json` di root project
-- Data mencakup: nama, ID, DOB, modality, accession, procedure descriptions, UID, jadwal
-- AE Title diset ke `SIMULATOR` — cocok dengan konfigurasi simulator
-- Tanggal jadwal: hari ini
-- Waktu: acak antara jam 08:00 - 16:59
-
-### Customisasi
-
-Edit `seed_mwl.py` untuk menambah/mengubah data pasien, atau langsung edit `mwl_data.json`.
+Klik **[Cancel]** (di samping Refresh) — C-FIND akan di-abort.
 
 ---
 
@@ -330,7 +244,7 @@ Dataset yang dikirim ke PACS:
 
 ```
 PerformedProcedureStepID: 001
-PerformedStationAETitle: SIMULATOR
+PerformedStationAETitle: PZDR
 PerformedProcedureStepStartDateTime: 2025-07-09 02:21:50
 PerformedProcedureStepStatus: IN PROGRESS
 PatientName: BUDI^UTOMO
@@ -413,7 +327,7 @@ Protokol: `C-MOVE-RQ` pada SOP Class `StudyRootQueryRetrieveInformationModelMove
 1. Start SCP dulu (panel Storage SCP → [Start Server])
 2. Pilih study dari worklist
 3. Klik **[Retrieve Study]**
-4. PACS kirim file ke SCP tujuan (default: `SIMULATOR-SCP` port `11113`)
+4. PACS kirim file ke SCP tujuan (default: `PZDR-SCP` port `11113`)
 5. File tersimpan di folder storage SCP (default: `~/dicom-received/`)
 
 ### Kalau Gagal
@@ -421,9 +335,9 @@ Protokol: `C-MOVE-RQ` pada SOP Class `StudyRootQueryRetrieveInformationModelMove
 ```
 C-MOVE: 0xA801
 ```
-**Artinya:** Move Destination Unknown — PACS tidak kenal AE tujuan (`SIMULATOR-SCP`).
+**Artinya:** Move Destination Unknown — PACS tidak kenal AE tujuan (`PZDR-SCP`).
 
-**Solusi:** Daftarkan AE `SIMULATOR-SCP` di konfigurasi PACS (lihat Panduan Integrasi).
+**Solusi:** Daftarkan AE `PZDR-SCP` di konfigurasi PACS (lihat Panduan Integrasi).
 
 ### Catatan
 
@@ -444,7 +358,7 @@ C-MOVE: 0xA801
 
 | Aspek | Detail |
 |-------|--------|
-| AE Title | SIMULATOR-SCP (bisa diganti) |
+| AE Title | PZDR-SCP (bisa diganti) |
 | Port | 11113 (bisa diganti) |
 | Support | Semua Storage SOP Class |
 | Listener | Juga handle N-EVENT-REPORT untuk Storage Commitment |
@@ -453,7 +367,7 @@ C-MOVE: 0xA801
 ### Langkah
 
 1. Isi field:
-   - **AE Title**: `SIMULATOR-SCP`
+   - **AE Title**: `PZDR-SCP`
    - **Listen Port**: `11113`
    - **Storage Dir**: `~/dicom-received`
 2. Klik **[Start Server]**

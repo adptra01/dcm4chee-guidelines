@@ -1,10 +1,6 @@
 {
-  "ae_title": "SIMULATOR",
-  "pacs_host": "localhost",
-  "pacs_port": 11112,
-  "calling_ae": "SIMULATOR",
+  "ae_title": "PZDR",
   "called_ae": "DCM4CHEE",
-  "scp_ae": "SIMULATOR-SCP",
-  "scp_port": 11113,
-  "storage_dir": ""
+  "pacs_host": "localhost",
+  "pacs_port": 11112
 }

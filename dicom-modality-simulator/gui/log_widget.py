@@ -2,21 +2,19 @@ import tkinter as tk
 from tkinter import ttk
 import threading
 
-from gui.theme import BG, FG, BG2, ENTRY_BG
-
 
 class LogWidget(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
+        self._lock = threading.Lock()
         self._create_widgets()
 
     def _create_widgets(self):
         f = ttk.LabelFrame(self, text="Log", padding=4)
         f.pack(fill=tk.BOTH, expand=True)
-        self._text = tk.Text(f, height=10, wrap=tk.WORD, state=tk.DISABLED,
-                             font=("Consolas", 9), bg=BG2, fg=FG,
-                             insertbackground=FG, relief=tk.FLAT, bd=2,
-                             padx=6, pady=4)
+        self._text = tk.Text(f, height=12, wrap=tk.WORD, state=tk.DISABLED,
+                             font=("Consolas", 9), bg="#1e1e1e", fg="#d4d4d4",
+                             insertbackground="white")
         scroll = ttk.Scrollbar(f, orient=tk.VERTICAL, command=self._text.yview)
         self._text.configure(yscrollcommand=scroll.set)
         self._text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)

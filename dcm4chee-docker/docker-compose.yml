@@ -115,3 +115,11 @@ services:
       PORT: 11114
     volumes:
       - /var/local/dcm4chee-arc/storage:/storage
+  ohif:
+    image: ohif/app:latest
+    container_name: ohif-viewer
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    volumes:
+      - ../docker/ohif/ohif-app-config.js:/usr/share/nginx/html/app-config.js:ro
