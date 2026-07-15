@@ -123,17 +123,17 @@
 ### 6.1 Fitur Klinis
 | Fitur | Status | Prioritas |
 |-------|--------|-----------|
-| Order Management (status tracking, scheduling) | ❌ | Tinggi |
-| Reporting System (input laporan radiologi) | ❌ | Tinggi |
+| Order Management (status tracking, scheduling) | ✅ | Tinggi |
+| Reporting System (input laporan radiologi + finalize/amend) | ✅ | Tinggi |
 | Report Display/PDF viewer (di Portal) | ❌ | Sedang |
 | Patient Merge/Deduplication | ❌ | Sedang |
-| Study Details view (series/instance list) | ❌ | Sedang |
-| Worklist filter by modality + status | ❌ | Sedang |
+| Study Details view (series/instance list) | ✅ | Sedang |
+| Worklist filter by modality + status | ✅ | Sedang |
 
 ### 6.2 RBAC & Keamanan
 | Fitur | Status | Prioritas |
 |-------|--------|-----------|
-| RBAC (roles: admin, radiologist, radiographer, dokter) | ❌ | Tinggi |
+| RBAC (roles: admin, radiologist, radiographer, dokter) | ✅ | Tinggi |
 | Study-level access control (siapa boleh lihat studi apa) | ❌ | Rendah |
 | Audit log viewer di Portal | ❌ | Sedang |
 
@@ -153,7 +153,36 @@
 
 ---
 
-## 7. Aktivitas Remote PACS (103.147.236.138)
+## 7. Sesi 15 Juli 2026 — RBAC + Timeline + Report Flow
+
+### 7.1 RBAC Custom Roles
+- [x] **`RolesAndPermissionsSeeder`** diperbarui — menambahkan 3 custom role:
+  - `radiologist`: View orders/patients/worklist, CRUD reports, view studies
+  - `radiographer`: View orders/patients, CRUD worklist, view studies
+  - `dokter`: View orders/patients/reports
+- [x] Custom permissions `view_dashboard` dan `view_studies` dibuat manual (tidak digenerate oleh shield)
+- [x] 3 seed user baru:
+  - `radiologist@radiology.com` / `radiologist123` (role: radiologist)
+  - `radiographer@radiology.com` / `radiographer123` (role: radiographer)
+  - `dokter@hospital.com` / `dokter123` (role: dokter)
+
+### 7.2 Order Timeline Component
+- [x] `resources/views/components/order-timeline.blade.php` — visual timeline vertikal untuk ViewOrder page
+- [x] Steps: Pending → Scheduled → In Progress → Completed → Reported
+- [x] Status: lingkaran hijau untuk selesai, abu-abu untuk belum, "Current" label di step aktif
+- [x] Cancelled: ditampilkan di bawah timeline dengan icon merah
+
+### 7.3 Report Flow dari Order
+- [x] Tombol "Buat Laporan" di ViewOrder → muncul jika status = completed/reported dan belum ada report terkait
+- [x] Auto-fill: accession_number, study_instance_uid, radiologist_id
+- [x] Setelah create → redirect ke halaman edit report
+
+### 7.4 Migrate & Seed
+- [x] `php artisan migrate:fresh --seed` — sukses, semua data terisi (4 users, 5 orders, 5 patients, 8 procedures, 4 devices)
+
+---
+
+## 8. Aktivitas Remote PACS (103.147.236.138)
 
 - [x] Identifikasi server remote (`mini_pacs@103.147.236.138`)
 - [x] Verifikasi SSH port 22 terbuka

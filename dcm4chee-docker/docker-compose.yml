@@ -43,7 +43,7 @@ services:
       - "8843:8843"
     environment:
       KC_HTTPS_PORT: 8843
-      KC_HOSTNAME: https://localhost:8843
+      KC_HOSTNAME: https://${PACS_HOST}:8843
       KC_HOSTNAME_BACKCHANNEL_DYNAMIC: 'true'
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: changeit
@@ -53,7 +53,7 @@ services:
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak
       KC_LOG: file
-      ARCHIVE_HOST: localhost
+      ARCHIVE_HOST: ${PACS_HOST}
       KEYCLOAK_WAIT_FOR: ldap:389 mariadb:3306
     depends_on:
       - ldap
@@ -94,7 +94,7 @@ services:
       POSTGRES_USER: pacs
       POSTGRES_PASSWORD: pacs
       AUTH_SERVER_URL: https://keycloak:8843
-      UI_AUTH_SERVER_URL: https://localhost:8843
+      UI_AUTH_SERVER_URL: https://${PACS_HOST}:8843
       WILDFLY_CHOWN: /storage
       WILDFLY_WAIT_FOR: ldap:389 db:5432 keycloak:8843
     depends_on:
