@@ -1,33 +1,5 @@
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.egg-info/
-*.egg
-dist/
-build/
-.eggs/
-
-# Virtual env
-.venv/
-venv/
-env/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# SSL / Certificates
-*.pem
-*.key
-*.crt
-*.cert
-
-
+data/
+archive/
+*.log
+.env
+pzdr/*.exe

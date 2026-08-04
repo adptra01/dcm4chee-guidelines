@@ -2,13 +2,13 @@
 
 ## Debuggers by Language
 
-| Language | Debugger | Start Command |
-|----------|----------|---------------|
-| TypeScript/JS | Node Inspector | `node --inspect` |
-| Python | pdb/ipdb | `python -m pdb` |
-| Go | Delve | `dlv debug` |
-| Rust | rust-gdb/lldb | `rust-gdb ./target/debug/app` |
-| Java | JDB/IDE | IDE debugger |
+| Language      | Debugger       | Start Command                 |
+| ---------------| ----------------| -------------------------------|
+| TypeScript/JS | Node Inspector | `node --inspect`              |
+| Python        | pdb/ipdb       | `python -m pdb`               |
+| Go            | Delve          | `dlv debug`                   |
+| Rust          | rust-gdb/lldb  | `rust-gdb ./target/debug/app` |
+| Java          | JDB/IDE        | IDE debugger                  |
 
 ## Node.js / TypeScript
 
@@ -94,14 +94,14 @@ spew.Dump(variable)
 
 ### Delve Commands
 
-| Command            | Action          |
-| --------------------| -----------------|
-| `break main.go:42` | Set breakpoint  |
-| `continue`         | Continue        |
-| `next`             | Next line       |
-| `step`             | Step into       |
-| `print var`        | Print variable  |
-| `goroutines`       | List goroutines |
+| Command | Action |
+|---------|--------|
+| `break main.go:42` | Set breakpoint |
+| `continue` | Continue |
+| `next` | Next line |
+| `step` | Step into |
+| `print var` | Print variable |
+| `goroutines` | List goroutines |
 
 ## VS Code Debug Config
 
