@@ -15,12 +15,59 @@ Orthanc (Docker) ──► PostgreSQL (index/metadata)
 OHIF Viewer (Docker) → http://<host>:3000
 ```
 
-## Quick Start
+## Menjalankan di Lokal
+
+Alur lengkap dari kondisi bersih → verifikasi → stop.
+
+### 1. Prasyarat
 
 ```bash
-cp .env.example .env        # sesuaikan bila perlu
+docker --version          # Docker Engine 24+ (sudah terpasang)
+docker compose version    # Docker Compose 2+
+# pastikan port tidak bentrok:
+ss -tlnp | grep -E "4242|8042|3000"   # tidak ada yang listen di port ini
+```
+
+### 2. Siapkan environment (sekali saja)
+
+```bash
+cp .env.example .env      # sesuaikan port/kredensial bila perlu
+```
+
+### 3. Jalankan stack
+
+```bash
 docker compose up -d
 ```
+
+### 4. Verifikasi (pastikan semua healthy)
+
+```bash
+docker compose ps                     # pacs-db, pacs-orthanc, pacs-ohif harus "healthy"
+```
+
+| Cek | URL / perintah | Harapan |
+|---|---|---|
+| Orthanc REST | `curl -s http://localhost:8042/system` | JSON, `Version` |
+| DICOM C-ECHO | `echoscu -aec ORTHANC -aet TEST localhost 4242` | Echo Success |
+| OHIF viewer | buka `http://localhost:3000/` | halaman study list |
+| DICOMweb | `curl -s http://localhost:8042/dicom-web/studies` | `[]` atau JSON studi |
+
+Sudah sehat → bisa lanjut konfigurasi PZDR (`docs/INSTALL-PZDR.md`).
+
+## Operasi
+
+```bash
+docker compose ps                 # status
+docker compose logs -f orthanc    # log Orthanc (diagnosa koneksi PZDR)
+docker compose restart orthanc    # restart setelah ubah orthanc.json
+docker compose down               # stop, data tersimpan
+docker compose down -v            # HAPUS SEMUA DATA — jangan untuk produksi
+```
+
+## Mengubah Nilai Default (port/kredensial)
+
+Semua port & kredensial diatur lewat `.env`. Ubah di `.env` lalu `docker compose up -d` agar berlaku.
 
 | Endpoint | URL |
 |---|---|
@@ -74,16 +121,6 @@ storescu -aec ORTHANC -aet PZDR_DR1 <host> 4242 file.dcm   # C-STORE
 ├── data/                   # data runtime (DICOM storage) — backup ini
 ├── docs/                   # panduan integrasi, troubleshooting, ATP
 └── archive/                # proyek lama (dcm4chee, laravel-pacs) — referensi
-```
-
-## Operasi
-
-```bash
-docker compose ps                 # status
-docker compose logs -f orthanc    # log Orthanc (diagnosa koneksi PZDR)
-docker compose restart orthanc    # restart setelah ubah orthanc.json
-docker compose down               # stop, data tersimpan
-docker compose down -v            # HAPUS SEMUA DATA — jangan untuk produksi
 ```
 
 ## Konfigurasi di sisi PZDR
