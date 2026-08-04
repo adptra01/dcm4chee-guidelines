@@ -89,6 +89,11 @@ ds = pydicom.dcmread("file.dcm", stop_before_pixels=True)  # baca metadata cepat
 print(ds.PatientName, ds.Modality, ds.StudyInstanceUID)
 ```
 
+### 3.2b pynetdicom (`3.0.4`, di venv `/tmp/dicomlab`)
+
+Untuk menjadi **SCU python** dan melihat PDU asosiasi di level protokol tanpa root.
+Script siap pakai: **`scu_demo.py`** (lihat §4b).
+
 ### 3.3 Network
 
 - `nc -zv <host> <port>` — cek port terbuka (sesuai dokumen ACCESS-JARINGAN).
@@ -132,6 +137,65 @@ tapi C-STORE gagal" sering terjadi karena format tidak cocok (lihat TROUBLESHOOT
 
 Kelas penting: `storescu -d` menampilkan **seluruh** Abstract Syntax yang diajukan
 (lusinan SOP Class). PACS hanya menerima yang relevan (mis. Digital X-Ray).
+
+---
+
+## 4b. Melihat PDU di Level Wire (tanpa root — pynetdicom)
+
+`tcpdump`/`wireshark` butuh root, tapi **pynetdicom** (python) bisa menampilkan
+struktur PDU yang sama persis — cukup set logging DEBUG. Sudah disiapkan sebagai
+script: **`scu_demo.py`** di root proyek.
+
+### Setup sekali (venv lokal, bukan global)
+
+```bash
+python3 -m venv /tmp/dicomlab
+/tmp/dicomlab/bin/pip install pynetdicom
+```
+
+### Jalankan
+
+```bash
+# C-ECHO saja:
+/tmp/dicomlab/bin/python scu_demo.py
+
+# C-ECHO + C-STORE file sample:
+/tmp/dicomlab/bin/python scu_demo.py \
+  "sample/DX0000005 tes lagi/DX0000005 Chest PA/DX Chest PA/DX000000.dcm"
+```
+
+### Output yang ditampilkan (aksi vs diagram)
+
+```
+======================= OUTGOING A-ASSOCIATE-RQ PDU ========================
+Presentation Context:
+  Context ID: 1 (Proposed)
+    Abstract Syntax: =Verification SOP Class
+    Proposed Transfer Syntaxes: [...]
+========================== END A-ASSOCIATE-RQ PDU ==========================
+
+======================= INCOMING A-ASSOCIATE-AC PDU ========================
+Presentation Context:
+  Context ID: 1 (Accepted)
+    Abstract Syntax: =Verification SOP Class
+    Accepted SCP/SCU Role: Default
+    Accepted Transfer Syntax: =Explicit VR Little Endian
+========================== END A-ASSOCIATE-AC PDU ==========================
+
+======================= OUTGOING DIMSE MESSAGE =============================   ← C-ECHO-RQ
+======================= INCOMING DIMSE MESSAGE =============================   ← C-ECHO-RSP (0x0000)
+```
+
+Korespondensi dengan diagram §4:
+
+| Diagram | Terlihat di output |
+|---|---|
+| TCP Connect | (implisit) |
+| A-ASSOCIATE-RQ | `OUTGOING A-ASSOCIATE-RQ PDU` |
+| A-ASSOCIATE-AC | `INCOMING A-ASSOCIATE-AC PDU` |
+| C-STORE-RQ / RSP | `OUTGOING/INCOMING DIMSE MESSAGE` |
+
+Simpan di venv: `/tmp/dicomlab` (belum masuk git — hanya alat belajar).
 
 ---
 
@@ -219,7 +283,7 @@ PZDR → Network → Association (cek `docs/TROUBLESHOOTING.md`).
 | Tahap | Status | Isi |
 |---|---|---|
 | 1. Foundation (Docker, Orthanc, OHIF, DICOMweb, C-ECHO, C-STORE) | ✅ | sudah dibangun & diverifikasi |
-| 2. Protokol (Association, Presentation Context, Transfer Syntax) | 🟡 | §4 — output storescu `-d` |
+| 2. Protokol (Association, Presentation Context, Transfer Syntax) | ✅ | §4 (storescu `-d`) + §4b (pynetdicom PDU) |
 | 3. Membedah file DICOM | 🟡 | §5 — dcmdump + pydicom |
 | 4. PZDR | ⏳ | tinggal isi 4 nilai SCU (docs/INSTALL-PZDR.md) |
 | 5. Workflow RS (SIMRS→RIS→MWL→PZDR→Orthanc→OHIF→laporan) | ⏳ | integrasi MWL nanti |
@@ -249,6 +313,10 @@ import pydicom
 ds = pydicom.dcmread('sample/DX0000005 tes lagi/DX0000005 Chest PA/DX Chest PA/DX000000.dcm', stop_before_pixels=True)
 print(ds.PatientName, '|', ds.Modality, '|', ds.StudyInstanceUID)
 "
+
+# 6. (pynetdicom) lihat PDU asosiasi di level protokol:
+/tmp/dicomlab/bin/python scu_demo.py \
+  "sample/DX0000005 tes lagi/DX0000005 Chest PA/DX Chest PA/DX000000.dcm"
 ```
 
 ---
