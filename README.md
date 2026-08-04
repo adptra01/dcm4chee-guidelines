@@ -29,6 +29,33 @@ docker compose up -d
 | OHIF Viewer | `http://<host>:3000` |
 | DICOM (untuk PZDR) | `<host>:4242`, AE Title: `ORTHANC` |
 
+## Daftar URL / Link yang Bisa Diakses
+
+> `<host>` = IP mesin tempat Docker berjalan. **Lokal:** `localhost` • **Dari mesin lain:** `10.205.136.1` (ubah sesuai jaringan — lihat `docs/ACCESS-JARINGAN.md`).
+
+### Dari browser
+
+| URL | Fungsi |
+|---|---|
+| `http://<host>:3000/` | **OHIF Viewer** — buka & lihat studi/gambar |
+| `http://<host>:8042/` | **Orthanc UI** (redirect ke `/ui/app/`, 307 = normal) — admin: lihat/export/delete studi |
+| `http://<host>:8042/system` | Info sistem, versi, backend DB |
+| `http://<host>:8042/studies` | Daftar studi (JSON) |
+| `http://<host>:8042/patients` | Daftar pasien (JSON) |
+| `http://<host>:8042/instances` | Daftar instance (JSON) |
+| `http://<host>:8042/dicom-web/studies` | DICOMweb (QIDO-RS) — dipakai aplikasi/OHIF |
+| `http://<host>:8042/dicom-web/instances` | DICOMweb (QIDO-RS) instance |
+
+### Bukan URL browser (untuk perangkat DICOM)
+
+| 'URL' | Fungsi |
+|---|---|
+| `<host>:4242` (AE `ORTHANC`) | Port DICOM — untuk PZDR/modalitas kirim gambar (C-STORE), bukan HTTP |
+
+Catatan:
+- `:8042/` mengembalikan **307** (redirect ke UI) — itu normal, bukan error.
+- Jika viewer dibuka dari mesin lain, pastikan `ohif/app-config.js` memakai IP host (bukan `localhost`), lalu `docker compose restart ohif`.
+
 ## Uji Cepat DICOM (dari mesin dengan dcmtk)
 
 ```bash
