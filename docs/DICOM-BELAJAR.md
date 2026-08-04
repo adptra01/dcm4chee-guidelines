@@ -252,6 +252,48 @@ membangun pohon data yang Anda lihat di OHIF/Orthanc (`/studies`, `/series`,
 `(0028,0010)` Rows, `(0028,0011)` Columns, `(0028,0100)` BitsAllocated, `(0028,0004)`
 PhotometricInterpretation — menentukan cara membaca byte itu jadi gambar.
 
+### 5.4b Pixel Data → Gambar PNG (latihan Tahap 3)
+
+Script: **`dcm_to_png.py`** — membaca PixelData, menerapkan window/level, dan
+menghasilkan PNG. Menunjukkan "gambar" yang tersembunyi di balik byte mentah.
+
+```bash
+# C-ECHO saja:
+/tmp/dicomlab/bin/python dcm_to_png.py \
+  "sample/DX0000005 tes lagi/DX0000005 Chest PA/DX Chest PA/DX000000.dcm"
+```
+
+Data sample yang diproses (output asli):
+
+```
+Modality        : DX
+Rows x Columns  : 3072 x 3072
+BitsAllocated   : 16   BitsStored: 16
+SamplesPerPixel : 1
+Photometric     : MONOCHROME1
+PixelRepr       : 0
+Rescale         : slope=1 intercept=0
+Window center/width: 7180 / 14310
+PixelData shape : (3072, 3072), dtype=uint16, min=160, max=19977
+PNG tersimpan: sample/.../DX000000.png
+```
+
+Pelajaran dari angka-angka itu:
+
+| Nilai | Artinya |
+|---|---|
+| `3072 x 3072, 16-bit` | gambar besar, nilai mentah 0–65535 (dtype uint16) |
+| `MONOCHROME1` | terang = nilai kecil; **perlu invert** saat display |
+| `WindowCenter 7180 / Width 14310` | rentang nilai yang "enak dilihat": 7180±7155 |
+| `Rescale slope=1 intercept=0` | nilai mentah = nilai display (tidak ada transformasi) |
+| min 160 / max 19977 | kontras nyata jauh di bawah 65535 → window/level wajib |
+
+Alur script: `pixel_array` (numpy) → clamp ke window (center±width/2) →
+normalisasi 0–255 → invert (MONOCHROME1) → simpan PNG 8-bit.
+Tanpa window/level gambar akan nyaris hitam/putih total.
+
+> PNG hasil generate tidak di-git (artefak, bisa besar). Script yang di-git.
+
 ### 5.5 Bukti nyata matching di lab
 
 File sample ini (**PatientName `tes lagi`, StudyInstanceUID `...02455`**) sudah
@@ -316,6 +358,10 @@ print(ds.PatientName, '|', ds.Modality, '|', ds.StudyInstanceUID)
 
 # 6. (pynetdicom) lihat PDU asosiasi di level protokol:
 /tmp/dicomlab/bin/python scu_demo.py \
+  "sample/DX0000005 tes lagi/DX0000005 Chest PA/DX Chest PA/DX000000.dcm"
+
+# 7. (pixel→PNG) bedah pixel data & simpan gambar:
+/tmp/dicomlab/bin/python dcm_to_png.py \
   "sample/DX0000005 tes lagi/DX0000005 Chest PA/DX Chest PA/DX000000.dcm"
 ```
 

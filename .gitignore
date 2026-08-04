@@ -3,3 +3,5 @@ archive/
 *.log
 .env
 pzdr/*.exe
+# artefak hasil script dcm_to_png.py (file PNG besar hasil konversi)
+sample/**/*.png
