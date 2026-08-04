@@ -24,6 +24,10 @@ Test-NetConnection 10.205.136.1 -Port 4242   # harus: TcpTestSucceeded : True
 ```
 
 > Jika `ping` ok tapi port gagal → firewall Windows PZDR atau host Docker memblokir. Selesaikan dulu — tanpa ini, PZDR tidak akan pernah tersambung.
+>
+> **Penting:** nilai `10.205.136.1` di panduan ini berlaku untuk Skenario A (satu subnet).
+> Kalau PZDR di VLAN lain / lokasi terpisah, lihat `docs/ACCESS-JARINGAN.md` sebelum lanjut —
+> IP di Tahap 3 mungkin harus diganti.
 
 ---
 

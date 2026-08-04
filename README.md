@@ -75,6 +75,7 @@ Langkah detail: `docs/PZDR-INTEGRATION.md`
 
 ## Catatan Penting
 
+- **Akses lintas jaringan** (VLAN, IP berubah, lokasi terpisah) → `docs/ACCESS-JARINGAN.md`
 - **Ganti `localhost` di `ohif/app-config.js`** dengan IP mesin Docker jika viewer diakses dari mesin lain (mis. workstation PZDR).
 - Plugin Orthanc dimuat dari **direktori** (`/usr/local/share/orthanc/plugins`) — memuat semua plugin bawaan image (PostgreSQL, DICOMweb, GDCM, OHIF, UI Explorer). Jangan ganti menjadi daftar file individu (itu memutus UI bawaan).
 - Authentication REST Orthanc sengaja **nonaktif** untuk lab. Untuk produksi aktifkan (lihat `docs/TROUBLESHOOTING.md` → Keamanan).
