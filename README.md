@@ -78,8 +78,8 @@ cd products/omc/api && docker compose up
 
 | MS | Konten | Status |
 |---|---|---|
-| MS0-W1 | Foundation monorepo (struktur, platform, scripts, docs, ADR) | 🔨 dikerjakan |
-| MS0-W2 | Semua produk bootable (`GET /health`, `ddev start`, `npm run dev`) | ⏳ |
+| MS0-W1 | Foundation monorepo (struktur, platform, scripts, docs, ADR) | ✅ `12117a2` |
+| MS0-W2 | Semua produk bootable (`GET /health`, `ddev start`, `npm run dev`) | ✅ `3826653` |
 | MS1 | `packages/dicom-core` (parser, preview, echo/store) | ⏳ |
 | MS2 | OMC API vertical slice (import → preview → queue → Orthanc) | ⏳ |
 | MS3 | RIS: patient, order, worklist | ⏳ |
