@@ -92,7 +92,7 @@ def _associate(host: str, port: int, scu_ae: str, scp_ae: str):
     return ae.associate(host, port, ae_title=scp_ae)
 
 
-def echo(host: str, port: int = DEFAULT_PORT,
+def echo(host: str = "localhost", port: int = DEFAULT_PORT,
          scu_ae: str = DEFAULT_SCU_AE, scp_ae: str = DEFAULT_SCP_AE) -> bool:
     """C-ECHO (Verification) — True bila status Success."""
     assoc = _associate(host, port, scu_ae, scp_ae)
@@ -105,7 +105,7 @@ def echo(host: str, port: int = DEFAULT_PORT,
         assoc.release()
 
 
-def store(path: str, host: str, port: int = DEFAULT_PORT,
+def store(path: str, host: str = "localhost", port: int = DEFAULT_PORT,
           scu_ae: str = DEFAULT_SCU_AE, scp_ae: str = DEFAULT_SCP_AE) -> int | None:
     """C-STORE satu file — kembalikan Status int, None bila gagal/Error."""
     assoc = _associate(host, port, scu_ae, scp_ae)
