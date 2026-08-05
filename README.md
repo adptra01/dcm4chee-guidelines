@@ -87,7 +87,8 @@ cd products/omc/api && docker compose up
 | MS5 | Reporting: laporan radiologi per order (RIS) | ✅ (reports API) |
 | MS6 | Integrasi MORBIS: SEP + klaim BPJS (mock/real) | ✅ (mock live) |
 | MS7 | AI service: analisis statistik dari Orthanc (engine v1, ML di MS8+) | ✅ (live) |
-| MS8+ | FHIR/HL7, model ML, enterprise | ⏳ roadmap |
+| MS8 | FHIR R4: RIS expose Patient/ServiceRequest/DiagnosticReport | ✅ (live) |
+| MS9+ | Model ML, HL7, enterprise | ⏳ roadmap |
 
 ## Panduan Terkait
 

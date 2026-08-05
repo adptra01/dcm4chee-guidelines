@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\FhirController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PatientController;
 use App\Http\Controllers\Api\ReportController;
@@ -18,3 +19,9 @@ Route::get('worklist', [WorklistController::class, 'index']);
 // MS5: Reporting — laporan radiologi per order
 Route::get('reports', [ReportController::class, 'index']);
 Route::post('reports', [ReportController::class, 'store']);
+
+// FHIR R4 — interop (SATUSEHAT-ready)
+Route::get('fhir/Patient', [FhirController::class, 'patientSearch']);
+Route::get('fhir/Patient/{id}', [FhirController::class, 'patientShow']);
+Route::get('fhir/ServiceRequest/{id}', [FhirController::class, 'orderShow']);
+Route::get('fhir/DiagnosticReport/{id}', [FhirController::class, 'reportShow']);

@@ -71,4 +71,50 @@ class RisApiTest extends TestCase
             ->assertOk()->assertJsonCount(1)
             ->assertJsonPath('0.order.patient.name', 'Pasien 4');
     }
+
+    public function test_fhir_patient_resource(): void
+    {
+        $patient = Patient::create(['patient_id' => 'MRN-X5', 'name' => 'Budi', 'sex' => 'M']);
+
+        $this->withHeader('Accept', 'application/fhir+json')
+            ->getJson("/api/fhir/Patient/{$patient->id}")
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/fhir+json')
+            ->assertJsonPath('resourceType', 'Patient')
+            ->assertJsonPath('gender', 'male')
+            ->assertJsonPath('identifier.0.value', 'MRN-X5');
+    }
+
+    public function test_fhir_search_bundle(): void
+    {
+        Patient::create(['patient_id' => 'MRN-X6', 'name' => 'Siti']);
+
+        $this->getJson('/api/fhir/Patient?identifier=MRN-X6')
+            ->assertOk()
+            ->assertJsonPath('resourceType', 'Bundle')
+            ->assertJsonPath('total', 1);
+    }
+
+    public function test_fhir_service_request_and_report(): void
+    {
+        $patient = Patient::create(['patient_id' => 'MRN-X7', 'name' => 'Agus']);
+        $order = Order::create([
+            'order_no' => 'ORD-T4', 'patient_id' => $patient->id, 'modality' => 'CT',
+        ]);
+        Report::create([
+            'order_id' => $order->id, 'impression' => 'Normal.', 'status' => 'final',
+        ]);
+
+        $this->getJson("/api/fhir/ServiceRequest/{$order->id}")
+            ->assertOk()
+            ->assertJsonPath('resourceType', 'ServiceRequest')
+            ->assertJsonPath('code.text', 'CT')
+            ->assertJsonPath('subject.reference', "Patient/{$patient->id}");
+
+        $report = Report::where('order_id', $order->id)->firstOrFail();
+        $this->getJson("/api/fhir/DiagnosticReport/{$report->id}")
+            ->assertOk()
+            ->assertJsonPath('resourceType', 'DiagnosticReport')
+            ->assertJsonPath('basedOn.0.reference', "ServiceRequest/{$order->id}");
+    }
 }

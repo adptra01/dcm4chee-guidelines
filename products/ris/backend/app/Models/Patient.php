@@ -9,6 +9,8 @@ class Patient extends Model
 {
     protected $fillable = ['patient_id', 'name', 'sex', 'birthdate'];
 
+    protected $casts = ['birthdate' => 'date'];
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

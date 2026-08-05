@@ -10,6 +10,8 @@ class Order extends Model
 {
     protected $fillable = ['order_no', 'patient_id', 'modality', 'status', 'requested_at'];
 
+    protected $casts = ['requested_at' => 'datetime'];
+
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
