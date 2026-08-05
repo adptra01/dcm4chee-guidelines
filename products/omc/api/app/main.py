@@ -8,6 +8,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
 from dicom_core import parse, preview, store
@@ -22,6 +23,14 @@ app = FastAPI(
 
 # queue: id -> {"metadata": dict, "path": str, "stored": bool}
 QUEUE: dict[str, dict] = {}
+
+# CORS: izinkan origin dev SvelteKit (console)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/health")

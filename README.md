@@ -83,7 +83,7 @@ cd products/omc/api && docker compose up
 | MS1 | `packages/dicom-core` (parser, preview, echo/store) | ✅ (parse/preview/echo/store) |
 | MS2 | OMC API vertical slice (import → preview → queue → Orthanc) | ✅ `f978fd33` |
 | MS3 | RIS: patient, order, worklist | ✅ (API pasien/order/worklist) |
-| MS4 | OMC Console: dashboard, queue, viewer | ⏳ |
+| MS4 | OMC Console: dashboard, queue, viewer | ✅ (3 halaman live) |
 | MS5+ | Reporting, AI, integrasi (MORBIS/FHIR/HL7), enterprise | ⏳ roadmap |
 
 ## Panduan Terkait
