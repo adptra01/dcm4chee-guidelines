@@ -1,21 +1,55 @@
 """Integration Service — ORP.
 
-MS0: bootable (GET /health). Adapter MORBIS/FHIR/HL7 dibangun bertahap (MS5+).
+Adapter SIMRS eksternal (MORBIS/BPJS) — penerjemah kontrak, bukan penyimpan data.
 """
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+from app import morbis
 
 app = FastAPI(
     title="ORP Integration Service",
-    version="0.1.0",
+    version="0.2.0",
     description="Adapter SIMRS eksternal (MORBIS/FHIR/HL7) — penerjemah kontrak",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "service": "integration-service", "version": "0.1.0"}
+    return {"status": "ok", "service": "integration-service", "version": "0.2.0"}
 
 
-@app.get("/")
-def root() -> dict:
-    return {"service": "integration-service", "docs": "/docs", "health": "/health"}
+class SepRequest(BaseModel):
+    no_kartu: str
+    tanggal: str | None = None
+
+
+class ClaimRequest(BaseModel):
+    no_sep: str
+    no_kartu: str
+    biaya: int
+
+
+@app.post("/morbis/sep")
+def create_sep(req: SepRequest) -> dict:
+    """Buat SEP BPJS (mock default; real bila MORBIS_MODE=real)."""
+    return morbis.sep(req.no_kartu, req.tanggal)
+
+
+@app.post("/morbis/claim")
+def submit_claim(req: ClaimRequest) -> dict:
+    """Kirim klaim ke BPJS (mock default; real bila MORBIS_MODE=real)."""
+    return morbis.claim(req.no_sep, req.no_kartu, req.biaya)
+
+
+@app.get("/morbis/mode")
+def morbis_mode() -> dict:
+    return {"mode": morbis.MODE, "base_url": morbis.BASE}

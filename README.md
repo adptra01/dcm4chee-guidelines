@@ -85,7 +85,8 @@ cd products/omc/api && docker compose up
 | MS3 | RIS: patient, order, worklist | ✅ (API pasien/order/worklist) |
 | MS4 | OMC Console: dashboard, queue, viewer | ✅ (3 halaman live) |
 | MS5 | Reporting: laporan radiologi per order (RIS) | ✅ (reports API) |
-| MS6+ | AI, integrasi (MORBIS/FHIR/HL7), enterprise | ⏳ roadmap |
+| MS6 | Integrasi MORBIS: SEP + klaim BPJS (mock/real) | ✅ (mock live) |
+| MS7+ | AI, FHIR/HL7, enterprise | ⏳ roadmap |
 
 ## Panduan Terkait
 
