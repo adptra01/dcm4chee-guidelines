@@ -89,7 +89,8 @@ cd products/omc/api && docker compose up
 | MS7 | AI service: analisis statistik dari Orthanc (engine v1, ML di MS8+) | ✅ (live) |
 | MS8 | FHIR R4: RIS expose Patient/ServiceRequest/DiagnosticReport | ✅ (live) |
 | MS9 | MWL SCP: modality query jadwal RIS (C-FIND, DICOM 4243) | ✅ (live) |
-| MS10+ | Model ML, HL7, enterprise | ⏳ roadmap |
+| MS10 | HL7 v2: ADT-A01 → RIS patient (ACK), ORM-O01 generate | ✅ (live) |
+| MS11+ | Model ML, enterprise | ⏳ roadmap |
 
 ## Panduan Terkait
 

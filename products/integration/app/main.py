@@ -2,11 +2,12 @@
 
 Adapter SIMRS eksternal (MORBIS/BPJS) — penerjemah kontrak, bukan penyimpan data.
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
 
-from app import morbis
+from app import hl7, morbis, mwl
 
 app = FastAPI(
     title="ORP Integration Service",
@@ -53,3 +54,17 @@ def submit_claim(req: ClaimRequest) -> dict:
 @app.get("/morbis/mode")
 def morbis_mode() -> dict:
     return {"mode": morbis.MODE, "base_url": morbis.BASE}
+
+
+class Hl7Message(BaseModel):
+    message: str
+
+
+@app.post("/hl7/message", response_class=PlainTextResponse)
+def hl7_inbound(req: Hl7Message) -> str:
+    """Terima HL7 v2 (ADT-A01) → buat pasien di RIS → ACK."""
+    msh = hl7.parse(req.message).get("MSH", [])
+    msg_type = msh[0][8] if msh and len(msh[0]) > 8 else ""
+    if msg_type == "ADT^A01":
+        return hl7.adt_ack(req.message)
+    raise HTTPException(400, f"tipe pesan tak didukung: {msg_type}")
