@@ -38,7 +38,7 @@ services:
       - "${DICOM_PORT:-4242}:4242"    # DICOM (PZDR / modalitas)
       - "${REST_PORT:-8042}:8042"     # REST API + DICOMweb
     volumes:
-      - ./orthanc/orthanc.json:/etc/orthanc/orthanc.json:ro
+      - ./platform/orthanc/orthanc.json:/etc/orthanc/orthanc.json:ro
       - ./data/orthanc:/var/lib/orthanc/db
     environment:
       - ORTHANC_PG_DATABASE=${POSTGRES_DB:-orthanc}
@@ -63,7 +63,7 @@ services:
     environment:
       APP_CONFIG: /usr/share/nginx/html/app-config.js
     volumes:
-      - ./ohif/app-config.js:/usr/share/nginx/html/app-config.js:ro
+      - ./platform/ohif/app-config.js:/usr/share/nginx/html/app-config.js:ro
 
 volumes:
   pacs-db-data:

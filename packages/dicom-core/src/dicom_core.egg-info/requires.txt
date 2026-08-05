@@ -1,0 +1,7 @@
+pydicom>=3.0
+pynetdicom>=3.0
+numpy>=1.26
+pillow>=10.0
+
+[dev]
+pytest>=8.0

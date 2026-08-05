@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "skills": {
+    "DICOM Processing": {
+      "source": "aurabx/skills",
+      "sourceType": "github",
+      "skillPath": "skills/dicom-processing/SKILL.md",
+      "computedHash": "8926c61b56c4f9c6fed9bb94ea32a551360a53bf7da692cbe81e1b9476de6655"
+    },
+    "DICOMweb Protocol": {
+      "source": "aurabx/skills",
+      "sourceType": "github",
+      "skillPath": "skills/dicomweb-protocol/SKILL.md",
+      "computedHash": "d84742ce1aead73898db872d4a4742f2371b5ba461b5619c789f682eddbb6297"
+    },
+    "fhir-data-model-design": {
+      "source": "stanfordspezi/spezivibe",
+      "sourceType": "github",
+      "skillPath": "skills/fhir-data-model-design/SKILL.md",
+      "computedHash": "0be7588ff87f614bb8165aecff9a5c94d992589e17a33839acd2394d173c1731"
+    },
+    "fhir-developer-skill": {
+      "source": "anthropics/healthcare",
+      "sourceType": "github",
+      "skillPath": "plugins/healthcare/skills/fhir-developer/SKILL.md",
+      "computedHash": "ba1feeb41491ccf4ce7347255b5d214acbb18ba3e7c1bf5fd79646607b1e2385"
+    },
+    "pacsomatic": {
+      "source": "k-dense-ai/scientific-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/pacsomatic/SKILL.md",
+      "computedHash": "60999f46e3e7ea2f02d7eebcf8232547beb742a6d77950a07b5a7766ec9c2253"
+    },
+    "pydicom": {
+      "source": "davila7/claude-code-templates",
+      "sourceType": "github",
+      "skillPath": "cli-tool/components/skills/scientific/pydicom/SKILL.md",
+      "computedHash": "262ab2636027457d468c4d8d5486c3e56f705a37b5329b07ab2ccd6af7156612"
+    }
+  }
+}

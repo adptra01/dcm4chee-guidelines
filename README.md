@@ -1,146 +1,94 @@
-# PACS Stack — Orthanc + OHIF + PostgreSQL
+# Open Radiology Platform (ORP)
 
-Integrasi PZDR (DR FORERMED) ke PACS self-hosted. Semua berjalan di Docker Compose, dioperasikan sendiri tanpa vendor.
+Platform radiologi modular & open-source: RIS (Laravel), Open Modality Console
+(pengganti PZDR, FastAPI + Svelte), PACS (Orthanc), Viewer (OHIF), AI, dan
+integrasi SIMRS. Dibangun bertahap (lihat Milestone).
 
-## Arsitektur
+## Arsitektur (ringkas)
 
 ```
-PZDR (Windows, DICOM SCU)
-   │  C-STORE → port 4242 (AE: ORTHANC)
-   ▼
-Orthanc (Docker) ──► PostgreSQL (index/metadata)
-   │  ├─ REST API + DICOMweb → :8042
-   │  └─ Web Viewer bawaan
-   ▼
-OHIF Viewer (Docker) → http://<host>:3000
+SIMRS/MORBIS ──► Laravel RIS (products/ris) ──REST──► OMC (products/omc) ──DICOM──► Orthanc PACS
+                                                                                       │
+                                                                        OHIF Viewer / OMC Console
 ```
 
-## Menjalankan di Lokal
+Detail: `docs/architecture/ARCHITECTURE.md` • Keputusan: `docs/adr/`
 
-Alur lengkap dari kondisi bersih → verifikasi → stop.
+## ⛔ Core Rule (tidak bisa dinegosiasi — ADR-001/003)
 
-### 1. Prasyarat
+> **Orthanc adalah satu-satunya komponen yang menyimpan dan melayani DICOM.**
+>
+> ❌ FastAPI tidak menyimpan DICOM permanen
+> ❌ Laravel tidak menyimpan DICOM
+> ❌ Svelte tidak mengetahui lokasi file DICOM
+> ✅ Semua gambar selalu berasal dari Orthanc
+
+## Struktur
+
+```
+products/       # domain bisnis — ris, omc (api+console), ai, viewer, integration, developer-portal
+packages/       # library reusable — dicom-core, workflow-core, report-core, integration-core, shared
+platform/       # infrastruktur — orthanc, postgres, redis, ohif, gateway, monitoring
+scripts/        # check, health, backup, restore
+docs/           # architecture, adr, api, workflow, dicom, deployment
+sample-data/    # aset contoh bersama (dicom, json, hl7, fhir, reports, fixtures)
+tests/          # test bersama
+legacy/         # referensi aktif proyek lama (laravel-pacs, dcm4chee)
+_archive/       # arsip murni (tidak di-git)
+devtools/       # utilitas pengembangan (bukan library, bukan skrip operasional)
+```
+
+## Quick Start
 
 ```bash
-docker --version          # Docker Engine 24+ (sudah terpasang)
-docker compose version    # Docker Compose 2+
-# pastikan port tidak bentrok:
-ss -tlnp | grep -E "4242|8042|3000"   # tidak ada yang listen di port ini
-```
-
-### 2. Siapkan environment (sekali saja)
-
-```bash
-cp .env.example .env      # sesuaikan port/kredensial bila perlu
-```
-
-### 3. Jalankan stack
-
-```bash
+# 1. Infrastruktur platform (Orthanc + Postgres + OHIF)
+cp .env.example .env
 docker compose up -d
+
+# 2. Cek kesehatan
+./scripts/check.sh
+
+# 3. RIS (Laravel via DDEV)
+cd products/ris && ddev start
+
+# 4. OMC API (FastAPI) — lihat produk masing-masing
+cd products/omc/api && docker compose up
 ```
 
-### 4. Verifikasi (pastikan semua healthy)
-
-```bash
-docker compose ps                     # pacs-db, pacs-orthanc, pacs-ohif harus "healthy"
-```
-
-| Cek | URL / perintah | Harapan |
-|---|---|---|
-| Orthanc REST | `curl -s http://localhost:8042/system` | JSON, `Version` |
-| DICOM C-ECHO | `echoscu -aec ORTHANC -aet TEST localhost 4242` | Echo Success |
-| OHIF viewer | buka `http://localhost:3000/` | halaman study list |
-| DICOMweb | `curl -s http://localhost:8042/dicom-web/studies` | `[]` atau JSON studi |
-
-Sudah sehat → bisa lanjut konfigurasi PZDR (`docs/INSTALL-PZDR.md`).
-
-## Operasi
-
-```bash
-docker compose ps                 # status
-docker compose logs -f orthanc    # log Orthanc (diagnosa koneksi PZDR)
-docker compose restart orthanc    # restart setelah ubah orthanc.json
-docker compose down               # stop, data tersimpan
-docker compose down -v            # HAPUS SEMUA DATA — jangan untuk produksi
-```
-
-## Mengubah Nilai Default (port/kredensial)
-
-Semua port & kredensial diatur lewat `.env`. Ubah di `.env` lalu `docker compose up -d` agar berlaku.
-
-| Endpoint | URL |
-|---|---|
-| Orthanc REST / DICOMweb | `http://<host>:8042` (DICOMweb di `/dicom-web`) |
-| Orthanc UI (Explorer) | `http://<host>:8042/` |
-| OHIF Viewer | `http://<host>:3000` |
-| DICOM (untuk PZDR) | `<host>:4242`, AE Title: `ORTHANC` |
-
-## Daftar URL / Link yang Bisa Diakses
-
-> `<host>` = IP mesin tempat Docker berjalan. **Lokal:** `localhost` • **Dari mesin lain:** `10.205.136.1` (ubah sesuai jaringan — lihat `docs/ACCESS-JARINGAN.md`).
-
-### Dari browser
+## Endpoint Platform (live)
 
 | URL | Fungsi |
 |---|---|
-| `http://<host>:3000/` | **OHIF Viewer** — buka & lihat studi/gambar |
-| `http://<host>:8042/` | **Orthanc UI** (redirect ke `/ui/app/`, 307 = normal) — admin: lihat/export/delete studi |
-| `http://<host>:8042/system` | Info sistem, versi, backend DB |
-| `http://<host>:8042/studies` | Daftar studi (JSON) |
-| `http://<host>:8042/patients` | Daftar pasien (JSON) |
-| `http://<host>:8042/instances` | Daftar instance (JSON) |
-| `http://<host>:8042/dicom-web/studies` | DICOMweb (QIDO-RS) — dipakai aplikasi/OHIF |
-| `http://<host>:8042/dicom-web/instances` | DICOMweb (QIDO-RS) instance |
+| `http://<host>:3000/` | OHIF Viewer |
+| `http://<host>:8042/` | Orthanc UI (307 → UI = normal) |
+| `http://<host>:8042/dicom-web/studies` | DICOMweb QIDO-RS |
+| `<host>:4242` (AE `ORTHANC`) | Port DICOM (modalitas) |
 
-### Bukan URL browser (untuk perangkat DICOM)
+`<host>` = `localhost` / `10.205.136.1` (lihat `docs/deployment/ACCESS-JARINGAN.md`).
 
-| 'URL' | Fungsi |
-|---|---|
-| `<host>:4242` (AE `ORTHANC`) | Port DICOM — untuk PZDR/modalitas kirim gambar (C-STORE), bukan HTTP |
-
-Catatan:
-- `:8042/` mengembalikan **307** (redirect ke UI) — itu normal, bukan error.
-- Jika viewer dibuka dari mesin lain, pastikan `ohif/app-config.js` memakai IP host (bukan `localhost`), lalu `docker compose restart ohif`.
-
-## Uji Cepat DICOM (dari mesin dengan dcmtk)
+## Backup & Restore
 
 ```bash
-echoscu  -aec ORTHANC -aet TEST <host> 4242        # C-ECHO
-storescu -aec ORTHANC -aet PZDR_DR1 <host> 4242 file.dcm   # C-STORE
+./scripts/backup.sh                        # storage + index → data/backups/
+./scripts/restore.sh                       # ⛔ butuh --run (destruktif, manual)
+./scripts/check.sh                         # verifikasi setelah restore
 ```
 
-## Struktur Folder
+## Milestone
 
-```
-├── docker-compose.yml      # stack: db + orthanc + ohif
-├── .env.example            # port & kredensial (salin ke .env)
-├── orthanc/orthanc.json    # konfigurasi Orthanc (AE, port, plugin)
-├── ohif/app-config.js      # konfigurasi viewer (ubah localhost → IP server)
-├── pzdr/                   # installer PZDR + manual
-├── data/                   # data runtime (DICOM storage) — backup ini
-├── docs/                   # panduan integrasi, troubleshooting, ATP
-└── archive/                # proyek lama (dcm4chee, laravel-pacs) — referensi
-```
+| MS | Konten | Status |
+|---|---|---|
+| MS0-W1 | Foundation monorepo (struktur, platform, scripts, docs, ADR) | 🔨 dikerjakan |
+| MS0-W2 | Semua produk bootable (`GET /health`, `ddev start`, `npm run dev`) | ⏳ |
+| MS1 | `packages/dicom-core` (parser, preview, echo/store) | ⏳ |
+| MS2 | OMC API vertical slice (import → preview → queue → Orthanc) | ⏳ |
+| MS3 | RIS: patient, order, worklist | ⏳ |
+| MS4 | OMC Console: dashboard, queue, viewer | ⏳ |
+| MS5+ | Reporting, AI, integrasi (MORBIS/FHIR/HL7), enterprise | ⏳ roadmap |
 
-## Konfigurasi di sisi PZDR
+## Panduan Terkait
 
-Buka **Configuration Tools** (password: `1`) → **4.6.4 PACS Configuration**:
-
-| Field PZDR | Nilai |
-|---|---|
-| Host AETitle | `PZDR_DR1` (bebas, unik) |
-| AETitle | `ORTHANC` (harus sama persis) |
-| Hostname | IP mesin Docker (bukan `localhost`) |
-| Port | `4242` |
-| Auto send | OFF dulu |
-
-Langkah detail: `docs/PZDR-INTEGRATION.md`
-
-## Catatan Penting
-
-- **Akses lintas jaringan** (VLAN, IP berubah, lokasi terpisah) → `docs/ACCESS-JARINGAN.md`
-- **Ganti `localhost` di `ohif/app-config.js`** dengan IP mesin Docker jika viewer diakses dari mesin lain (mis. workstation PZDR).
-- Plugin Orthanc dimuat dari **direktori** (`/usr/local/share/orthanc/plugins`) — memuat semua plugin bawaan image (PostgreSQL, DICOMweb, GDCM, OHIF, UI Explorer). Jangan ganti menjadi daftar file individu (itu memutus UI bawaan).
-- Authentication REST Orthanc sengaja **nonaktif** untuk lab. Untuk produksi aktifkan (lihat `docs/TROUBLESHOOTING.md` → Keamanan).
-- Backup = folder `data/orthanc` (storage DICOM) + `pg_dump` volume `pacs-db-data` (lihat `docs/TROUBLESHOOTING.md`).
+- `docs/dicom/DICOM-BELAJAR.md` — belajar DICOM dari kasus lab
+- `docs/deployment/INSTALL-PZDR.md` — konfigurasi PZDR (modalitas eksternal)
+- `docs/deployment/TROUBLESHOOTING.md` — diagnosa masalah
+- `docs/adr/` — keputusan arsitektur (5 ADR)

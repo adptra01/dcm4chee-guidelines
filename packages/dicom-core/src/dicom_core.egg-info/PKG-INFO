@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: dicom-core
+Version: 0.1.0
+Summary: Inti DICOM: parser, metadata, preview, validate, echo/store (SCU)
+Requires-Python: >=3.11
+Requires-Dist: pydicom>=3.0
+Requires-Dist: pynetdicom>=3.0
+Requires-Dist: numpy>=1.26
+Requires-Dist: pillow>=10.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
