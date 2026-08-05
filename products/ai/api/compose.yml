@@ -1,0 +1,17 @@
+# AI Service — compose standalone
+# Jalankan dari folder ini:  docker compose up
+services:
+  ai-service:
+    build: .
+    container_name: ai-service
+    restart: unless-stopped
+    ports:
+      - "8200:8000"
+    environment:
+      ORTHANC_HOST: ${ORTHANC_HOST:-localhost}
+      ORTHANC_PORT: ${ORTHANC_PORT:-8042}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

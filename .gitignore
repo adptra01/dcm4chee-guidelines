@@ -9,3 +9,6 @@ sample-data/dicom/**/*.png
 **/.venv/
 __pycache__/
 *.pyc
+node_modules/
+dist/
+.svelte-kit/
