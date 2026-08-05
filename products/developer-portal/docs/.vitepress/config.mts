@@ -1,9 +1,8 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'ORP Developer Portal',
-  description: 'Dokumentasi pengembang Open Radiology Platform',
-  lang: 'id-ID',
+  title: 'Open Radiology Platform',
+  description: 'PACS RIS AI terpadu — docs developer',
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
@@ -14,9 +13,18 @@ export default defineConfig({
       {
         text: 'Panduan',
         items: [
-          { text: 'Home', link: '/' },
+          { text: 'Ringkasan', link: '/' },
           { text: 'Arsitektur', link: '/architecture' },
           { text: 'Kontribusi', link: '/contributing' },
+        ],
+      },
+      {
+        text: 'Produk & API',
+        items: [
+          { text: 'OMC API', link: '/products/omc' },
+          { text: 'RIS API & FHIR', link: '/products/ris' },
+          { text: 'AI Service', link: '/products/ai' },
+          { text: 'Integration (MORBIS/MWL/HL7)', link: '/products/integration' },
         ],
       },
     ],
