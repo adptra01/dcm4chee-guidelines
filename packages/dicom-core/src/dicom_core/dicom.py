@@ -15,9 +15,12 @@ import io
 
 import pydicom
 from pydicom import dcmread
+from pydicom.dataset import Dataset
 from pynetdicom import AE
 from pynetdicom.sop_class import (
     DigitalXRayImageStorageForPresentation,
+    ModalityPerformedProcedureStep as MPPS,
+    ModalityWorklistInformationFind as MWL_FIND,
     Verification,
 )
 
@@ -117,3 +120,67 @@ def store(path: str, host: str = "localhost", port: int = DEFAULT_PORT,
         return status.Status if status else None
     finally:
         assoc.release()
+
+
+def mwl_query(model: Dataset, host: str = "localhost", port: int = 4243,
+              scu_ae: str = "OMC_CONSOLE", scp_ae: str = "MWL_SCP") -> list[Dataset]:
+    """C-FIND MWL (SCU) ke Integration :4243 — kembalikan daftar jadwal.
+
+    pynetdicom 3.x: send_c_find(dataset, query_model) — abstract syntax
+    ditentukan oleh query_model (UID MWL), bukan parameter terpisah.
+    """
+    assoc = _associate_mwl(host, port, scu_ae, scp_ae)
+    if not assoc.is_established:
+        return []
+    try:
+        # C-FIND tanpa key sama sekali invalid (identifier None) — wildcard
+        # valid = key dengan nilai kosong. Jamin minimal satu key.
+        if not any(str(getattr(model, a, "") or "") for a in
+                   ("AccessionNumber", "PatientID", "ScheduledStationAETitle")):
+            model = Dataset()
+            model.AccessionNumber = ""
+        results: list[Dataset] = []
+        for status, ds in assoc.send_c_find(model, query_model=MWL_FIND):
+            if status and status.Status == 0xFF00 and ds:
+                results.append(ds)
+        return results
+    finally:
+        assoc.release()
+
+
+def _associate_mwl(host, port, scu_ae, scp_ae):
+    ae = AE(ae_title=scu_ae)
+    ae.add_requested_context(MWL_FIND)
+    assoc = ae.associate(host, port, ae_title=scp_ae)
+    if assoc.is_established:
+        # SCP fetch worklist dari RIS bisa lambat — perpanjang batas tunggu
+        assoc.dimse_timeout = 30
+    return assoc
+
+
+def mpps_send(ds: Dataset, host: str = "localhost", port: int = 4244,
+              scu_ae: str = "OMC_CONSOLE", scp_ae: str = "MPPS_SCP") -> bool:
+    """MPPS N-CREATE (jika status) / N-SET ke Integration :4244.
+
+    `ds` berisi MPPS dataset lengkap (PerformedProcedureStepSequence, dst).
+    Return True bila status sukses.
+    """
+    assoc = _associate_mpps(host, port, scu_ae, scp_ae)
+    if not assoc.is_established:
+        return False
+    try:
+        # signature: send_n_create(dataset, class_uid, instance_uid)
+        # return: (status_dataset, response_dataset)
+        if ds.get("PerformedProcedureStepStatus") == "IN PROGRESS":
+            status, _ = assoc.send_n_create(ds, str(MPPS), str(ds.PerformedProcedureStepID))
+        else:
+            status, _ = assoc.send_n_set(ds, str(MPPS), str(ds.PerformedProcedureStepID))
+        return bool(status) and status.Status == 0x0000
+    finally:
+        assoc.release()
+
+
+def _associate_mpps(host, port, scu_ae, scp_ae):
+    ae = AE(ae_title=scu_ae)
+    ae.add_requested_context(MPPS)
+    return ae.associate(host, port, ae_title=scp_ae)
