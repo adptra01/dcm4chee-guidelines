@@ -31,9 +31,12 @@ def find_order_id(accession: str) -> int | None:
     return None
 
 
-def update_order_status(order_id: int, status: str) -> bool:
+def update_order_status(order_id: int, status: str, study_instance_uid: str | None = None) -> bool:
+    payload = {"status": status}
+    if study_instance_uid:
+        payload["study_instance_uid"] = study_instance_uid
     r = httpx.patch(f"{RIS_URL}/orders/{order_id}/status",
-                    json={"status": status}, verify=RIS_VERIFY, timeout=15)
+                    json=payload, verify=RIS_VERIFY, timeout=15)
     return r.status_code in (200, 201)
 
 
@@ -76,7 +79,9 @@ def on_n_set(event):
             return (0x0117, None)
         status = str(getattr(event.attribute_list, "PerformedProcedureStepStatus", "COMPLETED"))
         ris_status = "completed" if status in ("COMPLETED", "DISCONTINUED") else "in_progress"
-        update_order_status(oid, ris_status)
+        # StudyInstanceUID (0020,000D) ada di MPPS N-SET saat studi dikirim ke PACS
+        study_uid = getattr(event.attribute_list, "StudyInstanceUID", None)
+        update_order_status(oid, ris_status, str(study_uid) if study_uid else None)
         return _handler_ok()
     except Exception as e:
         log.error("MPPS N-SET gagal: %s", e)

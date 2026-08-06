@@ -99,6 +99,7 @@ new class extends Component {
                                 <th class="hidden px-5 py-3 font-medium md:table-cell">Dokter</th>
                                 <th class="px-5 py-3 font-medium">Prosedur</th>
                                 <th class="px-5 py-3 font-medium">Status</th>
+                                <th class="hidden px-5 py-3 font-medium sm:table-cell">Study</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-200/70 dark:divide-zinc-200/10">
@@ -114,10 +115,20 @@ new class extends Component {
                                             {{ $o['status'] }}
                                         </span>
                                     </td>
+                                    <td class="px-5 py-4">
+                                        @if (! empty($o['study_instance_uid']))
+                                            <a href="http://localhost:3000/viewer?StudyInstanceUIDs={{ $o['study_instance_uid'] }}" target="_blank"
+                                               class="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-emerald-500">
+                                                Buka di viewer →
+                                            </a>
+                                        @else
+                                            <span class="text-xs text-zinc-400">—</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-5 py-12 text-center text-sm text-zinc-400 dark:text-zinc-500">
+                                    <td colspan="6" class="px-5 py-12 text-center text-sm text-zinc-400 dark:text-zinc-500">
                                         Belum ada order.
                                     </td>
                                 </tr>

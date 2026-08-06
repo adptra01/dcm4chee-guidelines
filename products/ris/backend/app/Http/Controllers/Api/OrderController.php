@@ -37,6 +37,7 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
         $order->update($request->validate([
             'status' => 'required|in:scheduled,in_progress,completed,cancelled',
+            'study_instance_uid' => 'nullable|string|max:64',
         ]));
         WorklistItem::where('order_id', $order->id)->update([
             'status' => $order->status === 'completed' ? 'completed' : 'scheduled',

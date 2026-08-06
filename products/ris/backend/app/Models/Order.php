@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
-{    protected $fillable = ['order_no', 'patient_id', 'doctor_id', 'procedure_id', 'modality', 'status', 'requested_at'];
+{    protected $fillable = ['order_no', 'patient_id', 'doctor_id', 'procedure_id', 'modality', 'status', 'requested_at', 'study_instance_uid'];
 
     protected $casts = ['requested_at' => 'datetime'];
 

@@ -46,4 +46,17 @@ class WorklistReportPageTest extends TestCase
             ->assertSee('ORD-R1')
             ->assertSee('Tidak ada kelainan');
     }
+
+    public function test_order_status_update_can_set_study_uid(): void
+    {
+        $order = $this->makeOrder('S1');
+        WorklistItem::create(['order_id' => $order->id, 'scheduled_aet' => 'ORTHANC', 'scheduled_at' => now()]);
+
+        $this->patchJson("/api/orders/{$order->id}/status", [
+            'status' => 'completed',
+            'study_instance_uid' => '1.2.3.4.5.6.7.8.9',
+        ])->assertOk()->assertJsonPath('study_instance_uid', '1.2.3.4.5.6.7.8.9');
+
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'study_instance_uid' => '1.2.3.4.5.6.7.8.9']);
+    }
 }
