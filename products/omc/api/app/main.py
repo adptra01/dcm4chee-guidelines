@@ -3,6 +3,7 @@
 MS2 vertical slice: import DICOM → queue → preview → C-STORE ke Orthanc.
 Antrean in-memory (per-proses); storage file di data/incoming/.
 """
+import os
 import shutil
 from pathlib import Path
 from uuid import uuid4
@@ -11,11 +12,17 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
-from dicom_core import parse, preview, store
+from dicom_core import echo, parse, preview, store
 
 from app import queue_store
 
 STORAGE = Path(__file__).parent.parent / "data" / "incoming"
+
+# Target Orthanc — override via env (Settings di UI OMC)
+ORTHANC_HOST = os.getenv("OMC_ORTHANC_HOST", "localhost")
+ORTHANC_PORT = int(os.getenv("OMC_ORTHANC_PORT", "4242"))
+SCU_AE = os.getenv("OMC_SCU_AE", "OMC_CONSOLE")
+SCP_AE = os.getenv("OMC_SCP_AE", "ORTHANC")
 
 app = FastAPI(
     title="OMC API",
@@ -82,9 +89,22 @@ def study_store(study_id: str) -> dict:
     rec = queue_store.get(study_id)
     if not rec:
         raise HTTPException(404, "study tidak ada")
-    status = store(rec["path"])
+    status = store(rec["path"], host=ORTHANC_HOST, port=ORTHANC_PORT,
+                   scu_ae=SCU_AE, scp_ae=SCP_AE)
     if status is None:
         raise HTTPException(502, "gagal terhubung ke Orthanc")
     if status == 0x0000:
         queue_store.mark_stored(study_id)
     return {"study_id": study_id, "status": hex(status), "stored": status == 0x0000}
+
+
+@app.get("/settings")
+def settings() -> dict:
+    """Konfigurasi target DICOM (dari env) + status koneksi via C-ECHO."""
+    return {
+        "host": ORTHANC_HOST,
+        "port": ORTHANC_PORT,
+        "scu_ae": SCU_AE,
+        "scp_ae": SCP_AE,
+        "echoc": echo(ORTHANC_HOST, ORTHANC_PORT, SCU_AE, SCP_AE),
+    }

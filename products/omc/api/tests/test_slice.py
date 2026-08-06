@@ -75,3 +75,20 @@ def test_store_to_orthanc():
     assert r.json()["stored"] is True
     # teardown: hapus HANYA instance baru dari test ini (studi asli tetap utuh)
     _orthanc_delete(_orthanc_instance_ids() - before)
+
+
+def test_settings_and_echo():
+    r = client.get("/settings")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["port"] == 4242
+    assert body["scp_ae"] == "ORTHANC"
+    assert isinstance(body["echoc"], bool)
+
+
+def test_settings_echo_orthanc_up():
+    if not ORTHANC_UP:
+        pytest.skip("Orthanc mati")
+    r = client.get("/settings")
+    assert r.status_code == 200
+    assert r.json()["echoc"] is True
