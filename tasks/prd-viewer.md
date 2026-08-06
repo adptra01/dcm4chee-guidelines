@@ -32,8 +32,8 @@ Belum tercover: produk Viewer terpisah, study list, inisialisasi studi dari RIS,
 **Description:** Sebagai radiolog, saya ingin membuka studi dari halaman order RIS agar alur baca cepat tanpa copy SOP instance.
 
 **Acceptance Criteria:**
-- [ ] Tombol "View" pada order/RIS membuka yang extra dial ke viewer dengan StudyInstanceUID
-- [ ] Viewer load studi dari Orthanc RT
+- [ ] Tombol "View" pada halaman order RIS membuka viewer dengan StudyInstanceUID yang sesuai
+- [ ] Viewer load studi dari Orthanc (DICOMweb/WADO-RS)
 - [ ] Redirect/SSO: tidak minta login ganda
 - [ ] Verify in browser using dev-browser skill
 
@@ -59,7 +59,7 @@ Belum tercover: produk Viewer terpisah, study list, inisialisasi studi dari RIS,
 ## Functional Requirements
 
 - FR-1: Embed OHIF viewer (jangan rewrite)
-- FR-2: Launch study by StudyInstanceUID dari RISK/OMC
+- FR-2: Launch study by StudyInstanceUID dari RIS/OMC
 - FR-3: Study search via Orthanc REST / DICOMweb QIDO-RS
 - FR-4: Single sign-in/redirect dari RIS ke viewer
 - FR-5: (V2) annotation + measurement per studi, persist
@@ -92,6 +92,6 @@ Belum tercover: produk Viewer terpisah, study list, inisialisasi studi dari RIS,
 
 ## Open Questions
 
-- SSO RIS ↔ Viewer: shared session cookie atau token-query?
+- SSO RIS ↔ Viewer: shared session cookie atau token-query? → **Diputuskan di ADR-006 bagian 3:** shared session + URL token study (token dibatasi StudyInstanceUID, expire pendek). Bukan shared cookie penuh.
 - Annotation disimpan di Orthanc (SR) or DB terpisah?
 - Apakah orang tetap butuh viewer terpisah dari OMC console?

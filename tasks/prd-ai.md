@@ -86,6 +86,10 @@ Belum tercover: inference API publik terstruktur, model ML (MONAI), segmentation
 - Latency inferensi statistik < 2 detik/studi di dev
 - Output terstruktur tanpa error pada studi sample
 
+## Auth (ADR-006)
+
+- **Wajib sebelum produksi:** middleware `X-API-Key` (pola Integration MS12). Kredensial via `.env`, tidak hardcode (SECURITY.md).
+
 ## Open Questions
 
 - Engine mana di MVP: statistik (sudah ada) atau dummy MONAI?

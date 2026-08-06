@@ -24,11 +24,19 @@ Sudah tercover di `products/integration` (16 test):
 
 Belum tercover: webhook outbound, queue+retry, adapter SATUSEHAT, service discovery, marketplace.
 
+## Regulasi (wajib, bukan opsional)
+
+- **Permenkes 24/2022** Pasal 21 & 24: RME fasilitas kesehatan wajib terhubung SATUSEHAT; pengiriman data rujukan lewat platform tersebut. Integrasi dikejar untuk go-live RS.
+- **NIK** = identifier utama SATUSEHAT; skema pasien RIS wajib menampung/validasi NIK (bukan cuma MRN internal).
+- **FHIR wajib tahap 1**: Organization, Location, Practitioner/PractitionerRole, Patient, Encounter, Condition, Observation. **Tahap 2**: Procedure, MedicationRequest, ServiceRequest, DiagnosticReport.
+- Implikasi: **SATUSEHAT adapter naik dari V3 → requirement resmi sejajar MVP** (lihat US-INT-003 & jadwal go-live). MORBIS tetap prototipe pola adapter → SATUSEHAT turunan (desain sudah tepat).
+
 ## Fase
 
 - **MVP (v0.7):** REST, Webhook, MWL
 - **V2 (v0.9+):** FHIR, HL7, Queue, Retry
 - **V3 (v1.0+):** Integration Marketplace
+- **Kepatuhan (go-live RS):** SATUSEHAT adapter — dijadwalkan, bukan menunggu V3
 
 ## User Stories
 

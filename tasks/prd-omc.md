@@ -104,6 +104,10 @@ Belum tercover: MWL (datang dari Integration), MPPS (dikirim ke Integration), re
 - Tidak ada studi hilang saat restart (queue persisten)
 - Retry sukses tanpa studi duplikat di Orthanc (diff set instance)
 
+## Auth (ADR-006)
+
+- **Wajib sebelum produksi:** middleware `X-API-Key` (pola Integration MS12). Kredensial via `.env`, tidak hardcode (SECURITY.md).
+
 ## Open Questions
 
 - Deteksi modalitas otomatis dari metadata (V3)?
