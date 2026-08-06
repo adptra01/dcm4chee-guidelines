@@ -10,26 +10,26 @@ Ringkasan arsitektur. Keputusan detail ada di `docs/adr/` (ADR-001 s/d ADR-005).
                         ▼
 ┌──────────────────────────────────────────────────────┐
 │            Integration Platform (FastAPI)             │  products/integration
-│   Adapter · REST · HL7 · FHIR · Webhook · MWL · MPPS  │  Source of truth: interoperabilitas
+│   Adapter · REST · HL7 · FHIR · Webhook · MWL · MPPS  │  Source of truth: komunikasi lintas sistem
 └───────┬──────────────────────────────┬───────────────┘
         │ MWL C-FIND (:4243)            │ MPPS N-CREATE/N-SET (:4244)
-        │ RIS→Integration→modalitas     │ modalitas→Integration→RIS(status)
+        │ (perantara RIS↔OMC worklist)  │ modalitas→Integration→RIS(status)
         ▼                              ▼
 ┌───────────────────────────────────────────────────────┐
 │            Laravel RIS (DDEV)                         │  products/ris
-│   Patient · Order · Report · Audit                    │  Source of truth: data klinis
-└───────┬──────────────────────────────┬───────────────┘
-        │ REST                          │ MWL worklist / status order
-        ▼                               ▼
+│   Patient · Order · Report · Audit                    │  Source of truth: data administratif & klinis
+└───────────────────┬───────────────────────────────────┘
+                    │ REST (worklist via Integration, bukan langsung ke OMC)
+                    ▼
 ┌───────────────────────────────────────────────────────┐
 │    OMC API (FastAPI) + OMC Console (Svelte)           │  products/omc
-│   Import · Preview · Queue · DICOM                    │  Source of truth: workflow modality
+│   Import · Preview · Queue · C-STORE                  │  Source of truth: antrean transmisi
 └───────┬──────────────────────────────┬───────────────┘
-        │ REST + DICOM (C-STORE/C-FIND) │ AI request ②
+        │ REST + DICOM (C-STORE)        │ AI request ②
         ▼                               ▼
 ┌──────────────────────────┐     ┌──────────────────────────┐
 │   Orthanc PACS (Docker)  │     │      AI Platform          │  products/ai
-│  Storage · DICOMweb      │     │  Inference · Overlay       │  Source of truth: AI result
+│  Storage · DICOMweb      │     │  Inference · Overlay       │  Source of truth: hasil AI
 │  Source of truth: GAMBAR │     └────────────┬─────────────┘
 └──────────┬───────────────┘                  │ overlay / measurement
            ▼                                  ▼
@@ -38,7 +38,7 @@ Ringkasan arsitektur. Keputusan detail ada di `docs/adr/` (ADR-001 s/d ADR-005).
 ```
 
 **Keterangan diagram:**
-- **Integration** = layer terpisah: pemilik MWL SCU (:4243) & MPPS SCP (:4244) untuk komunikasi dengan modalitas. Panah MWL: RIS→Integration→modalitas/OMC; Panah MPPS: modalitas→Integration→RIS (update status order).
+- **Integration = perantara WAJIB** untuk worklist (MWL :4243) & status prosedur (MPPS :4244) — RIS tidak bicara langsung ke OMC untuk worklist (sesuai `prd-integration.md`: Integration pemilik dua SCP tersebut).
 - **AI Platform** terpisah dari OMC (ADR-006 bagian 1): OMC tidak menyimpan hasil AI.
 
 ## Source of Truth (ADR-001)
@@ -47,8 +47,23 @@ Ringkasan arsitektur. Keputusan detail ada di `docs/adr/` (ADR-001 s/d ADR-005).
 |---|---|
 | Patient, Order, Report, Audit | **Laravel RIS** |
 | DICOM Image | **Orthanc PACS** (Core Rule) |
-| Queue, Worklist cache | **OMC (FastAPI)** |
-| AI result (statistik, overlay, measurement, finding) | **AI Platform** |
+| Antrean transmisi (queue) | **OMC (FastAPI)** |
+| Komunikasi lintas sistem (MWL/MPPS/adapter) | **Integration Platform** |
+| Hasil AI (statistik, overlay, measurement, finding) | **AI Platform** |
+
+## Modul (produk)
+
+| Modul | Folder | Tanggung jawab | Source of truth untuk |
+|---|---|---|---|
+| **RIS** | `products/ris` | Pasien, dokter, prosedur, order, laporan, dashboard | Data administratif & klinis |
+| **Integration Platform** | `products/integration` | Adapter SIMRS, HL7 v2, FHIR R4, webhook, MWL SCP :4243, MPPS SCP :4244, auth eksternal | Komunikasi lintas sistem |
+| **OMC** | `products/omc` | Import DICOM, preview, queue, C-STORE ke Orthanc | Antrean transmisi |
+| **PACS (Orthanc)** | `platform/orthanc` | Penyimpanan DICOM permanen, DICOMweb, backup | Gambar DICOM (satu-satunya) |
+| **Viewer** | `products/viewer` + `platform/ohif` | Study list, launch studi, annotation | — (baca dari Orthanc) |
+| **AI Platform** | `products/ai` | Inference dari studi Orthanc, overlay | Hasil AI |
+| **Developer Platform** | `products/developer-portal` | Dokumentasi, OpenAPI, Postman, CLI | — |
+
+> `packages/*` (dicom-core, workflow-core, report-core, integration-core, shared) **bukan modul** — library yang dipakai `products/*`, sesuai aturan dependency ADR-002.
 
 ## Core Rule (tidak bisa dinegosiasi)
 
@@ -68,9 +83,9 @@ Order Created → Waiting → Worklist → In Progress
 ## Dua Alur (Business ≠ DICOM)
 
 ```
-① Order:   RIS → Integration (MWL C-FIND :4243) / REST → OMC worklist
-② Hasil:   OMC → (C-STORE) → Orthanc ──event──► OMC queue (stored)
-③ Status:  modalitas → Integration (MPPS :4244) → RIS (satu-satunya penulis eksternal, ADR-006)
+① Worklist: RIS → Integration (MWL C-FIND :4243) → OMC worklist     (Integration = perantara wajib)
+② Hasil:    OMC → (C-STORE) → Orthanc ──event──► OMC queue (stored)
+③ Status:   modalitas → Integration (MPPS :4244) → RIS (satu-satunya penulis eksternal, ADR-006)
 ```
 
 > Aturan kepemilikan status (ADR-006 bagian 2): RIS = source of truth status order. Penulis status hanya dua: UI petugas (Volt) & MPPS via Integration. **OMC worker TIDAK menulis status order** — setelah C-STORE ia hanya menandai queue lokal `stored`.
