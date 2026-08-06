@@ -16,7 +16,11 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        <title>{{ $title ?? 'Genesis' }}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300..700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+        <title>{{ $title ?? 'RIS — Open Radiology' }}</title>
     </head>
     <body class="min-h-screen antialiased bg-white dark:bg-gradient-to-b dark:from-gray-950 dark:to-gray-900">
         {{ $slot }}
