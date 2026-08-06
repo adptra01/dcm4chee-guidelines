@@ -39,4 +39,7 @@ def analyze_instance(orthanc_id: str) -> dict:
 @app.get("/analyze/series/{series_id}")
 def analyze_series(series_id: str) -> dict:
     """Analisis semua instance dalam satu series Orthanc."""
-    return analyze.analyze_series(series_id)
+    try:
+        return analyze.analyze_series(series_id)
+    except ValueError as e:
+        raise HTTPException(404, str(e)) from e

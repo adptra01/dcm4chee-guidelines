@@ -37,7 +37,10 @@ def _fetch_json(path: str):
 
 def analyze_series(series_id: str) -> dict:
     """Analisis semua instance dalam satu series (Orthanc REST)."""
-    data = _fetch_json(f"/series/{series_id}/instances")
+    try:
+        data = _fetch_json(f"/series/{series_id}/instances")
+    except HTTPError as e:
+        raise ValueError(f"series {series_id} tidak ada di Orthanc ({e.code})") from e
     # Orthanc v2: list objek (ID di key 'ID'); fallback list string
     ids = [d["ID"] if isinstance(d, dict) else d for d in data]
     results = [analyze_instance(i) for i in ids]
