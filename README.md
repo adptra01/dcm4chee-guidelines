@@ -92,7 +92,8 @@ cd products/omc/api && docker compose up
 | MS10 | HL7 v2: ADT-A01 → RIS patient (ACK), ORM-O01 generate | ✅ (live) |
 | MS11 | Developer portal: docs per produk (API, integrasi, cara jalankan) | ✅ (8 halaman) |
 | MS12 | Enterprise: API key auth untuk endpoint eksternal (integration) | ✅ (401 pasif) |
-| MS13+ | Model ML, multi-tenant | ⏳ roadmap |
+| MS13 | MPPS SCP: modality → status order RIS (N-CREATE/N-SET) | ✅ (live 0x0) |
+| MS14+ | Model ML, multi-tenant | ⏳ roadmap |
 
 ## Panduan Terkait
 

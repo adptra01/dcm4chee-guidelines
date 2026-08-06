@@ -13,6 +13,7 @@ Route::post('patients', [PatientController::class, 'store']);
 
 Route::get('orders', [OrderController::class, 'index']);
 Route::post('orders', [OrderController::class, 'store']);
+Route::patch('orders/{id}/status', [OrderController::class, 'updateStatus']);
 
 Route::get('worklist', [WorklistController::class, 'index']);
 

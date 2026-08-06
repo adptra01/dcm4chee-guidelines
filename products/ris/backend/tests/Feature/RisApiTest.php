@@ -72,6 +72,26 @@ class RisApiTest extends TestCase
             ->assertJsonPath('0.order.patient.name', 'Pasien 4');
     }
 
+    public function test_order_status_update_syncs_worklist(): void
+    {
+        $patient = Patient::create(['patient_id' => 'MRN-X8', 'name' => 'Pasien 8']);
+        $order = Order::create([
+            'order_no' => 'ORD-T5', 'patient_id' => $patient->id, 'modality' => 'DX',
+        ]);
+        WorklistItem::create(['order_id' => $order->id, 'scheduled_aet' => 'DX-1']);
+
+        $this->patchJson("/api/orders/{$order->id}/status", ['status' => 'completed'])
+            ->assertOk()->assertJsonPath('status', 'completed');
+
+        $this->assertDatabaseHas('worklist_items', [
+            'order_id' => $order->id, 'status' => 'completed',
+        ]);
+
+        // status invalid ditolak
+        $this->patchJson("/api/orders/{$order->id}/status", ['status' => 'bogus'])
+            ->assertStatus(422);
+    }
+
     public function test_fhir_patient_resource(): void
     {
         $patient = Patient::create(['patient_id' => 'MRN-X5', 'name' => 'Budi', 'sex' => 'M']);

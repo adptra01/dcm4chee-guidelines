@@ -54,6 +54,18 @@ cd products/integration && .venv/bin/python -c "from app.mwl import start; start
 Filter: Modality, PatientID, ScheduledStationAETitle (wildcard bila kosong).
 Item DICOM: PatientID/Name, AccessionNumber (order_no), SPPS AET/date/time.
 
+## MPPS SCP (DICOM N-CREATE/N-SET)
+
+SCP pynetdicom — **AE `MPPS_SCP`, port 4244**. Modality laporkan status
+prosedur → update order RIS (matching via AccessionNumber = order_no):
+
+- `N-CREATE` (IN PROGRESS) → order `in_progress`
+- `N-SET` (COMPLETED/DISCONTINUED) → order `completed`
+
+```bash
+.venv/bin/python -c "from app.mpps import start; start()"
+```
+
 ## Menjalankan
 
 ```bash

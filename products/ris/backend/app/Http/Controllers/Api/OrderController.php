@@ -30,4 +30,17 @@ class OrderController extends Controller
         ]);
         return $order->load('patient', 'worklistItem');
     }
+
+    public function updateStatus(Request $request, int $id)
+    {
+        // Update status order + sinkron worklist item (dari MPPS / workflow)
+        $order = Order::findOrFail($id);
+        $order->update($request->validate([
+            'status' => 'required|in:scheduled,in_progress,completed,cancelled',
+        ]));
+        WorklistItem::where('order_id', $order->id)->update([
+            'status' => $order->status === 'completed' ? 'completed' : 'scheduled',
+        ]);
+        return $order->load('patient', 'worklistItem');
+    }
 }
