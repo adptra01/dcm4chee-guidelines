@@ -3,6 +3,35 @@
 Semua perubahan penting Open Radiology Platform. Format: [Keep a Changelog](https://keepachangelog.com/).
 Versi: [SemVer](https://semver.org).
 
+## [v0.3.0] - 2026-08-06
+
+Release v0.3: OMC kirim DICOM penuh + keamanan API (X-API-Key) untuk OMC & AI.
+
+### Ditambahkan
+
+**OMC**
+- Konfigurasi target DICOM via env (`OMC_ORTHANC_HOST/PORT`, `OMC_SCU_AE`, `OMC_SCP_AE`) — tidak hardcode
+- Endpoint `GET /settings` — tampil host/port/AE + status C-ECHO live
+- Halaman Settings di OMC console (target DICOM + indikator koneksi)
+- Auth X-API-Key (`X-API-Key`, env `OMC_API_KEYS`) pada endpoint mutasi (import, store) — kosong = nonaktif utk dev (ADR-006)
+
+**AI**
+- Auth X-API-Key (`X-API-Key`, env `AI_API_KEYS`) pada endpoint inferensi (`/analyze/*`) — ADR-006
+
+**Docs**
+- 7 PRD produk di `tasks/` · backlog v0.2 · ADR-006 (kepemilikan data & auth lintas produk) · matriks readiness go-live (`docs/readiness/`)
+- ARCHITECTURE.md: Integration sebagai perantara wajib MWL/MPPS, tabel modul, source of truth diperbaiki
+- prd-integration: SATUSEHAT naik dari V3 → requirement kepatuhan resmi
+
+### Test
+
+102 passed total: RIS 61 (168) · OMC 11 · AI 8 · Integration 18+1 skip · dicom-core 4.
+
+### Catatan
+
+- `ORTHAPI_KEYS`/`OMC_API_KEYS`/`AI_API_KEYS` kosong = dev open; diset = wajib header `X-API-Key` (produksi)
+- Release v0.2 sebelumnya ter-tag (94 passed)
+
 ## [v0.2.0] - 2026-08-06
 
 Release v0.2: RIS + PACS berjalan — workflow administrasi radiologi penuh di UI, backup otomatis, jembatan studi ke viewer.
