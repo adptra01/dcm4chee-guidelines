@@ -8,9 +8,10 @@ import shutil
 from pathlib import Path
 from uuid import uuid4
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
+from fastapi.security import APIKeyHeader
 
 from dicom_core import echo, parse, preview, store
 
@@ -23,6 +24,17 @@ ORTHANC_HOST = os.getenv("OMC_ORTHANC_HOST", "localhost")
 ORTHANC_PORT = int(os.getenv("OMC_ORTHANC_PORT", "4242"))
 SCU_AE = os.getenv("OMC_SCU_AE", "OMC_CONSOLE")
 SCP_AE = os.getenv("OMC_SCP_AE", "ORTHANC")
+
+# API key dari env (koma-terpisah). Kosong → auth nonaktif (dev). ADR-006 bagian 3.
+API_KEYS = {k.strip() for k in os.getenv("OMC_API_KEYS", "").split(",") if k.strip()}
+API_KEY_HEADER = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+
+def require_key(x_api_key: str | None = Depends(API_KEY_HEADER)):
+    """Autorisasi API key bila OMC_API_KEYS dikonfigurasi."""
+    if API_KEYS and x_api_key not in API_KEYS:
+        raise HTTPException(401, "API key tidak valid")
+
 
 app = FastAPI(
     title="OMC API",
@@ -46,7 +58,7 @@ def health() -> dict:
     return {"status": "ok", "service": "omc-api", "version": "0.2.0"}
 
 
-@app.post("/studies/import")
+@app.post("/studies/import", dependencies=[Depends(require_key)])
 async def import_study(file: UploadFile = File(...)) -> dict:
     """Terima file DICOM, simpan ke incoming/, masukkan antrean."""
     STORAGE.mkdir(parents=True, exist_ok=True)
@@ -83,7 +95,7 @@ def study_preview(study_id: str) -> Response:
     return Response(content=png, media_type="image/png")
 
 
-@app.post("/studies/{study_id}/store")
+@app.post("/studies/{study_id}/store", dependencies=[Depends(require_key)])
 def study_store(study_id: str) -> dict:
     """C-STORE ke Orthanc (DICOM 4242, AE ORTHANC)."""
     rec = queue_store.get(study_id)
