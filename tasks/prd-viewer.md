@@ -18,7 +18,15 @@ Sudah tercover:
 - OMC console memiliki viewer dasar (MS4)
 - `packages/dicom-core preview()` menghasilkan PNG (untuk thumbnail/preview, bukan viewer penuh)
 
-Belum tercover: produk Viewer terpisah, study list, inisialisasi studi dari RIS, annotation, measurement, peluncuran laporan dari viewer.
+Belum tercover: annotation, measurement, bookmark/favorite, teaching file, peluncuran laporan dari viewer (V2/V3).
+
+## Status Fase MVP (v0.4)
+
+MVP viewer **terpenuhi** tanpa kode baru — semua lewat OHIF:
+- **Embed OHIF** ✅ `platform/ohif` (ohif/app:latest, :3000), dataSource DICOMweb → Orthanc
+- **Launch Study** ✅ route `/viewer?StudyInstanceUIDs=…` (200, terverifikasi E2E dari RIS)
+- **Study Search** ✅ study list bawaan OHIF (`showStudyList: true`), QIDO dari Orthanc `/dicom-web/studies`
+- **Launch dari RIS** ✅ tombol "Buka di viewer →" (R6, study_instance_uid via MPPS/PATCH)
 
 ## Fase
 
