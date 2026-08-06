@@ -1,0 +1,109 @@
+{
+  "info": {
+    "name": "ORP integration",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{base_url}/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "{base_url}",
+            "health"
+          ]
+        },
+        "header": [],
+        "description": ""
+      }
+    },
+    {
+      "name": "Create Sep",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{base_url}/morbis/sep",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "{base_url}",
+            "morbis",
+            "sep"
+          ]
+        },
+        "header": [],
+        "description": "Buat SEP BPJS (mock default; real bila MORBIS_MODE=real)."
+      }
+    },
+    {
+      "name": "Submit Claim",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{base_url}/morbis/claim",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "{base_url}",
+            "morbis",
+            "claim"
+          ]
+        },
+        "header": [],
+        "description": "Kirim klaim ke BPJS (mock default; real bila MORBIS_MODE=real)."
+      }
+    },
+    {
+      "name": "Morbis Mode",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{base_url}/morbis/mode",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "{base_url}",
+            "morbis",
+            "mode"
+          ]
+        },
+        "header": [],
+        "description": ""
+      }
+    },
+    {
+      "name": "Hl7 Inbound",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{base_url}/hl7/message",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "{base_url}",
+            "hl7",
+            "message"
+          ]
+        },
+        "header": [],
+        "description": "Terima HL7 v2 (ADT-A01) → buat pasien di RIS → ACK."
+      }
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "info": {
+    "name": "ORP ai",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{base_url}/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "{base_url}",
+            "health"
+          ]
+        },
+        "header": [],
+        "description": ""
+      }
+    },
+    {
+      "name": "Analyze Instance",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{base_url}/analyze/instance/:orthanc_id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "{base_url}",
+            "analyze",
+            "instance",
+            ":orthanc_id"
+          ]
+        },
+        "header": [],
+        "description": "Analisis satu instance DICOM dari Orthanc (statistik v1)."
+      }
+    },
+    {
+      "name": "Analyze Series",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{base_url}/analyze/series/:series_id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "{base_url}",
+            "analyze",
+            "series",
+            ":series_id"
+          ]
+        },
+        "header": [],
+        "description": "Analisis semua instance dalam satu series Orthanc."
+      }
+    }
+  ]
+}
