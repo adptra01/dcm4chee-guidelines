@@ -91,7 +91,8 @@ cd products/omc/api && docker compose up
 | MS9 | MWL SCP: modality query jadwal RIS (C-FIND, DICOM 4243) | ✅ (live) |
 | MS10 | HL7 v2: ADT-A01 → RIS patient (ACK), ORM-O01 generate | ✅ (live) |
 | MS11 | Developer portal: docs per produk (API, integrasi, cara jalankan) | ✅ (8 halaman) |
-| MS12+ | Model ML, enterprise | ⏳ roadmap |
+| MS12 | Enterprise: API key auth untuk endpoint eksternal (integration) | ✅ (401 pasif) |
+| MS13+ | Model ML, multi-tenant | ⏳ roadmap |
 
 ## Panduan Terkait
 

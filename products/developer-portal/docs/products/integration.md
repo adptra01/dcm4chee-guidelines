@@ -3,6 +3,18 @@
 Adapter SIMRS eksternal — **penerjemah kontrak, bukan penyimpan data**.
 FastAPI, port **8300**. Empat protokol: MORBIS, MWL SCP (DICOM), FHIR (di RIS), HL7 v2.
 
+## Auth
+
+Endpoint eksternal (MORBIS, HL7) diproteksi **API key** via header `X-API-Key`.
+Aktif hanya bila `API_KEYS` diset di `.env` (koma-terpisah) — kosong = nonaktif
+(dev). **Set di produksi!**
+
+```bash
+curl -X POST localhost:8300/morbis/sep \
+  -H "X-API-Key: <key>" -H "Content-Type: application/json" \
+  -d '{"no_kartu": "0001234567890"}'
+```
+
 ## MORBIS (BPJS VClaim)
 
 | Method | Path | Fungsi |
