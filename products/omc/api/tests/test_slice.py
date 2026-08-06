@@ -7,7 +7,8 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import app, QUEUE
+from app import queue_store
+from app.main import app
 
 SAMPLE = Path(__file__).parent.parent.parent.parent.parent / "sample-data" / "dicom" / \
     "DX0000005 tes lagi/DX0000005 Chest PA/DX Chest PA/DX000000.dcm"
@@ -28,7 +29,10 @@ def _orthanc_delete(ids: set[str]):
 
 
 def setup_function():
-    QUEUE.clear()
+    """Bersihkan antrean SQLite + file incoming antar test."""
+    queue_store._run("DELETE FROM studies")
+    for f in Path(queue_store.DB).parent.glob("incoming/*.dcm"):
+        f.unlink(missing_ok=True)
 
 
 def test_import_and_list():

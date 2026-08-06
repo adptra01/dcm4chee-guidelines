@@ -13,6 +13,8 @@ from fastapi.responses import Response
 
 from dicom_core import parse, preview, store
 
+from app import queue_store
+
 STORAGE = Path(__file__).parent.parent / "data" / "incoming"
 
 app = FastAPI(
@@ -21,8 +23,7 @@ app = FastAPI(
     description="Open Modality Console — import, preview, queue, MWL, MPPS, DICOM",
 )
 
-# queue: id -> {"metadata": dict, "path": str, "stored": bool}
-QUEUE: dict[str, dict] = {}
+# Antrean persisten: SQLite di data/queue.db (survive restart)
 
 # CORS: izinkan origin dev SvelteKit (console)
 app.add_middleware(
@@ -51,23 +52,24 @@ async def import_study(file: UploadFile = File(...)) -> dict:
     except Exception as e:  # bukan DICOM valid
         path.unlink(missing_ok=True)
         raise HTTPException(400, f"bukan file DICOM valid: {e}")
-    QUEUE[study_id] = {"metadata": meta, "path": str(path), "stored": False}
+    queue_store.insert(study_id, meta, str(path))
     return {"study_id": study_id, "metadata": meta}
 
 
 @app.get("/studies")
 def list_studies() -> dict:
-    """Isi antrean."""
-    return {"count": len(QUEUE), "studies": [
-        {"study_id": sid, **rec["metadata"], "stored": rec["stored"]}
-        for sid, rec in QUEUE.items()
+    """Isi antrean (persisten)."""
+    recs = queue_store.list_all()
+    return {"count": len(recs), "studies": [
+        {"study_id": r["study_id"], **r["metadata"], "stored": r["stored"]}
+        for r in recs
     ]}
 
 
 @app.get("/studies/{study_id}/preview")
 def study_preview(study_id: str) -> Response:
     """Preview PNG (window/level dari tag file)."""
-    rec = QUEUE.get(study_id)
+    rec = queue_store.get(study_id)
     if not rec:
         raise HTTPException(404, "study tidak ada")
     png = preview(rec["path"])
@@ -77,11 +79,12 @@ def study_preview(study_id: str) -> Response:
 @app.post("/studies/{study_id}/store")
 def study_store(study_id: str) -> dict:
     """C-STORE ke Orthanc (DICOM 4242, AE ORTHANC)."""
-    rec = QUEUE.get(study_id)
+    rec = queue_store.get(study_id)
     if not rec:
         raise HTTPException(404, "study tidak ada")
     status = store(rec["path"])
     if status is None:
         raise HTTPException(502, "gagal terhubung ke Orthanc")
-    rec["stored"] = status == 0x0000
-    return {"study_id": study_id, "status": hex(status), "stored": rec["stored"]}
+    if status == 0x0000:
+        queue_store.mark_stored(study_id)
+    return {"study_id": study_id, "status": hex(status), "stored": status == 0x0000}
