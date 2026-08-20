@@ -3,6 +3,35 @@
 Semua perubahan penting Open Radiology Platform. Format: [Keep a Changelog](https://keepachangelog.com/).
 Versi: [SemVer](https://semver.org).
 
+## [v0.5.0] - 2026-08-20
+
+Release v0.5: aliran MWL/MPPS penuh — OMC jadi SCU DICOM terhadap Integration, status studi sinkron ke RIS.
+
+### Ditambahkan
+
+**dicom-core (lib bersama)**
+- `mwl_query()` — C-FIND MWL (SCU :4243): wildcard (key kosong) & filter PatientID; `dimse_timeout=30`
+- `mpps_send()` — MPPS N-CREATE (IN PROGRESS) / N-SET (COMPLETED) SCU :4244; fix API pynetdicom 3.x (`query_model`, return tuple)
+- `__version__` 0.2.0
+
+**OMC API**
+- `GET /worklist` — jadwal MWL dari Integration:4243 (pasien, accession, modality, tanggal)
+- Store otomatis kirim **MPPS N-SET COMPLETED** setelah C-STORE sukses (best-effort — gagal MPPS tak menggagalkan store)
+- Konfig target Integration via env (`OMC_INT_HOST`, `OMC_MWL_PORT`, `OMC_MPPS_PORT`, AE titles)
+
+**PACS**
+- Stack compose di-restart (container hilang) — 2 studi Orthanc utuh, OHIF up
+
+### Test
+
+108 passed total: RIS 61 (168) · Integration 22+1 skip · OMC 13 · AI 8 · dicom-core 4.
+
+### Catatan
+
+- End-to-end SCU↔SCP diuji dalam-proses (MWL:4243 + MPPS:4244), RIS fetch/update di-mock
+- Alur ③ ADR-006: OMC store → MPPS N-SET → Integration update status RIS + StudyInstanceUID
+- UI OMC console (halaman Worklist MWL) belum dibuat — API siap
+
 ## [v0.3.0] - 2026-08-06
 
 Release v0.3: OMC kirim DICOM penuh + keamanan API (X-API-Key) untuk OMC & AI.
