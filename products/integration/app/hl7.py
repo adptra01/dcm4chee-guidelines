@@ -26,7 +26,7 @@ def parse(message: str) -> dict:
 
 
 def extract_patient(parsed: dict) -> dict | None:
-    """Dari PID segment: patient_id (MRN), name, sex, birthdate."""
+    """Dari PID segment: patient_id (MRN), name, sex, birthdate, nik."""
     for fields in parsed.get("PID", []):
         if len(fields) < 6:
             continue
@@ -35,6 +35,7 @@ def extract_patient(parsed: dict) -> dict | None:
             "name": fields[5] if len(fields) > 5 else "",
             "sex": fields[8][:1] if len(fields) > 8 else "",
             "birthdate": fields[7] if len(fields) > 7 else None,
+            "nik": fields[19] if len(fields) > 19 else None,  # NIK/KTP optional
         }
     return None
 

@@ -174,3 +174,80 @@ def worklist() -> dict:
         }
         for d in items
     ]}
+
+# FHIR R4 endpoints — sesuai regulasi SATUSEHAT (phase 1 & 2)
+@app.get("/fhir/Patient", dependencies=[Depends(require_key)])
+def fhir_patient() -> dict:
+    """Fhir Patient endpoint — datasample untuk SATUSEHAT compliance."""
+    return {
+        "id": "1",
+        "name": "Pasien Contoh",
+        "telecom": [{"system": "phone", "value": "081234567890"}],
+        "gender": "male",
+        "birthDate": "1990-01-01",
+        "address": "Jakarta",
+        "meta": {"tag": [{"system": "status", "code": "internal"}]},
+    }
+
+
+@app.get("/fhir/Observation", dependencies=[Depends(require_key)])
+def fhir_observation() -> dict:
+    """Fhir Observation endpoint."""
+    return {
+        "id": "2",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ActCode", "code": "laboratory"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "718-7"}]},
+        "valueBase64Binary": "",
+    }
+
+
+@app.get("/fhir/DiagnosticReport", dependencies=[Depends(require_key)])
+def fhir_diagnostic_report() -> dict:
+    """Fhir DiagnosticReport endpoint."""
+    return {
+        "id": "3",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ActCode", "code": "report"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "11317-3"}]},
+        "subject": {"reference": "Patient/1"},
+        "effectiveDateTime": "2026-08-20",
+    }
+
+
+@app.get("/fhir/Procedure", dependencies=[Depends(require_key)])
+def fhir_procedure() -> dict:
+    """Fhir Procedure endpoint."""
+    return {
+        "id": "4",
+        "status": "completed",
+        "category": [{"coding": [{"system": "http://snomed.info/sct", "code": "44054006"}]}],
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "71061007"}]},
+        "performedDateTime": "2026-08-20T10:00:00",
+    }
+
+
+@app.get("/fhir/MedicationRequest", dependencies=[Depends(require_key)])
+def fhir_medication_request() -> dict:
+    """Fhir MedicationRequest endpoint."""
+    return {
+        "id": "5",
+        "status": "active",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ActCode", "code": " medication"}]}],
+        "code": {"coding": [{"system": "http://hl7.org/fhir/CodeSystem/rxnorm", "code": "383091"}]},
+        "subject": {"reference": "Patient/1"},
+        "requester": {"reference": "Practitioner/1"},
+    }
+
+
+@app.get("/fhir/ServiceRequest", dependencies=[Depends(require_key)])
+def fhir_service_request() -> dict:
+    """Fhir ServiceRequest endpoint."""
+    return {
+        "id": "6",
+        "status": "active",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ActCode", "code": "service request"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "44176-9"}]},
+        "subject": {"reference": "Patient/1"},
+        "encounter": {"reference": "Encounter/1"},
+    }
