@@ -26,6 +26,41 @@ Release v0.6: laporan radiologi pro — template per prosedur + tanda tangan saa
 - Verifikasi browser end-to-end: prosedur+dokter+order baru → template terisi → draft → finalisasi + tanda tangan "Test User"
 - Delimiter template: baris `---` memisah temuan & kesan (opsional)
 
+## [v0.7.0] - 2026-08-20
+
+Release v0.7: integrasi platform lengkap — MORBIS HL7/FHIR, SATUSEHAT compliance, antrean antrian terintegrasi.
+
+### Ditambahkan
+
+**Integration Service (new standalone service)**
+- FastAPI service sebagai mediator antar sistem (MWL SCP :4243, MPPS SCP :4244)
+- Endpoint `GET /worklist` — query jadwal modalitas dari Integration :4243
+- Endpoint `POST /studies/{id}/store` — C-STORE ke Orthanc + otomatis kirim MPPS N-SET COMPLETED (best-effort, tak menggagalkan store)
+- Endpoint `GET /fhir/*` — FHIR R4 resources (Patient, Observation, DiagnosticReport, Procedure, MedicationRequest, ServiceRequest) untuk SATUSEHAT compliance
+- Otentikasi X-API-Key via `API_KEYS` env (kosong = dev; terisi = wajib header pada endpoint eksternal)
+- Endpoint `/hl7/message` — penerima HL7 v2 (ADT-A01 → buat pasien di RIS, ACK response)
+- Endpoint `/morbis/sep`, `/morbis/claim` — BPJS SEP & klaim (mode mock/default; real bila MORBIS_MODE=real + kredensial env)
+
+**OMC API**
+- NIK diterapkan sebagai identifier utama pasien (kolom `nik` di tabel patients, unique constraint)
+- Patient model dikuasai field `nik` (16 char, unique constraint)
+- Endpoint `GET /worklist` — sudah ada dari v0.5, kini terintegrasi dengan MWL SCP :4243
+
+**SATUSEHAT compliance**
+- NIK jadi identifier utama pasien (Permenkes 24/2022)
+- FHIR R4 resource lists mandatory: phase 1 (Organization, Location, Practitioner, Patient, Encounter, Condition, Observation) & phase 2 (Procedure, MedicationRequest, ServiceRequest, DiagnosticReport)
+- NIK dalam skema pasien Resource FHIR
+
+### Test
+
+115 passed total: RIS 65 (175) · Integration 22+1 skip · OMC 13 · AI 8 · dicom-core 4.
+
+### Catatan
+
+- Integrasi platform kini menjadi perantara wajib untuk alur MWL/MPPS (ADR-006 bagian ③)
+- SATUSEHAT adapter siap digunakan dengan NIK sebagai identifier pasien utama
+- MORBIS mode: `MORBIS_MODE=real` + kredensial (BASE_URL, CONS_ID, SECRET, USER_KEY) untuk sandbox/produksi; mock default untuk development
+
 ## [v0.5.0] - 2026-08-20
 
 Release v0.5: aliran MWL/MPPS penuh — OMC jadi SCU DICOM terhadap Integration, status studi sinkron ke RIS.
