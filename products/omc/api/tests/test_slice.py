@@ -92,3 +92,30 @@ def test_settings_echo_orthanc_up():
     r = client.get("/settings")
     assert r.status_code == 200
     assert r.json()["echoc"] is True
+
+
+def test_worklist_when_integration_down():
+    """Integration MWL SCP mati → count 0 tanpa error (best-effort)."""
+    r = client.get("/worklist")
+    assert r.status_code == 200
+    assert r.json()["count"] == 0
+    assert r.json()["worklist"] == []
+
+
+def test_store_sends_mpps(monkeypatch):
+    """Store sukses memicu mpps_completed (N-SET best-effort) setelah C-STORE."""
+    if not ORTHANC_UP:
+        pytest.skip("Orthanc mati")
+    import app.main as main_mod
+    sent: list = []
+    monkeypatch.setattr(main_mod, "mpps_completed",
+                        lambda rec: sent.append(rec) or True)
+    with SAMPLE.open("rb") as f:
+        sid = client.post("/studies/import", files={"file": ("dx.dcm", f, "application/dicom")}).json()["study_id"]
+    before = _orthanc_instance_ids()
+    r = client.post(f"/studies/{sid}/store")
+    assert r.status_code == 200
+    assert r.json()["stored"] is True
+    assert len(sent) == 1
+    assert sent[0]["study_id"] == sid
+    _orthanc_delete(_orthanc_instance_ids() - before)

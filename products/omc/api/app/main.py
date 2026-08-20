@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from fastapi.security import APIKeyHeader
 
-from dicom_core import echo, parse, preview, store
+from dicom_core import echo, mpps_send, mwl_query, parse, preview, store
 
 from app import queue_store
 
@@ -24,6 +24,13 @@ ORTHANC_HOST = os.getenv("OMC_ORTHANC_HOST", "localhost")
 ORTHANC_PORT = int(os.getenv("OMC_ORTHANC_PORT", "4242"))
 SCU_AE = os.getenv("OMC_SCU_AE", "OMC_CONSOLE")
 SCP_AE = os.getenv("OMC_SCP_AE", "ORTHANC")
+
+# Target Integration (MWL SCP :4243, MPPS SCP :4244) — v0.5
+INT_HOST = os.getenv("OMC_INT_HOST", "localhost")
+MWL_PORT = int(os.getenv("OMC_MWL_PORT", "4243"))
+MPPS_PORT = int(os.getenv("OMC_MPPS_PORT", "4244"))
+MWL_SCP_AE = os.getenv("OMC_MWL_SCP_AE", "MWL_SCP")
+MPPS_SCP_AE = os.getenv("OMC_MPPS_SCP_AE", "MPPS_SCP")
 
 # API key dari env (koma-terpisah). Kosong → auth nonaktif (dev). ADR-006 bagian 3.
 API_KEYS = {k.strip() for k in os.getenv("OMC_API_KEYS", "").split(",") if k.strip()}
@@ -107,7 +114,34 @@ def study_store(study_id: str) -> dict:
         raise HTTPException(502, "gagal terhubung ke Orthanc")
     if status == 0x0000:
         queue_store.mark_stored(study_id)
+        mpps_completed(rec)  # beri tahu RIS via Integration (MPPS N-SET)
     return {"study_id": study_id, "status": hex(status), "stored": status == 0x0000}
+
+
+def mpps_completed(rec: dict) -> bool:
+    """Build dataset MPPS COMPLETED dari metadata studi, kirim ke :4244.
+
+    Gagal MPPS tidak menggagalkan store (DICOM sudah di Orthanc) — cukup
+    dicatat. `ponytail: MPPS best-effort, retry bila alur transaksi penuh`.
+    """
+    from datetime import datetime
+    from pydicom.dataset import Dataset
+
+    ds = Dataset()
+    meta = rec.get("metadata", {})
+    ds.PatientName = meta.get("PatientName", "")
+    ds.PatientID = meta.get("PatientID", "")
+    ds.AccessionNumber = meta.get("AccessionNumber", "")
+    ds.PerformedProcedureStepID = str(rec["study_id"])
+    ds.PerformedProcedureStepStatus = "COMPLETED"
+    ds.PerformedStationAETitle = SCU_AE
+    now = datetime.now()
+    ds.PerformedProcedureStepStartDate = now.strftime("%Y%m%d")
+    ds.PerformedProcedureStepStartTime = now.strftime("%H%M%S")
+    ds.PerformedProcedureStepEndDate = now.strftime("%Y%m%d")
+    ds.PerformedProcedureStepEndTime = now.strftime("%H%M%S")
+    return mpps_send(ds, host=INT_HOST, port=MPPS_PORT,
+                     scu_ae=SCU_AE, scp_ae=MPPS_SCP_AE)
 
 
 @app.get("/settings")
@@ -120,3 +154,23 @@ def settings() -> dict:
         "scp_ae": SCP_AE,
         "echoc": echo(ORTHANC_HOST, ORTHANC_PORT, SCU_AE, SCP_AE),
     }
+
+
+@app.get("/worklist")
+def worklist() -> dict:
+    """MWL C-FIND ke Integration :4243 — daftar jadwal modalitas."""
+    from pydicom.dataset import Dataset
+    items = mwl_query(Dataset(), host=INT_HOST, port=MWL_PORT,
+                      scu_ae=SCU_AE, scp_ae=MWL_SCP_AE)
+    return {"count": len(items), "worklist": [
+        {
+            "patient": getattr(d, "PatientName", ""),
+            "patient_id": getattr(d, "PatientID", ""),
+            "accession": getattr(d, "AccessionNumber", ""),
+            "modality": (d.ScheduledProcedureStepSequence[0].get("Modality", "")
+                         if getattr(d, "ScheduledProcedureStepSequence", None) else ""),
+            "start_date": (d.ScheduledProcedureStepSequence[0].get("ScheduledProcedureStepStartDate", "")
+                           if getattr(d, "ScheduledProcedureStepSequence", None) else ""),
+        }
+        for d in items
+    ]}
