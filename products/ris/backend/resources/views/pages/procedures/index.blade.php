@@ -14,6 +14,7 @@ new class extends Component {
     public string $name = '';
     public string $body_part = '';
     public string $modality = '';
+    public string $report_template = '';
     public ?string $flash = null;
 
     public function mount(): void
@@ -33,10 +34,11 @@ new class extends Component {
             'name' => ['required', 'string', 'max:255'],
             'body_part' => ['nullable', 'string', 'max:64'],
             'modality' => ['nullable', 'string', 'max:8'],
+            'report_template' => ['nullable', 'string'],
         ]);
 
         Procedure::create($validated);
-        $this->reset('code', 'name', 'body_part', 'modality');
+        $this->reset('code', 'name', 'body_part', 'modality', 'report_template');
         $this->flash = 'Prosedur tersimpan.';
         $this->load();
     }
@@ -62,6 +64,7 @@ new class extends Component {
                                 <th class="px-5 py-3 font-medium">Nama</th>
                                 <th class="px-5 py-3 font-medium">Bagian tubuh</th>
                                 <th class="px-5 py-3 font-medium">Modalitas</th>
+                                <th class="hidden px-5 py-3 font-medium lg:table-cell">Templat laporan</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-200/70 dark:divide-zinc-200/10">
@@ -71,10 +74,11 @@ new class extends Component {
                                     <td class="px-5 py-4 font-medium text-zinc-800 dark:text-zinc-200">{{ $p['name'] }}</td>
                                     <td class="px-5 py-4 text-zinc-500 dark:text-zinc-400">{{ $p['body_part'] ?? '—' }}</td>
                                     <td class="px-5 py-4"><span class="font-mono text-xs font-semibold text-zinc-700 dark:text-zinc-300">{{ $p['modality'] ?? '—' }}</span></td>
+                                    <td class="hidden px-5 py-4 text-xs text-zinc-500 lg:table-cell dark:text-zinc-400">{{ \Illuminate\Support\Str::limit(str_replace("\n---\n", ' — ', $p['report_template'] ?? ''), 48) ?: '—' }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-5 py-12 text-center text-sm text-zinc-400 dark:text-zinc-500">
+                                    <td colspan="5" class="px-5 py-12 text-center text-sm text-zinc-400 dark:text-zinc-500">
                                         Belum ada prosedur.<br>Tambah lewat form di samping.
                                     </td>
                                 </tr>
@@ -119,6 +123,12 @@ new class extends Component {
                                     <option value="{{ $val }}">{{ $label }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div>
+                            <label for="report_template" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Templat laporan</label>
+                            <textarea id="report_template" wire:model="report_template" rows="4" placeholder="Temuan default...&#10;---&#10;Kesan default..."
+                                      class="mt-1 w-full rounded-lg border border-zinc-200/70 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-200/10 dark:bg-zinc-800/60 dark:text-zinc-100"></textarea>
+                            <p class="mt-1 text-xs text-zinc-400">Pisahkan temuan &amp; kesan dengan baris <code class="font-mono">---</code> (tidak wajib).</p>
                         </div>
                         <button type="submit" class="w-full rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
                             Simpan prosedur

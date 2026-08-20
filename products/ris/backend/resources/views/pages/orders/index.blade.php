@@ -117,7 +117,7 @@ new class extends Component {
                                     </td>
                                     <td class="px-5 py-4">
                                         @if (! empty($o['study_instance_uid']))
-                                            <a href="http://localhost:3000/viewer?StudyInstanceUIDs={{ $o['study_instance_uid'] }}" target="_blank"
+                                            <a href="http://localhost:8042/ohif/viewer?StudyInstanceUIDs={{ $o['study_instance_uid'] }}" target="_blank"
                                                class="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-emerald-500">
                                                 Buka di viewer →
                                             </a>

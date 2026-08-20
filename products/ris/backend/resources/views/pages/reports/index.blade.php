@@ -31,6 +31,23 @@ new class extends Component {
             ->latest()->get()->toArray();
     }
 
+    public function applyTemplate(): void
+    {
+        if (! $this->order_id) {
+            $this->flash = 'Pilih order terlebih dahulu.';
+            return;
+        }
+        $template = Order::with('procedure')->find($this->order_id)?->procedure?->report_template;
+        if (! $template) {
+            $this->flash = 'Tidak ada templat untuk prosedur order ini.';
+            return;
+        }
+        [$findings, $impression] = array_pad(explode("\n---\n", $template, 2), 2, '');
+        $this->findings = $findings;
+        $this->impression = $impression;
+        $this->flash = 'Templat diterapkan — sesuaikan sebelum simpan.';
+    }
+
     public function save(): void
     {
         $validated = $this->validate([
@@ -41,6 +58,7 @@ new class extends Component {
 
         $report = Report::create([
             'order_id' => $validated['order_id'],
+            'radiologist' => auth()->user()->name,
             'findings' => $validated['findings'],
             'impression' => $validated['impression'],
             'status' => 'draft',
@@ -53,8 +71,16 @@ new class extends Component {
 
     public function finalize(int $id): void
     {
-        Report::whereKey($id)->update(['status' => 'final']);
-        $this->flash = 'Laporan difinalisasi.';
+        $report = Report::findOrFail($id);
+        if ($report->status === 'final') {
+            return;
+        }
+        $report->update([
+            'status' => 'final',
+            'signed_by' => auth()->user()->name,
+            'signed_at' => now(),
+        ]);
+        $this->flash = 'Laporan difinalisasi — ditandatangani oleh '.auth()->user()->name.'.';
         $this->load();
     }
 };
@@ -68,7 +94,7 @@ new class extends Component {
         </div>
     </x-slot>
 
-    @volt('reports-index')
+    @volt('reports.index')
         <div class="grid gap-6 pb-10 lg:grid-cols-3">
             {{-- Daftar laporan --}}
             <div class="lg:col-span-2">
@@ -80,6 +106,7 @@ new class extends Component {
                                 <th class="px-5 py-3 font-medium">Pasien</th>
                                 <th class="hidden px-5 py-3 font-medium md:table-cell">Impresi</th>
                                 <th class="px-5 py-3 font-medium">Status</th>
+                                <th class="hidden px-5 py-3 font-medium md:table-cell">Tanda tangan</th>
                                 <th class="px-5 py-3 font-medium">Aksi</th>
                             </tr>
                         </thead>
@@ -92,6 +119,12 @@ new class extends Component {
                                     <td class="px-5 py-4">
                                         @php $badge = $r['status'] === 'final' ? 'text-emerald-700 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-500/10' : 'text-amber-700 bg-amber-50 dark:text-amber-300 dark:bg-amber-500/10'; @endphp
                                         <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $badge }}">{{ $r['status'] }}</span>
+                                    </td>
+                                    <td class="hidden px-5 py-4 text-xs text-zinc-500 md:table-cell dark:text-zinc-400">
+                                        {{ $r['signed_by'] ?? '—' }}
+                                        @if ($r['signed_at'])
+                                            <br><span class="font-mono">{{ \Carbon\Carbon::parse($r['signed_at'])->format('d M Y H:i') }}</span>
+                                        @endif
                                     </td>
                                     <td class="px-5 py-4">
                                         @if ($r['status'] !== 'final')
@@ -106,7 +139,7 @@ new class extends Component {
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-5 py-12 text-center text-sm text-zinc-400 dark:text-zinc-500">
+                                    <td colspan="6" class="px-5 py-12 text-center text-sm text-zinc-400 dark:text-zinc-500">
                                         Belum ada laporan.
                                     </td>
                                 </tr>
@@ -128,13 +161,19 @@ new class extends Component {
                     <form wire:submit="save" class="mt-5 space-y-4">
                         <div>
                             <label for="order_id" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Order</label>
-                            <select id="order_id" wire:model="order_id"
-                                    class="mt-1 w-full rounded-lg border border-zinc-200/70 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-200/10 dark:bg-zinc-800/60 dark:text-zinc-100">
-                                <option value="">— pilih order —</option>
-                                @foreach ($orders as $o)
-                                    <option value="{{ $o['id'] }}">{{ $o['order_no'] }} — {{ $o['patient']['name'] ?? '?' }}</option>
-                                @endforeach
-                            </select>
+                            <div class="mt-1 flex gap-2">
+                                <select id="order_id" wire:model="order_id"
+                                        class="w-full rounded-lg border border-zinc-200/70 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-200/10 dark:bg-zinc-800/60 dark:text-zinc-100">
+                                    <option value="">— pilih order —</option>
+                                    @foreach ($orders as $o)
+                                        <option value="{{ $o['id'] }}">{{ $o['order_no'] }} — {{ $o['patient']['name'] ?? '?' }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="button" wire:click="applyTemplate"
+                                        class="shrink-0 rounded-lg border border-zinc-200/70 px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:border-emerald-300 hover:text-emerald-600 dark:border-zinc-200/10 dark:text-zinc-300 dark:hover:text-emerald-300">
+                                    Isi template
+                                </button>
+                            </div>
                             @error('order_id') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                         </div>
                         <div>

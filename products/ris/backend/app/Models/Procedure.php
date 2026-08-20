@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Procedure extends Model
 {
-    protected $fillable = ['code', 'name', 'body_part', 'modality'];
+    protected $fillable = ['code', 'name', 'body_part', 'modality', 'report_template'];
 
     public function orders(): HasMany
     {
