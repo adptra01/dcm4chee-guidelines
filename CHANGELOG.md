@@ -3,6 +3,15 @@
 Semua perubahan penting Open Radiology Platform. Format: [Keep a Changelog](https://keepachangelog.com/).
 Versi: [SemVer](https://semver.org).
 
+## [Unreleased]
+
+### Ditambahkan
+
+**RIS**
+- Halaman Developer Portal (`/developer`, nav "Developer") — US-DEV-001 + US-DEV-003: dokumentasi 8 endpoint API nyata (patients, orders, worklist, reports, FHIR) dengan contoh curl + response JSON + tombol copy, demo otentikasi `X-API-Key` (mode dev vs produksi), ringkasan integrasi lintas produk (OMC/MWL/MPPS, Integration HL7/FHIR, Viewer OHIF)
+- Test `DeveloperPortalPageTest` (2 test: auth guard + render konten) — 67 passed total (RIS)
+- US-DEV-002 Livewire UX: worklist `wire:poll.30s` auto-refresh + indikator "terakhir dimuat" + progress bar saat polling; tombol submit/finalisasi kini loading state (`wire:loading` spinner + disabled) di Orders & Reports
+
 ## [v0.6.0] - 2026-08-20
 
 Release v0.6: laporan radiologi pro — template per prosedur + tanda tangan saat finalisasi.

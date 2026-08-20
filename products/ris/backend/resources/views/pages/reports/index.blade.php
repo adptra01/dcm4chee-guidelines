@@ -128,9 +128,11 @@ new class extends Component {
                                     </td>
                                     <td class="px-5 py-4">
                                         @if ($r['status'] !== 'final')
-                                            <button wire:click="finalize({{ $r['id'] }})"
-                                                    class="rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-emerald-500">
-                                                Finalisasi
+                                            <button wire:click="finalize({{ $r['id'] }})" wire:loading.attr="disabled" wire:target="finalize({{ $r['id'] }})"
+                                                    class="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50">
+                                                <svg wire:loading wire:target="finalize({{ $r['id'] }})" class="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="4" class="opacity-75"/></svg>
+                                                <span wire:loading.remove wire:target="finalize({{ $r['id'] }})">Finalisasi</span>
+                                                <span wire:loading wire:target="finalize({{ $r['id'] }})">...</span>
                                             </button>
                                         @else
                                             <span class="text-xs text-zinc-400">—</span>
@@ -186,8 +188,11 @@ new class extends Component {
                             <textarea id="impression" wire:model="impression" rows="2" placeholder="Kesan / kesimpulan"
                                       class="mt-1 w-full rounded-lg border border-zinc-200/70 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-200/10 dark:bg-zinc-800/60 dark:text-zinc-100"></textarea>
                         </div>
-                        <button type="submit" class="w-full rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
-                            Simpan draft
+                        <button type="submit" wire:loading.attr="disabled" wire:target="save"
+                                class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 disabled:cursor-not-allowed disabled:opacity-50">
+                            <svg wire:loading wire:target="save" class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="4" class="opacity-75"/></svg>
+                            <span wire:loading.remove wire:target="save">Simpan draft</span>
+                            <span wire:loading wire:target="save">Menyimpan...</span>
                         </button>
                     </form>
                 </div>

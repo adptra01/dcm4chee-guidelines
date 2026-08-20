@@ -10,6 +10,7 @@ middleware(['auth', 'verified']);
 new class extends Component {
     public array $items = [];
     public string $filter = 'all';
+    public string $loadedAt = '';
 
     public function mount(): void
     {
@@ -24,6 +25,7 @@ new class extends Component {
 
     public function load(): void
     {
+        $this->loadedAt = now()->format('H:i:s');
         $query = WorklistItem::with('order.patient')
             ->orderBy('scheduled_at');
 
@@ -54,18 +56,28 @@ new class extends Component {
     </x-slot>
 
     @volt('worklist-index')
-        <div class="space-y-6 pb-10">
-            {{-- Filter status --}}
-            <div class="flex flex-wrap gap-2">
-                @foreach (['all' => 'Semua', 'pending' => 'Pending', 'arrived' => 'Sudah datang', 'started' => 'Sedang jalan', 'completed' => 'Selesai'] as $val => $label)
-                    <button wire:click="setFilter('{{ $val }}')"
-                            class="rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors {{ $filter === $val ? 'bg-emerald-600 text-white' : 'bg-white text-zinc-600 hover:bg-zinc-100 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800' }}">
-                        {{ $label }}
-                    </button>
-                @endforeach
+        <div wire:poll.30s="load" class="space-y-6 pb-10">
+            {{-- Indikator auto-refresh + status --}}
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="flex flex-wrap gap-2">
+                    @foreach (['all' => 'Semua', 'pending' => 'Pending', 'arrived' => 'Sudah datang', 'started' => 'Sedang jalan', 'completed' => 'Selesai'] as $val => $label)
+                        <button wire:click="setFilter('{{ $val }}')"
+                                class="rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors {{ $filter === $val ? 'bg-emerald-600 text-white' : 'bg-white text-zinc-600 hover:bg-zinc-100 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800' }}">
+                            {{ $label }}
+                        </button>
+                    @endforeach
+                </div>
+                <span class="ml-auto inline-flex items-center gap-1.5 text-xs text-zinc-400 dark:text-zinc-500" wire:loading.delay>
+                    <svg class="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="4" class="opacity-75"/></svg>
+                    Memuat...
+                </span>
+                <span class="text-xs text-zinc-400 dark:text-zinc-500" wire:loading.remove>Auto-refresh 30 dtk · terakhir {{ $loadedAt ?: '—' }}</span>
             </div>
 
-            <div class="overflow-hidden rounded-2xl border border-zinc-200/70 dark:border-zinc-200/10">
+            <div class="relative overflow-hidden rounded-2xl border border-zinc-200/70 dark:border-zinc-200/10" wire:loading.class="opacity-60">
+                <div wire:loading class="absolute inset-x-0 top-0 h-0.5 overflow-hidden">
+                    <div class="h-full w-1/3 animate-pulse rounded-full bg-emerald-500"></div>
+                </div>
                 <table class="w-full text-left text-sm">
                     <thead>
                         <tr class="border-b border-zinc-200/70 bg-zinc-50 text-xs uppercase tracking-wider text-zinc-400 dark:border-zinc-200/10 dark:bg-zinc-900/60 dark:text-zinc-500">
