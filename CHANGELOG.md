@@ -3,6 +3,29 @@
 Semua perubahan penting Open Radiology Platform. Format: [Keep a Changelog](https://keepachangelog.com/).
 Versi: [SemVer](https://semver.org).
 
+## [v0.6.0] - 2026-08-20
+
+Release v0.6: laporan radiologi pro — template per prosedur + tanda tangan saat finalisasi.
+
+### Ditambahkan
+
+**RIS**
+- Kolom `report_template` di procedures — template findings/impression per pemeriksaan (pisah baris `---`)
+- Halaman Prosedur: field templat laporan + kolom tampil template
+- Halaman Laporan: tombol **"Isi template"** (isi findings+impression dari prosedur order terpilih, tetap editable sebelum simpan)
+- Finalisasi laporan kini **menandatangani**: `signed_by` (nama user) + `signed_at` (timestamp) — laporan final tak bisa ditandatangani ulang
+- Kolom tanda tangan + waktu di tabel Laporan
+- Fix: link "Buka di viewer" → OHIF via Orthanc (`:8042/ohif`), bukan server standalone
+
+### Test
+
+112 passed total: RIS 65 (175) · Integration 22+1 skip · OMC 13 · AI 8 · dicom-core 4.
+
+### Catatan
+
+- Verifikasi browser end-to-end: prosedur+dokter+order baru → template terisi → draft → finalisasi + tanda tangan "Test User"
+- Delimiter template: baris `---` memisah temuan & kesan (opsional)
+
 ## [v0.5.0] - 2026-08-20
 
 Release v0.5: aliran MWL/MPPS penuh — OMC jadi SCU DICOM terhadap Integration, status studi sinkron ke RIS.

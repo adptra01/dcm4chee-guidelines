@@ -74,9 +74,10 @@ Belum tercover: scheduling, notification, template report, signature, role/permi
 **Description:** Sebagai radiolog, saya ingin menulis laporan dengan template agar konsisten dan cepat.
 
 **Acceptance Criteria:**
-- [ ] Halaman report per order (findings + impression)
-- [ ] Simpan draft, ubah status (draft → final)
-- [ ] Template report (isi default dari prosedur) — V2
+- [x] Halaman report per order (findings + impression)
+- [x] Simpan draft, ubah status (draft → final)
+- [x] Template report (isi default dari prosedur) — V2 (v0.6)
+- [x] Tanda tangan radiolog (signed_by, signed_at) saat finalisasi — V2 (v0.6)
 - [ ] Verify in browser using dev-browser skill
 
 ## Functional Requirements
