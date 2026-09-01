@@ -1,0 +1,20 @@
+{
+    "project_hash": "c4605f26-1bd2-4a99-a21c-a65c8066e41a",
+    "components": {
+        "text": {
+            "installationTime": 1788275964
+        },
+        "link": {
+            "installationTime": 1788276064
+        },
+        "dropdown": {
+            "installationTime": 1788276065
+        },
+        "pagination": {
+            "installationTime": 1788276066
+        },
+        "kbd": {
+            "installationTime": 1788276107
+        }
+    }
+}

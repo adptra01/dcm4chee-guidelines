@@ -106,11 +106,19 @@ new class extends Component {
         <div class="space-y-8 pb-10">
             {{-- Intro + sandbox note --}}
             <section class="rounded-2xl border border-zinc-200/70 bg-white p-6 dark:border-zinc-200/10 dark:bg-zinc-900">
-                <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">REST API RIS</h2>
-                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                    Semua endpoint di bawah hidup di instance dev ini — aman dicoba (sandbox lokal).
-                    Base URL: <code class="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs text-emerald-700 dark:bg-zinc-800 dark:text-emerald-400">{{ url('/api') }}</code>
-                </p>
+                <div class="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">REST API RIS</h2>
+                        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                            Semua endpoint di bawah hidup di instance dev ini — aman dicoba (sandbox lokal).
+                            Base URL: <code class="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs text-emerald-700 dark:bg-zinc-800 dark:text-emerald-400">{{ url('/api') }}</code>
+                        </p>
+                    </div>
+                    <a href="{{ url('/docs/api') }}" target="_blank"
+                       class="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
+                        OpenAPI Explorer (Scramble) →
+                    </a>
+                </div>
             </section>
 
             {{-- Auth demo (US-DEV-003) --}}

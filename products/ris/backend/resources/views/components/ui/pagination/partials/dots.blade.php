@@ -1,0 +1,3 @@
+<div class="flex justify-center items-center text-xs size-7 rounded-[calc(var(--paginator-radius)-var(--paginator-padding))] font-medium text-white/40">
+    ...
+</div>

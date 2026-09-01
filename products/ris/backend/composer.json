@@ -12,11 +12,15 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "blade-ui-kit/blade-heroicons": "*",
         "codeat3/blade-phosphor-icons": "^2.3",
+        "dedoc/scramble": "^0.13.41",
         "laravel/folio": "*",
         "laravel/framework": "^11.0|^12.0",
         "laravel/tinker": "^2.10.1",
-        "livewire/volt": "^1.10.2"
+        "livewire/volt": "^1.10.2",
+        "sheaf/cli": "^1.3",
+        "wireui/heroicons": "^2.10"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

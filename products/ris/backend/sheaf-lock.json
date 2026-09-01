@@ -1,0 +1,7 @@
+{
+    "files": {
+        "Livewire/Concerns/WithPagination.php": [
+            "pagination"
+        ]
+    }
+}
