@@ -8,9 +8,16 @@ Versi: [SemVer](https://semver.org).
 ### Ditambahkan
 
 **RIS**
-- Halaman Developer Portal (`/developer`, nav "Developer") — US-DEV-001 + US-DEV-003: dokumentasi 8 endpoint API nyata (patients, orders, worklist, reports, FHIR) dengan contoh curl + response JSON + tombol copy, demo otentikasi `X-API-Key` (mode dev vs produksi), ringkasan integrasi lintas produk (OMC/MWL/MPPS, Integration HL7/FHIR, Viewer OHIF)
-- Test `DeveloperPortalPageTest` (2 test: auth guard + render konten) — 67 passed total (RIS)
-- US-DEV-002 Livewire UX: worklist `wire:poll.30s` auto-refresh + indikator "terakhir dimuat" + progress bar saat polling; tombol submit/finalisasi kini loading state (`wire:loading` spinner + disabled) di Orders & Reports
+- X-API-Key auth untuk seluruh API (`/api/*`) via middleware `VerifyApiKey` — env `RIS_API_KEYS` (kosong = dev terbuka; terisi = wajib header `X-API-Key`, 401 `{"message":"Invalid API key"}`) — ADR-006
+- Test `ApiKeyTest` (3 test: open-when-empty, reject-missing/wrong, accept-valid) — 70 passed total (RIS)
+- Sheaf UI component kit (Livewire/Blade): badge, button, input, select, table, toast, icon, text, kbd, link, dropdown, pagination + theme CSS/JS
+- Scramble OpenAPI docs (`dedoc/scramble`) — `/docs/api` + `/docs/api.json` (11 path auto-generated)
+
+**OMC Console (SvelteKit)**
+- Halaman Worklist MWL (`/worklist`) — tampil jadwal modalitas dari Integration:4243 (pasien, ID, accession, modality, tanggal) + link nav "Worklist" di dashboard
+
+**Integration**
+- Verifikasi 6 endpoint FHIR R4 hidup (`/fhir/Patient`, `Observation`, `DiagnosticReport`, `Procedure`, `MedicationRequest`, `ServiceRequest`) — HTTP 200 dev mode
 
 ## [v0.6.0] - 2026-08-20
 

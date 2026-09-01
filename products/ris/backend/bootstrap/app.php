@@ -13,7 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
 		$middleware->alias([
-			'redirect-to-dashboard' => \App\Http\Middleware\RedirectToDashboard::class
+			'redirect-to-dashboard' => \App\Http\Middleware\RedirectToDashboard::class,
+			'api-key' => \App\Http\Middleware\VerifyApiKey::class,
 		]);
         //
     })
