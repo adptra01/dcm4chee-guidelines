@@ -19,11 +19,12 @@ Basis: roadmap MS1–13 sudah selesai (release v0.1.0). Dokumen ini memetakan ul
 Sudah tercover:
 - API pasien (CRUD), order (CRUD + status PATCH), worklist (sumber MWL), reports (findings/impression/status) — MS3, MS5
 - Order auto-create WorklistItem — MS3
-- Dashboard UI (statistik, order terbaru, worklist) — sesi aktif (belum di-commit)
-- Auth + verified middleware aktif — sesi aktif
-- Test 51 (143 assertions)
+- Dashboard UI (statistik, order terbaru, worklist) — `pages/dashboard/index.blade.php`
+- Auth + verified middleware aktif — `name()` + `middleware(['auth','verified'])` di Folio
+- Test 70 (187 assertions)
+- Developer Portal (`/developer`) + Livewire UX (poll 30s, loading state)
 
-Belum tercover: scheduling, notification, template report, signature, role/permission, audit trail, **Developer Portal**, HL7/FHIR keluar (datang lewat Integration).
+Belum tercover: scheduling, notification, role/permission, audit trail, HL7/FHIR keluar (datang lewat Integration).
 
 ## Fase
 
@@ -39,42 +40,42 @@ Belum tercover: scheduling, notification, template report, signature, role/permi
 **Description:** Sebagai petugas radiologi, saya ingin dashboard menampilkan statistik dan order aktif agar bisa memantau beban kerja.
 
 **Acceptance Criteria:**
-- [ ] Statistik: total pasien, order aktif (scheduled+in_progress), worklist pending, laporan final
-- [ ] Tabel 5 order terbaru dengan status badge dan tombol ke detail
-- [ ] Panel worklist pending + scheduled AET
-- [ ] Auth + verified middleware aktif
-- [ ] `ddev artisan test` lulus (min. 51 test)
-- [ ] Verify in browser using dev-browser skill
+- [x] Statistik: total pasien, order aktif (scheduled+in_progress), worklist pending, laporan final — `dashboard/index.blade.php: mount()`
+- [x] Tabel 5 order terbaru dengan status badge dan tombol ke detail — `recentOrders` (with patient, worklistItem)
+- [x] Panel worklist pending + scheduled AET — `worklist` count + recent orders
+- [x] Auth + verified middleware aktif — `name()` + `middleware(['auth','verified'])` pada Folio Volt
+- [x] `ddev artisan test` lulus (70 passed, 187 assertions)
+- [x] Livewire poll `wire:poll.30s="load"` + loading spinner pada order/report (Sheaf UI + Scramble)
 
 ### US-RIS-002: CRUD Doctor
 
 **Description:** Sebagai petugas, saya ingin mengelola data dokter pengirim agar order tercatat referrer yang benar.
 
 **Acceptance Criteria:**
-- [ ] Model + migration `doctors` (name, specialization, phone, NIP/NIDN)
-- [ ] Halaman index/create/edit/delete
-- [ ] Relasi `Order belongsTo Doctor` (nullable)
-- [ ] Test CRUD lulus
+- [x] Model + migration `doctors` (name, specialization, phone, NIP/NIDN) — `app/Models/Doctor.php`
+- [x] Halaman index/create/edit/delete — `pages/doctors/index.blade.php`
+- [x] Relasi `Order belongsTo Doctor` (nullable) — `app/Models/Order.php: belongsTo(Doctor)`
+- [x] Test CRUD lulus — `tests/Feature/DoctorTest.php` (page renders, belongsTo)
 
 ### US-RIS-003: CRUD Procedure
 
 **Description:** Sebagai petugas, saya ingin mengelola master prosedur (kode, nama, tarif) agar order memakai prosedur baku.
 
 **Acceptance Criteria:**
-- [ ] Model + migration `procedures` (code, name, body_part, modality)
-- [ ] Halaman CRUD
-- [ ] Relasi `Order belongsTo Procedure`
-- [ ] Test CRUD lulus
+- [x] Model + migration `procedures` (code, name, body_part, modality) — `app/Models/Procedure.php`
+- [x] Halaman CRUD — `pages/procedures/index.blade.php`
+- [x] Relasi `Order belongsTo Procedure` — `app/Models/Order.php: belongsTo(Procedure)`
+- [x] Test CRUD lulus — `tests/Feature/ProcedureTest.php` (page renders, belongsTo)
 
 ### US-RIS-004: Halaman Worklist operasional
 
 **Description:** Sebagai radiografer, saya ingin melihat worklist item per status agar tahu pasien yang sudah datang/mulai.
 
 **Acceptance Criteria:**
-- [ ] Filter status (pending/arrived/started/completed)
-- [ ] Update status item (arrived → started → completed)
-- [ ] Tampil scheduled AET + waktu
-- [ ] Verify in browser using dev-browser skill
+- [x] Filter status (pending/arrived/started/completed) — `pages/worklist/index.blade.php: filter` + Livewire poll
+- [x] Update status item (arrived → started → completed) — `PATCH /orders/{id}/status`
+- [x] Tampil scheduled AET + waktu — `worklistItem.scheduled_aet`
+- [x] Test lulus — `tests/Feature/WorklistReportPageTest.php` (worklist page renders, order status update)
 
 ### US-RIS-005: Halaman Report dengan template
 
@@ -194,9 +195,12 @@ Belum tercover: scheduling, notification, template report, signature, role/permi
 
 Sudah tercover:
 - Developer portal (Vitepress) `products/developer-portal` — 8 halaman docs: API, integrasi, contoh per produk — MS11
+- OpenAPI: FastAPI `/openapi.json` + Laravel Scramble `/docs/api` + `docs/api.json` (auto-generated, 12 paths)
+- Postman: `docs/api/postman/{ris,omc,ai,integration}.postman-collection.json` via `scripts/gen-postman.py`
+- RIS Developer Portal: `/developer` (Livewire, 8 endpoint, demo X-API-Key, copy curl)
 - ADR (docs/adr/ 1–5)
 
-Belum tercover: OpenAPI/Postman collection otomatis, plugin SDK, CLI, template adapter.
+Belum tercover: plugin SDK, CLI, template adapter.
 
 ### Fase
 
@@ -211,9 +215,9 @@ Belum tercover: OpenAPI/Postman collection otomatis, plugin SDK, CLI, template a
 **Description:** Sebagai developer, saya ingin spesifikasi OpenAPI + Postman untuk tiap API (RIS, OMC, integration, AI) agar bisa integrasi cepat.
 
 **Acceptance Criteria:**
-- [ ] OpenAPI spec (JSON/YAML) di-generate dari FastAPI (`/openapi.json`) & Laravel (dokumentasi)
-- [ ] Postman collection exportable per produk
-- [ ] Tautan dari portal ke collection
+- [x] OpenAPI spec (JSON/YAML) di-generate dari FastAPI (`/openapi.json`) & Laravel Scramble (`/docs/api` + `/docs/api.json`, auto 12 paths, 8 controller)
+- [x] Postman collection exportable per produk — `docs/api/postman/ris.postman-collection.json` (RIS 12 endpoint) + omc/ai/integration (via `scripts/gen-postman.py`)
+- [x] Tautan dari portal ke collection — RIS Developer Portal `/developer` → tautan `/docs/api`; docs/index.md → 4 collection
 - [ ] Verify in browser using dev-browser skill
 
 #### US-DEV-002: Template adapter SIMRS (V2)

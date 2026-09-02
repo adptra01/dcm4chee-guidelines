@@ -16,9 +16,11 @@ Produk untuk developer & integrator, bukan pengguna rumah sakit. Pembedaan ORP d
 
 Sudah tercover:
 - Developer portal (Vitepress) `products/developer-portal` — 8 halaman docs: API, integrasi, contoh per produk — MS11
+- OpenAPI: FastAPI `/openapi.json` + Laravel Scramble `/docs/api` + `docs/api.json` (auto-generated)
+- Postman: `docs/api/postman/{ris,omc,ai,integration}.postman-collection.json` via `scripts/gen-postman.py`
 - ADR (docs/adr/ 1–5)
 
-Belum tercover: OpenAPI/Postman collection otomatis, plugin SDK, CLI, template adapter.
+Belum tercover: plugin SDK, CLI, template adapter.
 
 ## Fase
 
