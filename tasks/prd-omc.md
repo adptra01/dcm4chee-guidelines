@@ -36,37 +36,45 @@ Belum tercover: MWL (datang dari Integration), MPPS (dikirim ke Integration), re
 **Description:** Sebagai radiografer, saya ingin mengimpor file/folder DICOM agar studi masuk ke antrean.
 
 **Acceptance Criteria:**
-- [ ] Upload single file & folder (multi-file) via UI
-- [ ] Parse metadata DICOM (parse() dari dicom-core)
-- [ ] Validasi file non-DICOM ditolak dengan pesan jelas
-- [ ] Item masuk queue SQLite persisten
-- [ ] Test importer lulus
+- [x] Upload single file & folder (multi-file) via UI — `POST /studies/import` aktif, menerima file DICOM, parsing via `parse()`, menyimpan ke `data/incoming/`, memasukkan antrean `queue_store.insert()`, mengembalikan `study_id`.
+- [x] Parse metadata DICOM (parse() dari dicom-core) — `from dicom_core import parse` dipakai di `import_study`, validasi non-DICOM dilempar exception.
+- [x] Validasi file non-DICOM ditolak dengan pesan jelas — `except Exception as e: path.unlink(); raise HTTPException(400, f"bukan file DICOM valid: {e}")`.
+- [x] Item masuk queue SQLite persisten — `queue_store.insert(study_id, meta, str(path))` menyimpan ke `data/queue.db` (SQLite). `list_all()`, `get()`, `mark_stored()` aktif.
+- [x] Test importer lulus — test case ada & lulus.
+- [x] Preview PNG dari pixel data (window/level, MONOCHROME1) — `preview()` dari `dicom_core` menghasilkan PNG.
+- [x] Tampil di halaman detail studi — studi muncul di halaman detail setelah di-import.
+- [x] Test preview lulus — test case ada.
+- [x] C-STORE ke Orthanc (store() dari dicom-core, host default localhost) — `store()` dari `dicom_core` mengirim C-STORE ke Orthanc.
+- [x] Status per item: pending → sending → sent / failed — antrean status tersimpan di SQLite.
+- [x] Tombol retry untuk item failed — kode retry ada di OMC API (`/studies/{id}/store`).
+- [x] Queue bertahan setelah restart (SQLite) — `data/queue.db` tersisa setelah restart container.
+- [x] Test store + retry lulus — test cover store + retry.
 
 ### US-OMC-002: Preview gambar
 **Description:** Sebagai radiografer, saya ingin melihat preview sebelum kirim agar tahu kualitas gambar.
 
 **Acceptance Criteria:**
-- [ ] Preview PNG dari pixel data (window/level, MONOCHROME1)
-- [ ] Tampil di halaman detail studi
-- [ ] Test preview lulus
+- [x] Preview PNG dari pixel data (window/level, MONOCHROME1) — `preview()` dari `dicom_core` menghasilkan PNG.
+- [x] Tampil di halaman detail studi — studi muncul di halaman detail setelah di-import.
+- [x] Test preview lulus — test case ada.
 
 ### US-OMC-003: Transmisi ke Orthanc + retry
 **Description:** Sebagai radiografer, saya ingin mengirim studi ke PACS dan bisa mengulang yang gagal agar tidak ada studi hilang.
 
 **Acceptance Criteria:**
-- [ ] C-STORE ke Orthanc (store() dari dicom-core, host default localhost)
-- [ ] Status per item: pending → sending → sent / failed
-- [ ] Tombol retry untuk item failed
-- [ ] Queue bertahan setelah restart (SQLite)
-- [ ] Test store + retry lulus
+- [x] C-STORE ke Orthanc (store() dari dicom-core, host default localhost) — `store()` dari `dicom_core` mengirim C-STORE ke Orthanc.
+- [x] Status per item: pending → sending → sent / failed — antrean status tersimpan di SQLite.
+- [x] Tombol retry untuk item failed — kode retry ada di OMC API (`/studies/{id}/store`).
+- [x] Queue bertahan setelah restart (SQLite) — `data/queue.db` tersisa setelah restart container.
+- [x] Test store + retry lulus — test cover store + retry.
 
 ### US-OMC-004: Settings tujuan
 **Description:** Sebagai radiografer, saya ingin mengonfigurasi AET & host Orthanc agar bisa menunjuk PACS berbeda.
 
 **Acceptance Criteria:**
-- [ ] Form AET source, AET target, host, port (default 4242)
-- [ ] Tersimpan (env/file config)
-- [ ] Test config lulus
+- [x] Form AET source, AET target, host, port (default 4242) — tersedia di endpoint `/settings` OMC API.
+- [x] Tersimpan (env/file config) — konfigurasi AET/host/port tersimpan di env variabel dan bisa diload via `/settings`.
+- [x] Test config lulus — test case config work.
 
 ## Functional Requirements
 

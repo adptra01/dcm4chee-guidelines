@@ -33,5 +33,5 @@
 {/if}
 
 <nav>
-  <a href="/queue">Queue</a> · <a href="/worklist">Worklist</a> · <a href="/viewer">Viewer</a> · <a href="/settings">Settings</a>
+  <a href="/queue">Queue</a> · <a href="/worklist">Worklist</a> · <a href="/viewer">Viewer</a> · <a href="/settings">Settings</a> · <a href="/monitoring">Monitoring</a>
 </nav>

@@ -3,8 +3,10 @@
 MS2 vertical slice: import DICOM → queue → preview → C-STORE ke Orthanc.
 Antrean in-memory (per-proses); storage file di data/incoming/.
 """
+import json
 import os
 import shutil
+import subprocess
 from pathlib import Path
 from uuid import uuid4
 
@@ -174,6 +176,28 @@ def worklist() -> dict:
         }
         for d in items
     ]}
+
+
+@app.get("/pacs/health")
+def pacs_health() -> dict:
+    """Health PACS (5 check: orthanc, postgres, ohif, disk, service) via health.sh --json.
+
+    Menjalankan scripts/health.sh --json dari root repo (compose PACS bundle).
+    """
+    root = Path(__file__).resolve().parents[4]  # .../products/omc/api/app/main.py -> repo root
+    script = root / "scripts" / "health.sh"
+    try:
+        out = subprocess.run(
+            [str(script), "--json"],
+            cwd=str(root),
+            capture_output=True,
+            text=True,
+            timeout=20,
+        )
+        return json.loads(out.stdout)
+    except Exception as e:
+        return {"error": f"health.sh gagal: {e}"}
+
 
 # FHIR R4 endpoints — sesuai regulasi SATUSEHAT (phase 1 & 2)
 @app.get("/fhir/Patient", dependencies=[Depends(require_key)])

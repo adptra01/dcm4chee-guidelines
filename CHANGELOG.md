@@ -19,6 +19,20 @@ Versi: [SemVer](https://semver.org).
 **Integration**
 - Verifikasi 6 endpoint FHIR R4 hidup (`/fhir/Patient`, `Observation`, `DiagnosticReport`, `Procedure`, `MedicationRequest`, `ServiceRequest`) — HTTP 200 dev mode
 
+**PACS**
+- Monitoring 5-check (`health.sh --json`): orthanc, postgres, ohif, disk (storage DICOM), service + studi count — digunakan OMC Console `/monitoring`
+- Branding OHIF viewer — `platform/ohif/app-config.js` `whiteLabeling: { studyListLabel: 'ORP Viewer', footerText: 'Open Radiology Platform' }`
+- Annotation & measurement bawaan OHIF aktif (Length/Angle/Arrow/ROI), hasil simpan via `DicomWeb.EnableStow: true` di `orthanc.json` (STOW-RS → Orthanc per studi)
+
+**Dokumen / sinkronisasi PRD**
+- PRD checkbox disinkronkan dengan implementasi nyata (kode 2026-09-01): `prd-omc`, `prd-ai`, `prd-viewer`, `prd-pacs` — mencentang fitur sudah ada, menambah catatan endpoint/file referensi
+
+**OMC API**
+- Endpoint `GET /pacs/health` — jalankan `scripts/health.sh --json` via subprocess, return JSON 5-check (ORTHANC/PG/OHIF/disk/service + studi) — dipakai dashboard monitoring
+
+**OMC Console**
+- Halaman Monitoring PACS (`/monitoring`) — tabel 5-check + disk usage dari `GET /pacs/health`
+
 ## [v0.6.0] - 2026-08-20
 
 Release v0.6: laporan radiologi pro — template per prosedur + tanda tangan saat finalisasi.

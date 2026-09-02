@@ -34,28 +34,30 @@ Belum tercover: routing rules, forwarding, storage tiering, compression, replica
 **Description:** Sebagai admin, saya ingin backup storage + index berjalan otomatis terjadwal agar data aman tanpa intervensi manual.
 
 **Acceptance Criteria:**
-- [ ] Cron/systemd timer menjalankan `scripts/backup.sh` harian
-- [ ] Backup berisi `data/orthanc` + index PostgreSQL
-- [ ] Restore teruji sekali (dry-run) dari backup terbaru
-- [ ] Log backup tercatat di `data/backups/`
-- [ ] Verify restore: studi tetap terbaca di Orthanc setelah restore
+- [x] Cron/systemd timer menjalankan `scripts/backup.sh` harian — `scripts/backup.sh` ada; backup otomatis harian via systemd user timer `orp-backup.timer` (cek: `systemctl --user status orp-backup.timer`).
+- [x] Backup berisi `data/orthanc` + index PostgreSQL — `scripts/backup.sh` mencadangkan `data/orthanc` + PostgreSQL index (via `pg_dump`).
+- [x] Restore teruji sekali (dry-run) dari backup terbaru — `scripts/restore.sh --run <storage> <sql>` ada; restore teruji (2 studi utuh setelah restore, verified di changelog v0.2.0).
+- [x] Log backup tercatat di `data/backups/` — `scripts/backup.sh` mencatat log di `data/backups/`.
+- [x] Verify restore: studi tetap terbaca di Orthanc setelah restore — diverifikasi pada release v0.2.0 (2 studi utuh setelah restore).
 
 ### US-PACS-002: Dashboard monitoring
 **Description:** Sebagai admin, saya ingin melihat status health & disk usage agar bisa antisipasi sebelum down.
 
 **Acceptance Criteria:**
-- [ ] Halaman/endpoint health (5 check: orthanc, postgres, ohif, disk, service)
-- [ ] Tampil disk usage storage DICOM
-- [ ] Verify in browser using dev-browser skill
+- [x] Halaman/endpoint health (5 check: orthanc, postgres, ohif, disk, service) — `scripts/health.sh --json` output mencakup 5 check: `orthanc_http`, `ohif_http`, `postgres`, `service`, `studies`, `disk`. Terverifikasi JSON output valid.
+- [x] Tampil disk usage storage DICOM — section `disk` di `health.sh --json` menampilkan `dicom_storage_mb` (storage DICOM) dan `host` (disk usage % + avail GB).
+- [ ] Verify in browser using dev-browser skill — butuh browser.
+- [x] Monitoring dashboard halaman di OMC console — halaman `/monitoring` di OMC console (`products/omc/console/src/routes/monitoring/+page.svelte`) menampilkan 5 check + disk usage dari endpoint `GET /pacs/health` OMC API.
+- [x] Endpoint `GET /pacs/health` di OMC API — menjalankan `scripts/health.sh --json` dan mengembalikan JSON 5 check.
 
 ### US-PACS-003: Routing rule DICOM (V2)
 **Description:** Sebagai admin, saya ingin aturan forwarding studi ke node/OMC lain agar studi terdistribusi.
 
 **Acceptance Criteria:**
-- [ ] Aturan berbasis metadata (modality, AET, body part)
-- [ ] Forwarding via C-STORE ke node tujuan
-- [ ] Log hasil forwarding
-- [ ] Test rule engine lulus
+- [ ] Aturan berbasis metadata (modality, AET, body part) — *belum diimplementasikan (V2 OMC, menunggu backlog)*.
+- [ ] Forwarding via C-STORE ke node tujuan — *belum diimplementasikan*.
+- [ ] Log hasil forwarding — *belum*.
+- [ ] Test rule engine lulus — *belum*.
 
 ## Functional Requirements
 

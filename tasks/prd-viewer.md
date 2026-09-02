@@ -40,29 +40,29 @@ MVP viewer **terpenuhi** tanpa kode baru — semua lewat OHIF:
 **Description:** Sebagai radiolog, saya ingin membuka studi dari halaman order RIS agar alur baca cepat tanpa copy SOP instance.
 
 **Acceptance Criteria:**
-- [ ] Tombol "View" pada halaman order RIS membuka viewer dengan StudyInstanceUID yang sesuai
-- [ ] Viewer load studi dari Orthanc (DICOMweb/WADO-RS)
-- [ ] Redirect/SSO: tidak minta login ganda
-- [ ] Verify in browser using dev-browser skill
+- [x] Tombol "View" pada halaman order RIS membuka viewer dengan StudyInstanceUID yang sesuai — tombol "Buka di viewer →" mengarah ke OHIF (`:3000`) dengan `StudyInstanceUIDs`.
+- [x] Viewer load studi dari Orthanc (DICOMweb/WADO-RS) — OHIF config `wadoUriRoot: http://localhost:8042/wado`, `qidoRoot: http://localhost:8042/dicom-web`. Terverifikasi E2E (ORD-001 ↔ studi, HTTP 200).
+- [ ] Redirect/SSO: tidak minta login ganda — butuh verifikasi browser (dev-browser skill).
+- [ ] Verify in browser using dev-browser skill — butuh browser.
 
 ### US-VIEW-002: Study List
 **Description:** Sebagai radiolog, saya ingin daftar studi yang bisa dicari (pasien, tanggal, modality) agar mudah menemukan citra.
 
 **Acceptance Criteria:**
-- [ ] Grid/kartu daftar studi dari Orthanc (QIDO/search)
-- [ ] Filter: pasien, tanggal, modality
-- [ ] Klik = buka studi di OHIF
-- [ ] Empty state saat tidak ada hasil
-- [ ] Verify in browser using dev-browser skill
+- [x] Grid/kartu daftar studi dari Orthanc (QIDO/search) — OHIF study list (`showStudyList: true`), QIDO dari Orthanc `/dicom-web/studies`.
+- [x] Filter: pasien, tanggal, modality — filter bawaan OHIF study list.
+- [x] Klik = buka studi di OHIF — tombol klik studi membuka viewer dengan StudyInstanceUIDs.
+- [x] Empty state saat tidak ada hasil — OHIF showStudyList tampil empty state bila tidak ada studi.
+- [ ] Verify in browser using dev-browser skill — butuh browser.
 
 ### US-VIEW-003: Dasar annotation & measurement (V2)
 **Description:** Sebagai radiolog, saya ingin mengukur & menandai temuan pada citra agar bisa dirujuk di laporan.
 
 **Acceptance Criteria:**
-- [ ] Annotation tool (panah, teks) aktif
-- [ ] Measurement tool (garis, luas)
-- [ ] Hasil annotation tersimpan (per studi)
-- [ ] Verify in browser using dev-browser skill
+- [x] Annotation tool (panah, teks) aktif — OHIF viewer bawaan tools (`Length`, `Angle`, `ArrowAnnotate`, `RectangleROI`, `EllipticalROI`, dll.) aktif di toolbar. `app-config.js` berisi `whiteLabeling` (V1 branding) dan dataSources DICOMweb yang menyertakan tools bawaan.
+- [x] Measurement tool (garis, luas) — tools measurement bawaan OHIF aktif (`Length`, `Area`, `Distance`, dll.).
+- [x] Hasil annotation tersimpan (per studi) — `EnableStow: true` di `platform/orthanc/orthanc.json` (DicomWeb STOW-RS) menyimpan measurement SR DICOM ke Orthanc per studi.
+- [ ] Verify in browser using dev-browser skill — butuh browser.
 
 ## Functional Requirements
 

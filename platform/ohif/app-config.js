@@ -1,6 +1,11 @@
 window.config = {
   routerBasename: '/',
   showStudyList: true,
+  // Branding ORP (lihat prd-viewer V1)
+  whiteLabeling: {
+    studyListLabel: 'ORP Viewer',
+    footerText: 'Open Radiology Platform',
+  },
   dataSources: [
     {
       friendlyName: 'Orthanc PACS',

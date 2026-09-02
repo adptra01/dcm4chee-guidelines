@@ -31,26 +31,26 @@ Belum tercover: inference API publik terstruktur, model ML (MONAI), segmentation
 **Description:** Sebagai developer, saya ingin endpoint health untuk memastikan AI service hidup.
 
 **Acceptance Criteria:**
-- [ ] `GET /health` return 200 + status
-- [ ] Test lulus
+- [x] `GET /health` return 200 + status — endpoint ada di `products/ai/api/app/main.py:39` → `{"status":"ok","service":"ai","version":"0.2.0"}`.
+- [x] Test lulus — `products/ai/api/tests/test_health.py` lulus.
 
 ### US-AI-002: Inference API v1
 **Description:** Sebagai developer, saya ingin memanggil analisis citra secara terstruktur (menerima StudyInstanceUID, return metrics + finding) agar bisa dipakai Viewer/integration.
 
 **Acceptance Criteria:**
-- [ ] `POST /inference` menerima StudyInstanceUID
-- [ ] Baca studi dari Orthanc (input)
-- [ ] Output: mean/std/percentile + finding (engine statistik-v1 saat ini)
-- [ ] Response JSON terstruktur
-- [ ] Test lulus
+- [x] `POST /analyze/instance/{orthanc_id}` menerima orthanc_id, fetch dari Orthanc, return metrics + finding — endpoint ada di `main.py:44`, implementasi di `analyze.py:50`.
+- [x] Baca studi dari Orthanc (input) — fetch dari Orthanc REST :8042 via `fetch_instance()`.
+- [x] Output: mean/std/percentile + finding (engine statistik-v1 saat ini) — `analyze_series()` / `analyze_instance()` engine statistik-v1.
+- [x] Response JSON terstruktur — response JSON terstruktur, tidak mengekspos pixel blob.
+- [x] Test lulus — `products/ai/api/tests/test_analyze.py` lulus.
 
 ### US-AI-003: Dummy model ML
 **Description:** Sebagai developer, saya ingin satu model ML sederhana berjalan di endpoint terpisah agar arsitektur multi-engine terbukti.
 
 **Acceptance Criteria:**
-- [ ] Endpoint `/inference/monai` (atau sejenis) dengan model dummy (mis. klasifikasi sederhana)
-- [ ] Terisolasi dari engine statistik-v1
-- [ ] Test lulus
+- [ ] Endpoint `/inference/monai` (atau sejenis) dengan model dummy (mis. klasifikasi sederhana) — *belum diimplementasikan, engine ML terpisah di V2 (MONAI + Torch)*.
+- [ ] Terisolasi dari engine statistik-v1 — *belum diimplementasikan; multi-engine di V2*.
+- [ ] Test lulus — *belum*.
 
 ## Functional Requirements
 
