@@ -35,6 +35,7 @@ features:
 
 Import langsung ke Postman (base URL default `http://localhost:8000`, sesuaikan per service):
 
+- [RIS](https://raw.githubusercontent.com/adptra01/open-radiology-platform/main/docs/api/postman/ris.postman-collection.json) — 12 endpoint (patients, orders, worklist, reports, FHIR)
 - [OMC](https://raw.githubusercontent.com/adptra01/open-radiology-platform/main/docs/api/postman/omc.postman-collection.json) — 6 endpoint (import, preview, queue, store, settings)
 - [AI](https://raw.githubusercontent.com/adptra01/open-radiology-platform/main/docs/api/postman/ai.postman-collection.json) — 3 endpoint (health, analyze instance/series)
 - [Integration](https://raw.githubusercontent.com/adptra01/open-radiology-platform/main/docs/api/postman/integration.postman-collection.json) — 5 endpoint (MORBIS, HL7, FHIR)

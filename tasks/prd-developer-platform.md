@@ -32,9 +32,9 @@ Belum tercover: OpenAPI/Postman collection otomatis, plugin SDK, CLI, template a
 **Description:** Sebagai developer, saya ingin spesifikasi OpenAPI + Postman untuk tiap API (RIS, OMC, integration, AI) agar bisa integrasi cepat.
 
 **Acceptance Criteria:**
-- [ ] OpenAPI spec (JSON/YAML) di-generate dari FastAPI (`/openapi.json`) & Laravel (dokumentasi)
-- [ ] Postman collection exportable per produk
-- [ ] Tautan dari portal ke collection
+- [x] OpenAPI spec (JSON/YAML) di-generate dari FastAPI (`/openapi.json`) & Laravel (Scramble `docs/api.json`, 12 endpoint) — FastAPI auto `/openapi.json`; Laravel via `dedoc/scramble`.
+- [x] Postman collection exportable per produk — `docs/api/postman/{omc,ai,integration,ris}.postman-collection.json` (via `scripts/gen-postman.py`, stdlib only).
+- [x] Tautan dari portal ke collection — portal `/products/omc` + `docs/index.md`, RIS developer portal tautan Scramble `/docs/api`.
 - [ ] Verify in browser using dev-browser skill
 
 ### US-DEV-002: Template adapter SIMRS (V2)
